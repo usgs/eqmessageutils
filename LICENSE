@@ -1,1 +1,12 @@
-This software is in the public domain because it contains materials that originally came from the United States Geological Survey, an agency of the United States Department of Interior. For more information, see the official USGS copyright policy at http://www.usgs.gov/visual-id/credit_usgs.html#copyright
+Unless otherwise noted, This software is in the public domain because it contains materials that originally came from the United States Geological Survey, an agency of the United States Department of Interior. For more information, see the official USGS copyright policy at http://www.usgs.gov/visual-id/credit_usgs.html#copyright
+
+
+The following JARs in the "lib" directory are distributed under the CDDL 1.0 (http://www.opensource.org/licenses/CDDL-1.0):
+
+- jaxb-api.jar
+- jaxb-impl.jar
+- jaxb-xjc.jar
+- jsr173_1.0_api.jar
+
+The junit-4.7.jar file is distributed under the BSD license (http://www.opensource.org/licenses/BSD-3-Clause).
+
