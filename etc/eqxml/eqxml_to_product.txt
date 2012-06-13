@@ -1,0 +1,106 @@
+### eqxml to product conversion notes
+
+
+
+EQMessage/Source				product source
+EQMessage/Sent					product update time
+EQMessage/Event
+	DataSource				"eventsource"
+	EventID					"eventsourcecode"
+	Version					"version"
+	Action "Update"				"eqxml-action"; product status "UPDATE", or "DELETE"
+	Scope "Public"				"eqxml-scope"; product type prefix (if not public, e.g. internal)
+	Usage "Actual"				"eqxml-usage"; product type suffix (if not actual, e.g. scenario)
+
+
+
+
+
+
+### origin product
+	only first Origin element is converted to a product
+
+	source is EQMessage/Source
+	type is "origin"
+	code is lowercased (Event/DataSource + Event/EventID)
+	updateTime is EQMessage/Sent
+
+	Origin
+		Latitude			"latitude"
+		Longitude			"longitude"
+		Depth				"depth"
+		Time				"eventtime"
+		SourceKey			"origin-source"
+		AzimGap				"azimuthal-gap"
+		DepthError			"depth-error"
+		DepthMethod			"depth-method"
+		Errh				"horizontal-error"
+		Errz				"vertical-error"
+		LatError			"latitude-error"
+		LonError			"longitude-error"
+		MinDist				"minimum-distance"
+		NumPhaAssoc			"num-phases-associated"
+		NumPhaUsed			"num-phases-used"
+		NumStaAssoc			"num-stations-associated"
+		NumStaUsed			"num-stations-used"
+		OTError				"eventtime-error"
+		Region				"region"
+		Status				"review-status"
+		StdError			"standard-error"
+		Phase				"has-phases" (if at least one exists)
+		ErrorAxes/Axis (for each Axis from 1 to N)
+			Azimuth			"error-axis-N-azimuth"
+			Plunge			"error-axis-N-plunge"
+			Length			"error-axis-N-length"
+			LengthUnit		"error-axis-N-length-unit"
+		Method
+			Class			"location-method-class"
+			Algorithm		"location-method-algorithm"
+			Model			"location-method-model"
+			Comment 		"cube-location-method" (if type=CUBE_Code)
+		Magnitude (first magnitude is considered preferred)
+			SourceKey		"magnitude-source"
+			TypeKey			"magnitude-type"
+			Value			"magnitude"
+			AzimGap			"magnitude-azimuthal-gap"
+			Error			"magnitude-error"
+			NumStations		"magnitude-num-stations-used"
+			Comment			"cube-magnitude-type" (if type=CUBE_Code)
+
+
+
+
+
+
+
+### focal-mechanism product
+	every MomentTensor element in the first Origin element is converted to a product
+
+	source is EQMessage/Source
+	type is "focal-mechanism"
+	code is lowercased (Event/DataSource + Event/EventID + "-" + MomentTensor/SourceKey + "-" + MomentTensor/TypeKey)
+	updateTime is EQMessage/Sent
+
+		MomentTensor 			product type "focal-mechanism"
+			Action "Update"		product status "UPDATE" or "DELETE"
+			SourceKey		focal-mechanism-source
+			TypeKey			focal-mechanism-type
+			MagMw			"magnitude"
+			M0			"scalar-moment"
+			Tensor
+				Mtt		"tensor-mtt"
+				Mpp		"tensor-mpp"
+				Mrr		"tensor-mrr"
+				Mtp		"tensor-mtp"
+				Mrp		"tensor-mrp"
+				Mrt		"tensor-mrt"
+			NodalPlanes/Fault (for each Fault from 1 to 2)
+				Dip		"nodal-plane-N-dip"
+				Slip		"nodal-plane-N-slip"
+				Strike		"nodal-plane-N-strike"
+			DerivedOriginTime	"eventtime"
+			DerivedLatitude		"latitude"
+			DerivedLongitude	"longitude"
+			DerivedDepth		"depth"
+			PerDblCpl		"percent-double-couple"
+			NumObs			"num-stations-used"

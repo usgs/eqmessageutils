@@ -1,0 +1,58 @@
+<bindings version="1.0" 
+	xmlns="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:eqxml="http://www.usgs.gov/ansseqmsg">
+
+<globalBindings
+		fixedAttributeAsConstantProperty="true"
+		generateIsSetMethod="false">
+
+	<!-- override default Float mapping for floats -->
+	<javaType xmlType="xs:float" name="java.math.BigDecimal" 
+			parseMethod="javax.xml.bind.DatatypeConverter.parseDecimal"
+			printMethod="javax.xml.bind.DatatypeConverter.printDecimal" />
+	
+	<!-- override default XMLGregorianCalendar mapping for dates. -->
+	<javaType xmlType="xs:dateTime" name="java.util.Date"
+			parseMethod="gov.usgs.util.XmlUtils.getDate"
+			printMethod="gov.usgs.util.XmlUtils.formatDate" />
+
+</globalBindings>
+
+<bindings schemaLocation="ANSS_EQ_XML_doc.xsd" node="/xs:schema">
+<package name="gov.usgs.ansseqmsg"/>
+
+<bindings node="//xs:simpleType[@name='ActionSimType']"><typesafeEnumClass name="Action"/></bindings>
+<bindings node="//xs:simpleType[@name='AxisLengthUnitSimType']"><typesafeEnumClass name="AxisLengthUnit"/></bindings>
+<bindings node="//xs:simpleType[@name='EventActionSimType']"><typesafeEnumClass name="EventAction"/></bindings>
+<bindings node="//xs:simpleType[@name='EventScopeSimType']"><typesafeEnumClass name="EventScope"/></bindings>
+<bindings node="//xs:simpleType[@name='EventTypeSimType']"><typesafeEnumClass name="EventType"/></bindings>
+<bindings node="//xs:simpleType[@name='EventUsageSimType']"><typesafeEnumClass name="EventUsage"/></bindings>
+<bindings node="//xs:simpleType[@name='OriginStatusSimType']"><typesafeEnumClass name="OriginStatus"/></bindings>
+<bindings node="//xs:complexType[@name='EventCpxType']"><class name="Event"/></bindings>
+<bindings node="//xs:complexType[@name='OriginCpxType']"><class name="Origin"/></bindings>
+<bindings node="//xs:complexType[@name='ProductLinkCpxType']"><class name="ProductLink"/></bindings>
+<bindings node="//xs:complexType[@name='CommentCpxType']"><class name="Comment"/></bindings>
+<bindings node="//xs:complexType[@name='LocalTimeCpxType']"><class name="LocalTime"/></bindings>
+<bindings node="//xs:complexType[@name='ErrorAxesCpxType']"><class name="ErrorAxes"/></bindings>
+<bindings node="//xs:complexType[@name='MagnitudeCpxType']"><class name="Magnitude"/></bindings>
+<bindings node="//xs:complexType[@name='MomentTensorCpxType']"><class name="MomentTensor"/></bindings>
+<bindings node="//xs:complexType[@name='FocalMechCpxType']"><class name="FocalMech"/></bindings>
+<bindings node="//xs:complexType[@name='PhaseCpxType']"><class name="Phase"/></bindings>
+<bindings node="//xs:complexType[@name='PickCpxType']"><class name="Pick"/></bindings>
+<bindings node="//xs:complexType[@name='AmplitudeCpxType']"><class name="Amplitude"/></bindings>
+<bindings node="//xs:complexType[@name='DurationCpxType']"><class name="Duration"/></bindings>
+<bindings node="//xs:complexType[@name='AxisCpxType']"><class name="Axis"/></bindings>
+<bindings node="//xs:complexType[@name='TensorCpxType']"><class name="Tensor"/></bindings>
+<bindings node="//xs:complexType[@name='FaultCpxType']"><class name="Fault"/></bindings>
+<bindings node="//xs:complexType[@name='SrcTimeFnCpxType']"><class name="SrcTimeFn"/></bindings>
+<bindings node="//xs:complexType[@name='MethodCpxType']"><class name="Method"/></bindings>
+<bindings node="//xs:complexType[@name='PrincAxesCpxType']"><class name="PrincAxes"/></bindings>
+<bindings node="//xs:complexType[@name='NodalPlanesCpxType']"><class name="NodalPlanes"/></bindings>
+<bindings node="//xs:complexType[@name='ErrorTensorCpxType']"><class name="ErrorTensor"/></bindings>
+<bindings node="//xs:complexType[@name='ErrorFaultsCpxType']"><class name="ErrorFaults"/></bindings>
+<bindings node="//xs:complexType[@name='DataUsedCpxType']"><class name="DataUsed"/></bindings>
+
+</bindings>
+</bindings>
+

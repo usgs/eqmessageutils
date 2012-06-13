@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MessageUtils" default="jar" basedir=".">
+
+	<description>
+		The MessageUtils project provides utilities for generating, parsing, sending, and receiving earthquake messages.
+
+		Using ant it should be fairly easy to build this project from source (try "ant jar").
+	</description>
+
+
+	<property name="etc" location="etc" />
+	<property name="src" location="src" />
+	<property name="gensrc" location="gensrc" />
+	<property name="build" location="build" />
+	<property name="lib" location="lib" />
+	<property name="dist" location="dist" />
+	<property name="jarfile" location="${dist}/${ant.project.name}.jar" />
+	<property name="compile.debug" value="true" />
+
+
+
+	<fileset id="lib.jars" dir="${lib}">
+		<include name="*.jar" />
+		<!-- only need this for compilation -->
+		<exclude name="jaxb-xjc.jar" />
+		<exclude name="junit-4.7.jar" />
+	</fileset>
+
+	<path id="classpath">
+		<fileset refid="lib.jars" />
+	</path>
+
+	<path id="classpath-test">
+		<pathelement location="${lib}/junit-4.7.jar" />
+		<path refid="classpath" />
+		<pathelement path="${build}" />
+	</path>
+
+
+	<!-- for auto generating classes from xml schema -->
+	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+		<classpath>
+			<pathelement location="${lib}/jaxb-xjc.jar" />
+			<pathelement location="${lib}/jaxb-api.jar" />
+			<pathelement location="${lib}/jaxb-impl.jar" />
+			<pathelement location="${lib}/jsr173_1.0_api.jar" />
+		</classpath>
+	</taskdef>
+
+	<target name="gensrc" description="Generate JAXB classes">
+		<mkdir dir="${gensrc}"/>
+
+		<!-- EQXML -->
+		<xjc destdir="${gensrc}" schema="${etc}/eqxml/ANSS_EQ_XML_doc.xsd" binding="${etc}/eqxml/ANSS_EQ_XML.bindings.xml" removeOldOutput="yes">
+			<produces dir="${gensrc}/gov/usgs/ansseqmsg" includes="*" />
+		</xjc>
+
+		<!-- QuakeML 1.1 -->
+		<xjc destdir="${gensrc}" binding="${etc}/quakeml_1.1/QuakeML-BED-1.1.bindings.xml" removeOldOutput="yes">
+			<schema dir="${etc}/quakeml_1.1" includes="*_jaxb.xsd" />
+			<produces dir="${gensrc}/org/quakeml1_1" includes="*" />
+		</xjc>
+
+		<!-- QuakeML 1.2rc3 -->
+		<xjc destdir="${gensrc}" binding="${etc}/quakeml_1.2rc3/QuakeML-1.2rc3.bindings.xml" removeOldOutput="yes" extension="true">
+			<schema dir="${etc}/quakeml_1.2rc3" includes="*_jaxb.xsd" />
+			<produces dir="${gensrc}/org/quakeml1_2rc3" includes="*" />
+		</xjc>
+
+		<!-- QuakeML RT 1.2rc3 -->
+		<xjc destdir="${gensrc}" binding="${etc}/quakeml_rt_1.2rc3/QuakeML-RT-1.2rc3.bindings.xml" removeOldOutput="yes" extension="true">
+			<schema dir="${etc}/quakeml_rt_1.2rc3" includes="*_jaxb.xsd" />
+			<produces dir="${gensrc}/org/quakeml_rt_1_2rc3" includes="*" />
+		</xjc>
+
+	</target>
+
+
+
+	<target name="compile" depends="gensrc" description="Compile code">
+		<mkdir dir="${build}" />
+		<mkdir dir="${lib}" />
+
+		<javac srcdir="${src}" destdir="${build}" source="1.5" target="1.5" includeAntRuntime="no" classpathref="classpath-test" debug="${compile.debug}">
+			<src path="${src}"/>
+			<src path="${gensrc}"/>
+		</javac>
+	</target>
+
+	<target name="test" depends="compile" description="Run JUnit tests">
+		<junit printsummary="yes" haltonfailure="yes">
+			<classpath refid="classpath-test" />
+
+			<formatter type="plain" usefile="false" />
+
+			<batchtest>
+				<!-- any class with the name Test in its name -->
+				<fileset dir="${build}" includes="**/*Test.class" />
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="jar" depends="compile" description="Build jar">
+		<mkdir dir="${dist}" />
+		<jar jarfile="${jarfile}" basedir="${build}" excludes="**/*Test*">
+			<zipgroupfileset refid="lib.jars" />
+		</jar>
+	</target>
+
+
+
+	<target name="javadoc" depends="jar" description="Generate Javadoc">
+		<javadoc destdir="${dist}/javadoc" packagenames="gov**" classpathref="classpath">
+			<fileset dir="${src}" excludes="**/*Test*" />
+			<fileset dir="${gensrc}" />
+		</javadoc>
+	</target>
+
+	<target name="all" depends="clean,test,javadoc,jar" description="clean, test, jar, and javadoc" />
+
+	<target name="clean" description="Remove build and dist directories">
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+		<delete dir="${gensrc}" />
+	</target>
+
+</project>

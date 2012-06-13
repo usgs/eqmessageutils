@@ -1,0 +1,19 @@
+12/02/22 00:07:47
+
+Epicenter:  -17.766 -178.765
+MW 4.8
+
+USGS/SLU REGIONAL MOMENT TENSOR
+Depth  75         No. of sta:28
+Moment Tensor;   Scale 10**14 Nm
+  Mrr= 3.04       Mtt=-1.75
+  Mpp=-1.29       Mrt= 7.56
+  Mrp= 2.29       Mtp=-2.18
+ Principal axes:
+  T  Val=  8.61  Plg=54  Azm=354
+  N        0.00      11      249
+  P       -8.61      34      152
+
+Best Double Couple:Mo=8.6*10**14
+ NP1:Strike= 71 Dip=79 Slip= 101
+ NP2:       205     15        45

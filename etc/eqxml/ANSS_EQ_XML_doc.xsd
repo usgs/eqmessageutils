@@ -1,0 +1,2027 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.usgs.gov/ansseqmsg"
+            xmlns="http://www.usgs.gov/ansseqmsg"
+            elementFormDefault="qualified">
+
+  <xsd:annotation>
+    <xsd:documentation xml:lang="en">
+      ANSS EQ XML Specification, Version 0.35, November 16, 2009
+    </xsd:documentation>
+  </xsd:annotation>
+
+  <xsd:element name="EQMessage">
+    <xsd:complexType>
+      <xsd:sequence>
+
+        <xsd:element name="Source" type="xsd:string">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+              Definition:  ID of the institution sending the message
+              Description:  Network code for now
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+
+        <xsd:element name="Sender" type="xsd:string" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+              Definition:  Description of the institution sending the message
+              Description:  e.g., Southern California Seismic Network
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+
+        <xsd:element name="Module" type="xsd:string" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+              Definition:  Name of the software module that generated the
+              message
+              Description:  e.g., Earlybird
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+
+        <xsd:element name="MsgSrc" type="xsd:string" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+              Definition:  Source code assigned by sender
+              Description:  ID code for sender, used with 'MsgIdent' to
+              uniquely ID message
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+
+        <xsd:element name="MsgIdent" type="xsd:integer" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+              Definition:  Message ID assigned by sender
+              Description:  Unique ID for each message from sender
+              (incrementing numeric values)
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+
+        <xsd:element name="Sent" type="xsd:dateTime">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+              Definition:  Date-time the message was sent (UTC)
+              Description:  XML standard date-time format:
+              YYYY-MM-DDTHH:MM:SS.FFFZ (e.g. 2002-06-13T14:13:00.000Z)
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+
+        <xsd:element name="Event" type="EventCpxType" minOccurs="0" maxOccurs="unbounded">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+              Definition:  Event containers
+              Description:  Repeat for multiple events in one message
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="EventCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="DataSource" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  ID of institution
+            Description:  Network code, e.g. CI, NC
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="EventID" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Event ID assigned by sender
+            Description:  Unique within the scope of sender
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Version" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Assigned by sender
+            Description:  Lexically higher values supersede lexically lower
+            values
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Action" type="EventActionSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Message action
+            Description:  Update, Delete, Test, Trump
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Region" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  "Flynn Engdahl" region name override
+            Description:  e.g., override preferred origin region to put event
+            in the right state
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Type" type="EventTypeSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  The type of the event
+            Description:  Earthquake (default), Quarry, Nuke, Shot, RockFall,
+            RockBurst, SonicBoom
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Usage" type="EventUsageSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Usage descriptor for event (handling)
+            Description:  Actual (default), Scenario, Test
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Scope" type="EventScopeSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Scope descriptor for event (audience)
+            Description:  Public (default), Internal
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Origin" type="OriginCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin containers
+            Description:  Repeat for multiple origins in one event
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ProductLink" type="ProductLinkCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Product containers
+            Description:  Event product via web page, repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Comment" type="CommentCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Comment container(s)
+            Description:  Message, FeltReport, NearestCities,
+            TectonicSummary, TimeZones
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="OriginCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="SourceKey" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text key string
+            Description:  Code uniquely identifying the data contributor
+            (network code for now); used to distinguish this from other
+            Origins
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Version" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Assigned by sender
+            Description:  Lexically higher values supersede lexically lower
+            values
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Action" type="ActionSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Action (applies to this element and its
+            sub-elements)
+            Description:  Update, Delete
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Region" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  FE or FE+ region name
+            Description:  Looked up from the origin epicenter
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Time" type="xsd:dateTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin date-time (UTC)
+            Description:  XML standard date-time format:
+            YYYY-MM-DDTHH:MM:SS.FFFZ (e.g. 2002-06-13T14:13:00.000Z)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="LocalTime" type="LocalTimeCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  LocalTime containers
+            Description:  Local-time specification, repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Latitude" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin geographic latitude
+            Description:  Signed decimal degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Longitude" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin longitude
+            Description:  Signed decimal degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Depth" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin depth
+            Description:  Km positive down
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="StdError" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin standard error
+            Description:  Typically RMS residual in seconds
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="AzimGap" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin azimuthal gap
+            Description:  Largest azimuthal gap in degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="MinDist" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Distance to nearest station
+            Description:  In degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Errh" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Hypo style Errh
+            Description:  Maximum horizontal projection of raw error
+            ellipsoid principle semi-axes in km
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Errz" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Hypo style Errz
+            Description:  Maximum vertical projection of raw error ellipsoid
+            principle semi-axes in km
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="OTError" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin time error
+            Description:  90% marginal confidence interval in seconds
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="LatError" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin latitude error
+            Description:  90% marginal confidence interval in km
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="LonError" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin longitude error
+            Description:  90% marginal confidence interval in km
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="DepthError" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin depth error
+            Description:  90% marginal confidence interval in km
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ErrorAxes" type="ErrorAxesCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  ErrorAxes container
+            Description:  Error ellipsoid principle axes (semi-axis lengths
+            90% confidence intervals in km)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NumPhaUsed" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Number of phases used
+            Description:  Number of phases with non-zero weights
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NumPhaAssoc" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Number of phases associated
+            Description:  Number of phases that belong to the event
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NumStaUsed" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Number of stations used
+            Description:  Number of stations with at least one phase with a
+            non-zero weight
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NumStaAssoc" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Number of stations associated
+            Description:  Number of stations with at least one phase that
+            belongs with the event
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="DepthMethod" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  How depth was determined
+            Description:  Analyst, Fixed, DepthPhase, Free
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Status" type="OriginStatusSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Origin status
+            Description:  Automatic (default), QuickReviewed, Reviewed,
+            Published
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="PreferredFlag" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Preferred origin flag
+            Description:  true or false (default)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Comment" type="CommentCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Comment containers pertaining to this origin
+            Description:  e.g., Nearest cities, Time zones; repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Magnitude" type="MagnitudeCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Magnitude containers
+            Description:  Summary (average) magnitudes; repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="MomentTensor" type="MomentTensorCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Moment tensor containers
+            Description:  Repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="FocalMech" type="FocalMechCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Focal mechanism containers
+            Description:  Repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Phase" type="PhaseCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Phase containers
+            Description:  Pick and amplitude observations; repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Method" type="MethodCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Method container
+            Description:  How the origin was computed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="ProductLinkCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="SourceKey" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text key string
+            Description:  Code uniquely identifying the data contributor
+            (network code for now); used to distinguish this from other
+            ProductLinks
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="TypeKey" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Type of product
+            Description:  ShakeMapURL, Tsunami, Waveform, DidYouFeelIt,
+            FocalMech1URL, FocalMech2URL, RealTimeMechURL, MomentTensorURL,
+            LinkURL
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Version" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Assigned by sender
+            Description:  Lexically higher values supersede lexically lower
+            values
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Action" type="ActionSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Action (applies to this element and its
+            sub-elements)
+            Description:  Update, Delete
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Code" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Code for product
+            Description:  Extra product-type-code value
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Note" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text note
+            Description:  Brief, one-line note about product
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Link" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  URL
+            Description:  Product URL link
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="CommentCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="SourceKey" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text key string
+            Description:  Code uniquely identifying the data contributor
+            (network code for now); used to distinguish this from other
+            Comments
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="TypeKey" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Type of comment
+            Description:  e.g., Message, FeltReport, TectonicSummary,
+            NearestCities, TimeZones
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Version" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Assigned by sender
+            Description:  Lexically higher values supersede lexically lower
+            values
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Action" type="ActionSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Action (applies to this element and its
+            sub-elements)
+            Description:  Update, Delete
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Text" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Comment text
+            Description:  Free form, variable length, with lines and white
+            space preserved
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Link" type="xsd:anyURI" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  URL
+            Description:  Associated URL link (optional)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="LocalTimeCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Value" type="xsd:dateTime">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Date-time expressed using local time-zone offset
+            (but with no time-zone specifier)
+            Description:  Date-time format:  "YYYY-MM-DDTHH:MM:SS.FFF" (e.g.
+            "2002-06-13T14:13:00.000")
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="TZShortDesc" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Short time zone descriptor
+            Description:  e.g., PST
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="TZLongDesc" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Long time zone descriptor
+            Description:  e.g., Pacific Standard Time
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="TZOffset" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Time-zone offset specifier
+            Description:  Format "-HH:MM", e.g., "-08:00", "+03:30"
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="ErrorAxesCpxType">
+    <xsd:sequence>
+      <xsd:element name="Axis" type="AxisCpxType" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  2 or 3 Axis containers
+            Description:  Error ellipsoid principle axes (semi-axis lengths
+            90% confidence intervals in km)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="MagnitudeCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="SourceKey" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text key string
+            Description:  Code uniquely identifying the data contributor
+            (network code for now); used to distinguish this from other
+            Magnitudes
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="TypeKey" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Summary magnitude type
+            Description:  e.g., Mw, Mwp, Me, mb, Ms, Ml, mblg, Md, Mca
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Version" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Assigned by sender
+            Description:  Lexically higher values supersede lexically lower
+            values
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Action" type="ActionSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Action (applies to this element and its
+            sub-elements)
+            Description:  Update, Delete
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Value" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Summary magnitude value
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="AzimGap" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Azimuthal gap in station magnitudes
+            Description:  Maximum azimuthal gap in degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Error" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Summary magnitude error
+            Description:  90% confidence interval
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NumStations" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Number of station magnitudes used
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="PreferredFlag" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Preferred magnitude flag
+            Description:  true or false (default)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Comment" type="CommentCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Comment containers pertaining to this magnitude
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Method" type="MethodCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Method container
+            Description:  How the magnitude was computed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="MomentTensorCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="SourceKey" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text key string
+            Description:  Code uniquely identifying the data contributor
+            (network code for now); used to distinguish this from other
+            MomentTensors
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="TypeKey" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Summary moment tensor type
+            Description:  e.g., Ms, Mb, Centroid
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Version" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Assigned by sender
+            Description:  Lexically higher values supersede lexically lower
+            values
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Action" type="ActionSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Action (applies to this element and its
+            sub-elements)
+            Description:  Update, Delete
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="MagMw" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Moment magnitude Mw
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="M0" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Scalar Moment
+            Description:  Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Tensor" type="TensorCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Tensor container
+            Description:  Moment tensor in Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="PrincAxes" type="PrincAxesCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  3 Axis containers, inside of "PrincAxes" container
+            Description:  Principle axes (semi-axis lengths in Nt-m);
+            alternate representation
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NodalPlanes" type="NodalPlanesCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  2 Fault containers, inside of "NodalPlanes"
+            container
+            Description:  Nodal plane orientations; alternate representation
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="DerivedOriginTime" type="xsd:dateTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  MT derived Origin date-time (UTC)
+            Description:  XML standard date-time format:
+            YYYY-MM-DDTHH:MM:SS.FFFZ (e.g. 2002-06-13T14:13:00.000Z)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="DerivedLatitude" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  MT derived Origin geographic latitude
+            Description:  Signed decimal degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="DerivedLongitude" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  MT derived Origin longitude
+            Description:  Signed decimal degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="DerivedDepth" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  MT derived Origin depth
+            Description:  Km positive down
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="DepthDetermination" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Method attribute for depth determination (e.g.,
+            Free, Fixed)
+            Description:  How depth was determined
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="VarReduc" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Variance reduction
+            Description:  Percent
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="PerDblCpl" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Percent double couple
+            Description:  Percent
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ErrorTensor" type="ErrorTensorCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Tensor container, inside of "ErrorTensor" container
+            Description:  Moment tensor element 90% confidence intervals in
+            Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NumObs" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Number of seismograms used
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="PreferredFlag" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Preferred moment tensor flag
+            Description:  true or false (default)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="SrcTimeFn" type="SrcTimeFnCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Source time function container
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Comment" type="CommentCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Comment containers pertaining to this moment tensor
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Method" type="MethodCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Method container
+            Description:  How the moment tensor was computed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="DataUsed" type="DataUsedCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  DataUsed container(s)
+            Description:  What data was used in MT derivation
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="FocalMechCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="SourceKey" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text key string
+            Description:  Code uniquely identifying the data contributor
+            (network code for now); used to distinguish this from other
+            FocalMechs
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="TypeKey" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Type specifier
+            Description:  e.g., ncfm1, ncfm2
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Version" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Assigned by sender
+            Description:  Lexically higher values supersede lexically lower
+            values
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Action" type="ActionSimType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Action (applies to this element and its
+            sub-elements)
+            Description:  Update, Delete
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NodalPlanes" type="NodalPlanesCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  2 Fault containers, inside of "NodalPlanes"
+            container
+            Description:  Nodal plane orientations
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ErrorFaults" type="ErrorFaultsCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  2 Fault containers, inside of "ErrorFaults" element
+            Description:  90% confidence interval for fault plane geometry in
+            degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="AzimGap" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Azimuthal gap in station polarities
+            Description:  Maximum azimuthal gap in degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NumObs" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Number of station polarities used
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="PreferredFlag" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Preferred focal mechanism flag
+            Description:  true or false (default)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Comment" type="CommentCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Comment containers pertaining to this focal
+            mechanism
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Method" type="MethodCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Method container
+            Description:  How the focal mechanism was computed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="PhaseCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Net" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Sensor network code
+            Description:  SEED standard
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Sta" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Sensor station code
+            Description:  SEED standard; IR codes preferred
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Loc" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Sensor location code
+            Description:  SEED standard
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Delta" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Station distance from the epicenter
+            Description:  Degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Azim" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Station azimuth from the epicenter
+            Description:  Degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Pick" type="PickCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Pick containers
+            Description:  Repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Amplitude" type="AmplitudeCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Amplitude containers
+            Description:  Repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Duration" type="DurationCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Duration containers
+            Description:  Repeat as needed
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Comment" type="CommentCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Comment containers pertaining to this phase
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="PickCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Source" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text key string
+            Description:  Code uniquely identifying the data contributor
+            (network code for now)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Channel" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Sensor channel
+            Description:  SEED standard
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="PhaseCode" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Phase code (pure)
+            Description:  IASPEI standard
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Quality" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Phase quality
+            Description:  e.g., e, I, q
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Direction" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Phase direction
+            Description:  e.g., +, -, c, d
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ArrivTime" type="xsd:dateTime">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Date-time of the arrival onset (UTC)
+            Description:  XML standard date-time format:
+            YYYY-MM-DDTHH:MM:SS.FFFZ (e.g. 2002-06-13T14:13:00.000Z)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ArrivSNR" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Arrival signal to noise ratio
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ArrivQual" type="xsd:integer" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Hypo style arrival quality indicator
+            Description:  Typically 1-4
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ArrivError" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Arrival time error
+            Description:  90% marginal confidence interval in seconds
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Status" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Pick status
+            Description:  e.g., Automatic (default), Revised
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ArrivRes" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Arrival time residual
+            Description:  Seconds
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="TimeCorr" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Time correction applied
+            Description:  Seconds (e.g., SSSC applied before computing the
+            residual)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Weight" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Weight applied to the arrival
+            Description:  Weight for final iteration in computing the origin
+            (default 1.0)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Method" type="MethodCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Method container
+            Description:  How the arrival was measured
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="AmplitudeCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Source" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text key string
+            Description:  Code uniquely identifying the data contributor
+            (network code for now)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Channel" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Sensor channel
+            Description:  SEED standard
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Type" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Amplitude type
+            Description:  e.g., Mwp, mb, Ms, Ml, mblg
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Value" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Amplitude value
+            Description:  Nanometers
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Period" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Apparent period
+            Description:  Seconds
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ScalTime" type="xsd:dateTime" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Date-time of measurement (UTC)
+            Description:  Scaling time in XML standard date-time format:
+            YYYY-MM-DDTHH:MM:SS.FFFZ (e.g. 2002-06-13T14:13:00.000Z)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Status" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Pick status
+            Description:  e.g., Automatic (default), Revised
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="StaMag" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Station magnitude
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="MagRes" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Station magnitude residual
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Weight" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Weight applied to the station magnitude in computing
+            the summary magnitude
+            Description:  Default 1.0
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Method" type="MethodCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Method container
+            Description:  How the amplitude was measured
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="DurationCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Source" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Text key string
+            Description:  Code uniquely identifying the data contributor
+            (network code for now)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Channel" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Sensor channel
+            Description:  SEED standard
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Type" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Duration type
+            Description:  e.g., Md, Mca
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Value" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Duration value
+            Description:  Measured or estimated
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Status" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Duration status
+            Description:  e.g., Automatic (default), Revised
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="StaMag" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Station magnitude
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="MagRes" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Station magnitude residual
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Weight" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Weight applied to the station magnitude in computing
+            the summary magnitude
+            Description:  Default 1.0
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Method" type="MethodCpxType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Method container
+            Description:  How the duration was measured
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="AxisCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Azimuth" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Axis azimuth
+            Description:  Degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Plunge" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Axis plunge
+            Description:  Degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Length" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Axis semi-length
+            Description:  Units according to usage
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="LengthUnit" type="AxisLengthUnitSimType">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Units for Length
+            Description:  km, N-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="TensorCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Mrr" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Radial-radial tensor element
+            Description:  Element of 2-D tensor in spherical coordinates in
+            Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Mtt" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Theta-theta tensor element
+            Description:  Element of 2-D tensor in spherical coordinates in
+            Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Mpp" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Phi-Phi tensor element
+            Description:  Element of 2-D tensor in spherical coordinates in
+            Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Mrt" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Radial-theta tensor element
+            Description:  Element of 2-D tensor in spherical coordinates in
+            Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Mrp" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Radial-phi tensor element
+            Description:  Element of 2-D tensor in spherical coordinates in
+            Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Mtp" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Theta-phi tensor element
+            Description:  Element of 2-D tensor in spherical coordinates in
+            Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="FaultCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Strike" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Fault plane strike
+            Description:  Degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Slip" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Fault plane slip angle (rake)
+            Description:  Degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Dip" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Fault plane dip angle
+            Description:  Degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="PreferredFlag" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Preferred fault plane flag
+            Description:  true or false (default)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="SrcTimeFnCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Type" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Source time function shape
+            Description:  e.g., Box car, Triangle, Trapezoid
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Dur" type="xsd:float">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Source time function duration
+            Description:  Seconds
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Rise" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Source time function rise time
+            Description:  Seconds
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Decay" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Source time function decay time
+            Description:  Seconds
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="MethodCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Class" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Type of method
+            Description:  e.g., Centroid moment tensor
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Algorithm" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Specific algorithm or program
+            Description:  e.g., Harvard CMT
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Model" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Earth model used
+            Description:  e.g., AK135
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="Comment" type="CommentCpxType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Comment containers pertaining to this method
+            Description:  e.g., "Used surface waves only"
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="PrincAxesCpxType">
+    <xsd:sequence>
+      <xsd:element name="Axis" type="AxisCpxType" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  3 Axis containers
+            Description:  Principle axes
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="NodalPlanesCpxType">
+    <xsd:sequence>
+      <xsd:element name="Fault" type="FaultCpxType" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  2 Fault containers
+            Description:  Nodal plane orientations
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="ErrorTensorCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="Tensor" type="TensorCpxType">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Tensor container
+            Description:  Moment tensor element error intervals in Nt-m
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ErrorType" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Error type (e.g. 90% confidence, Std Err)
+            Description:  Type of error intervals; if left off, 90%
+            confidence interval is assumed.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="ErrorFaultsCpxType">
+    <xsd:sequence>
+      <xsd:element name="Fault" type="FaultCpxType" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  2 Fault containers
+            Description:  90% confidence interval for fault plane geometry in
+            degrees
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="DataUsedCpxType">
+    <xsd:sequence>
+
+      <xsd:element name="WaveType" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  String describing waves used (e.g., surface or body
+            wave)
+            Description:  Name of the wave type
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NumStations" type="xsd:integer">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Number of stations used of this type
+            Description:  Number of stations
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="NumComponents" type="xsd:integer">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Number of components used of this type
+            Description:  Number of components (channels)
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+
+      <xsd:element name="ShortestPeriod" type="xsd:float" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+            Definition:  Short period cutoff
+            Description:  Shortest period of data in seconds
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:simpleType name="EventActionSimType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        Definition:  Message action
+        Description:  Update, Delete, Test, Trump
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Update" />
+      <xsd:enumeration value="Delete" />
+      <xsd:enumeration value="Test" />
+      <xsd:enumeration value="Trump" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="EventTypeSimType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        Definition:  The type of the event
+        Description:  Earthquake (default), Quarry, Nuke, Shot, RockFall,
+        RockBurst, SonicBoom
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Earthquake" />
+      <xsd:enumeration value="Quarry" />
+      <xsd:enumeration value="Nuke" />
+      <xsd:enumeration value="Shot" />
+      <xsd:enumeration value="RockFall" />
+      <xsd:enumeration value="RockBurst" />
+      <xsd:enumeration value="SonicBoom" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="EventUsageSimType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        Definition:  Usage descriptor for event (handling)
+        Description:  Actual (default), Scenario, Test
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Actual" />
+      <xsd:enumeration value="Scenario" />
+      <xsd:enumeration value="Test" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="EventScopeSimType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        Definition:  Scope descriptor for event (audience)
+        Description:  Public (default), Internal
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Public" />
+      <xsd:enumeration value="Internal" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="ActionSimType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        Definition:  Action (applies to this element and its sub-elements)
+        Description:  Update, Delete
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Update" />
+      <xsd:enumeration value="Delete" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="OriginStatusSimType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        Definition:  Origin status
+        Description:  Automatic (default), QuickReviewed, Reviewed, Published
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Automatic" />
+      <xsd:enumeration value="QuickReviewed" />
+      <xsd:enumeration value="Reviewed" />
+      <xsd:enumeration value="Published" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="AxisLengthUnitSimType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        Definition:  Units for Length
+        Description:  km, N-m
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="km" />
+      <xsd:enumeration value="N-m" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:annotation>
+    <xsd:documentation xml:lang="en">
+      Notes:
+      
+      1. An event is uniquely identified by its "Event | DataSource" and
+      "Event | EventID" values.
+      
+      2. Container elements that have an "Action" value may updated via later
+      messages.  The "SourceKey" and "TypeKey" values are used to uniquely
+      identify the container element and must be matched by later-arriving
+      update and delete messages.  If a container element does not have an
+      "Action" element in the specification then the container can only be
+      updated or deleted via a parent element that does contain an "Action"
+      element.
+      
+      3. The "Version" elements (found in container elements that have
+      "Action" values) are used to track updates and to determine priority
+      when a container element is updated or deleted.  If the case of an
+      "update" action, if the new element's "Version" value is lexically
+      higher or equal, the new element replaces the original element.  In the
+      case of a "delete" action, if the delete-element's "Version" value is
+      lexically higher or equal, the original element is removed (as are any
+      archived elements with lower or equal "Version" values).  After an
+      element is deleted it may be resubmitted (with or without a higher
+      "Version" value) and treated as an update.  If a "Version" value is not
+      provided then the "Version" value of the parent container is used.  If
+      no "Version" values are available then the date/time value in the
+      "EQMessage | Sent" element is used to determine priority.
+      
+      4. The "MsgSrc" and "MsgIdent" elements are used to uniquely identify a
+      given message, so that duplicate messages can be effectively detected
+      down the line as messages traverse through multiple servers.  (This is
+      especially needed when "redundant" server topologies are used.)  In
+      QuakeWatch-server nomenclature, these equate to the
+      "FdrDataSrcHostName" and "FdrDataSrcMsgNum" values.  If a data source
+      is using the "MsgSrc" and "MsgIdent" elements then all messages from
+      that data source need to use them.
+      
+      5. The following contraints apply to ANSS-EQ-XML messages and how they
+      are processed:
+      
+          a. A message must have one and only one "Action" element.
+      
+          b. For "Delete" messages, the element to be deleted should contain
+      the "Action" element.  (For example, if a "ProductLink" is being
+      deleted, it should contain the "Action"=="Delete" element, not the
+      parent "Event" element.)
+      
+          c. Data associated with parent elements to the element containing
+      the "Action" shall always be left unmodified.
+      
+      6. Future versions of this specification will deal with additional
+      features such as arrays and slowness.
+    </xsd:documentation>
+  </xsd:annotation>
+</xsd:schema>
