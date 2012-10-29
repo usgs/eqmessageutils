@@ -43,7 +43,9 @@ public class IOUtil {
 	 */
 	public static InputStream getInputStream(final Object object)
 			throws IOException {
-		if (object instanceof byte[]) {
+		if (object instanceof InputStream) {
+			return (InputStream) object;
+		} else if (object instanceof byte[]) {
 			return getInputStream((byte[]) object);
 		} else if (object instanceof String) {
 			return getInputStream(((String) object).getBytes());
