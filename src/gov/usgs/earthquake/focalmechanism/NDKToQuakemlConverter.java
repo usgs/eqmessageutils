@@ -161,6 +161,8 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
         eventLatitude = new BigDecimal(line.substring(27,33).trim());
         eventLongitude = new BigDecimal(line.substring(34,41).trim());
         eventDepth = new BigDecimal(line.substring(42,47).trim());
+        //depths in quakeml are in meters, not km
+        eventDepth = eventDepth.multiply(new BigDecimal(1000));
         BigDecimal mag1 = new BigDecimal(line.substring(47,51).trim());
         BigDecimal mag2 = new BigDecimal(line.substring(51,55).trim());
         eventMagnitudes.add(mag1);
@@ -209,7 +211,7 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
             sourceInversionType = "unknown source inversion"; //quakeml other options are Teleseismic, regional
         }
         momentRateFunction = line.substring(69,74);
-        momentRateFunctionDuration = new BigDecimal(line.substring(75).trim());
+        momentRateFunctionDuration = new BigDecimal(line.substring(75).trim()).multiply(new BigDecimal("2.0"));
     }
 
     void parseLine3(String line){
