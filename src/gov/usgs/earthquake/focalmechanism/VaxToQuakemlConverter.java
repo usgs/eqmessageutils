@@ -82,7 +82,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
             if (debug){
                 System.out.println("Line 6");
             }
-            eventSource = "US";
+            eventSource = "us";
             mechanismSource = eventSource;
             String mtType = new String(sixthline.substring(sixthline.indexOf('/'))); // trim().replace("/", " "));
             if (mtType.contains("WPHASE"))
@@ -112,13 +112,25 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         parseMomentTensor(br);
         parsePrincipalAxes(br);
         
-      //next line is blank
+        //next line is blank
         br.readLine();
         
         parseDoubleCouple(br);
         
         //need to add that evaluation Mode is Manual and Status is Reviewed by default
         // gavin will add in data in file to be able to say it is prelim or final status
+        
+        //RMT does not provide a derived position or time, but it does provide depth,
+        //so we want to be able to put that into the QuakeML.  To do this, we need to
+        //have derived lat/lon/time values set.  Because they are not inverted for, we
+        //will set them to the input values.
+        derivedEventLatitude = eventLatitude;
+        derivedEventLongitude = eventLongitude;
+        derivedEventTime = eventTime;
+        
+        //set the derived origin booleans
+        derivedTimeFixed = true;
+        derivedEpicenterFixed = true;
     }
     
     void parseWCMT(BufferedReader br) throws IOException{
@@ -151,36 +163,40 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         //lines 14 - 17
         parsePrincipalAxes(br);
         
-      //next line is blank (line 18)
+        //next line is blank (line 18)
         br.readLine();
         
         parseDoubleCouple(br);
+        
+        //set the derived origin booleans
+        derivedTimeFixed = false;
+        derivedEpicenterFixed = false;
     }
 
-    private double[] parseAxis(String line){
+    private BigDecimal[] parseAxis(String line){
         line = line.trim().substring(1); //strip off leading axis character
         line = line.replaceAll("[a-zA-Z]*=","").trim();
         String[] parts;
         parts = line.split("\\s+");
-        double[] values;
-        values = new double[3];
-        values[0] = Double.parseDouble(parts[0].trim());
-        values[1] = Double.parseDouble(parts[1].trim());
-        values[2] = Double.parseDouble(parts[2].trim());
+        BigDecimal[] values;
+        values = new BigDecimal[3];
+        values[0] = new BigDecimal(parts[0].trim());
+        values[1] = new BigDecimal(parts[1].trim());
+        values[2] = new BigDecimal(parts[2].trim());
         return(values);
     }
-    private double[] parsePlane(String line){
+    private BigDecimal[] parsePlane(String line){
         String parts[];
         parts = line.split(":");
         String astr = parts[1].trim();
         astr = astr.replaceAll("[a-zA-Z]*=","");
         astr = astr.trim();
         parts = astr.split("\\s+");
-        double[] values;
-        values = new double[3];
-        values[0] = Double.parseDouble(parts[0].trim());
-        values[1] = Double.parseDouble(parts[1].trim());
-        values[2] = Double.parseDouble(parts[2].trim());
+        BigDecimal[] values;
+        values = new BigDecimal[3];
+        values[0] = new BigDecimal(parts[0].trim());
+        values[1] = new BigDecimal(parts[1].trim());
+        values[2] = new BigDecimal(parts[2].trim());
         return(values);
     }
 
@@ -199,10 +215,10 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
 
     private Date readTime(String line){
         int year = Integer.parseInt(line.substring(0,2))+2000; 
-        int month = Integer.parseInt(line.substring(3,5))-1; //Calendar months start at 0
-        int day = Integer.parseInt(line.substring(6,8));
-        int hour = Integer.parseInt(line.substring(9,11));
-        int minute = Integer.parseInt(line.substring(12,14));
+        int month = Integer.parseInt(line.substring(3,5).trim())-1; //Calendar months start at 0
+        int day = Integer.parseInt(line.substring(6,8).trim());
+        int hour = Integer.parseInt(line.substring(9,11).trim());
+        int minute = Integer.parseInt(line.substring(12,14).trim());
         int endLine = line.length();
         //some have decimal seconds some do not
         String secstr = line.substring(15,endLine);
@@ -217,7 +233,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
     
     void parseDoubleCouple(BufferedReader br) throws IOException
     {
-    	double values[];
+    	BigDecimal values[];
     	
     	//nineteenth line has the moment
         String nineteenthline = br.readLine().trim();
@@ -241,9 +257,9 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
             System.out.format("Line 20:'%s'\n",twentiethline);
         }
         values = parsePlane(twentiethline);
-        nodalPlane1Strike = new BigDecimal(values[0]);
-        nodalPlane1Dip = new BigDecimal(values[1]);
-        nodalPlane1Slip = new BigDecimal(values[2]);
+        nodalPlane1Strike = values[0];
+        nodalPlane1Dip = values[1];
+        nodalPlane1Slip = values[2];
 
         //twentyfirst line has the NP1 values
         String twentyfirstline = br.readLine().trim();
@@ -251,9 +267,9 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
             System.out.format("Line 21:'%s'\n", twentyfirstline);
         }
         values = parsePlane(twentyfirstline);
-        nodalPlane2Strike = new BigDecimal(values[0]);
-        nodalPlane2Dip = new BigDecimal(values[1]);
-        nodalPlane2Slip = new BigDecimal(values[2]);
+        nodalPlane2Strike = values[0];
+        nodalPlane2Dip = values[1];
+        nodalPlane2Slip = values[2];
     
     }
     void parseDepthNumStationsLine (String line) throws IOException
@@ -268,6 +284,8 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
             i0 = mdepth.start()+5;
             i1 = mdepth.end();
             derivedEventDepth = new BigDecimal((line.substring(i0,i1).trim()));
+            //quakeml depths are in meters, not km
+            derivedEventDepth = derivedEventDepth.multiply(new BigDecimal(1000));
             String stastr = line.substring(i1+1);
             parts = stastr.split(":");
             numStations = new BigInteger(parts[1].trim()); //number of long period body wave stations
@@ -345,11 +363,11 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         if (debug){
             System.out.println("Line 15");
         }
-        double values[];
+        BigDecimal values[];
         values = parseAxis(fifteenthline);
-        eigenVectorValues[0] = new BigDecimal(values[0]);
-        eigenVectorPlunges[0] = new BigDecimal(values[1]);
-        eigenVectorAzimuths[0] = new BigDecimal(values[2]);
+        eigenVectorValues[0] = values[0];
+        eigenVectorPlunges[0] = values[1];
+        eigenVectorAzimuths[0] = values[2];
 
         //sixteenth line has the N axis values
         String sixteenthline = br.readLine().trim();
@@ -357,9 +375,9 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
             System.out.println("Line 16");
         }
         values = parseAxis(sixteenthline);
-        eigenVectorValues[1] = new BigDecimal(values[0]);
-        eigenVectorPlunges[1] = new BigDecimal(values[1]);
-        eigenVectorAzimuths[1] = new BigDecimal(values[2]);
+        eigenVectorValues[1] = values[0];
+        eigenVectorPlunges[1] = values[1];
+        eigenVectorAzimuths[1] = values[2];
 
         //seventeenth line has the P axis values
         String seventeenthline = br.readLine().trim();
@@ -367,8 +385,8 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
             System.out.println("Line 17");
         }
         values = parseAxis(seventeenthline);
-        eigenVectorValues[2] = new BigDecimal(values[0]);
-        eigenVectorPlunges[2] = new BigDecimal(values[1]);
-        eigenVectorAzimuths[2] = new BigDecimal(values[2]);
+        eigenVectorValues[2] = values[0];
+        eigenVectorPlunges[2] = values[1];
+        eigenVectorAzimuths[2] = values[2];
     }
 }
