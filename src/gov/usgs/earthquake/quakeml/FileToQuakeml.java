@@ -2,7 +2,7 @@ package gov.usgs.earthquake.quakeml;
 
 import java.io.File;
 
-import org.quakeml_1_2rc3.Quakeml;
+import org.quakeml_1_2.Quakeml;
 
 /**
  * Command line utility to run the FileToQuakemlConverter interface.
@@ -43,7 +43,7 @@ public class FileToQuakeml {
 		}
 
 		Quakeml quakeml = parser.parseFile(file);
-		Quakeml_1_2rc3_Parser.serialize(quakeml, System.out);
+		Quakeml_1_2_Parser.serialize(quakeml, System.out);
 	}
 
 }

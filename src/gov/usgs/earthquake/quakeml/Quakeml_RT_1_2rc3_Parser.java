@@ -21,6 +21,7 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
  * Parse Quakeml-RT 1.2rc3 messages.
  * 
  * @see org.quakeml_rt_1_2rc3.Quakeml
+ * @deprecated
  */
 public class Quakeml_RT_1_2rc3_Parser extends NamespacePrefixMapper {
 

@@ -11,7 +11,7 @@ import gov.usgs.ansseqmsg.EQMessage;
 import gov.usgs.earthquake.cube.CubeDelete;
 import gov.usgs.earthquake.cube.CubeEvent;
 import gov.usgs.earthquake.cube.CubeMessage;
-import org.quakeml_1_2rc3.Quakeml;
+import org.quakeml_1_2.Quakeml;
 
 /**
  * Test the ConverterUtility.

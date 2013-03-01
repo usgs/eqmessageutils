@@ -9,21 +9,21 @@ import java.math.BigDecimal;
 
 import java.util.Date;
 
-import org.quakeml_1_2rc3.Comment;
-import org.quakeml_1_2rc3.CreationInfo;
-import org.quakeml_1_2rc3.EvaluationMode;
-import org.quakeml_1_2rc3.Event;
-import org.quakeml_1_2rc3.EventParameters;
-import org.quakeml_1_2rc3.EventType;
-import org.quakeml_1_2rc3.Magnitude;
-import org.quakeml_1_2rc3.OriginDepthType;
-import org.quakeml_1_2rc3.OriginQuality;
-import org.quakeml_1_2rc3.OriginUncertainty;
-import org.quakeml_1_2rc3.OriginUncertaintyDescription;
-import org.quakeml_1_2rc3.Quakeml;
-import org.quakeml_1_2rc3.Origin;
-import org.quakeml_1_2rc3.RealQuantity;
-import org.quakeml_1_2rc3.TimeQuantity;
+import org.quakeml_1_2.Comment;
+import org.quakeml_1_2.CreationInfo;
+import org.quakeml_1_2.EvaluationMode;
+import org.quakeml_1_2.Event;
+import org.quakeml_1_2.EventParameters;
+import org.quakeml_1_2.EventType;
+import org.quakeml_1_2.Magnitude;
+import org.quakeml_1_2.OriginDepthType;
+import org.quakeml_1_2.OriginQuality;
+import org.quakeml_1_2.OriginUncertainty;
+import org.quakeml_1_2.OriginUncertaintyDescription;
+import org.quakeml_1_2.Quakeml;
+import org.quakeml_1_2.Origin;
+import org.quakeml_1_2.RealQuantity;
+import org.quakeml_1_2.TimeQuantity;
 
 /**
  * Convert from CubeMessage to Quakeml.

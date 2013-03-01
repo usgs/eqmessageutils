@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import gov.usgs.earthquake.quakeml.FileToQuakemlConverter;
-import org.quakeml_1_2rc3.Quakeml;
+import org.quakeml_1_2.Quakeml;
 
 
 public class NDKToQuakemlConverter extends RawMechanismConverter implements FileToQuakemlConverter {

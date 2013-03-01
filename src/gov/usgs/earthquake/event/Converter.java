@@ -10,10 +10,10 @@ import javax.xml.bind.JAXBException;
 import gov.usgs.ansseqmsg.EQMessage;
 import gov.usgs.earthquake.cube.CubeMessage;
 import gov.usgs.earthquake.eqxml.EQMessageParser;
-import gov.usgs.earthquake.quakeml.Quakeml_1_2rc3_Parser;
+import gov.usgs.earthquake.quakeml.Quakeml_1_2_Parser;
 import gov.usgs.earthquake.util.IOUtil;
 
-import org.quakeml_1_2rc3.Quakeml;
+import org.quakeml_1_2.Quakeml;
 
 /**
  * Factory for parsing and converting between formats.
@@ -41,7 +41,7 @@ public class Converter {
 	 * @return parsed Quakeml object, or null if unable to parse.
 	 */
 	public Quakeml getQuakeml(final InputStream quakeml) {
-		return Quakeml_1_2rc3_Parser.parse(quakeml);
+		return Quakeml_1_2_Parser.parse(quakeml);
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class Converter {
 	 * @return parsed Quakeml object, or null if unable to parse.
 	 */
 	public Quakeml getQuakeml(final String quakeml) {
-		return Quakeml_1_2rc3_Parser.parse(quakeml);
+		return Quakeml_1_2_Parser.parse(quakeml);
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class Converter {
 	 */
 	public String getString(final Quakeml message) throws JAXBException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		Quakeml_1_2rc3_Parser.serialize(message, baos);
+		Quakeml_1_2_Parser.serialize(message, baos);
 		return baos.toString();
 	}
 

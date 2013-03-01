@@ -4,7 +4,7 @@ import gov.usgs.earthquake.util.IOUtil;
 
 import java.io.File;
 
-import org.quakeml_1_2rc3.Quakeml;
+import org.quakeml_1_2.Quakeml;
 
 /**
  * FileToQuakemlConverter for Quakeml files.
@@ -20,7 +20,7 @@ public class QuakemlToQuakemlConverter implements FileToQuakemlConverter {
 	 */
 	@Override
 	public Quakeml parseFile(File file) throws Exception {
-		return Quakeml_1_2rc3_Parser.parse(IOUtil.getInputStream(file));
+		return Quakeml_1_2_Parser.parse(IOUtil.getInputStream(file));
 	}
 
 }

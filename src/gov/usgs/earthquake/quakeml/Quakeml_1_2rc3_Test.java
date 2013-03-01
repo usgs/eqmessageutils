@@ -28,6 +28,7 @@ public class Quakeml_1_2rc3_Test {
 	 * @throws IOException
 	 */
 	@Test
+	@SuppressWarnings("deprecation")
 	public void fromSchemaExample() throws JAXBException, IOException {
 		byte[] example = IOUtil.readFile(new File(
 				"etc/quakeml_1.2rc3/qml-example-1.2-RC3.xml"));

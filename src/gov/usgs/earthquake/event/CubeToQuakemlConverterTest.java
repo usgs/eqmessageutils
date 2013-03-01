@@ -5,12 +5,12 @@ import javax.xml.bind.JAXBException;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.quakeml_1_2rc3.Quakeml;
+import org.quakeml_1_2.Quakeml;
 
 import gov.usgs.earthquake.cube.CubeDelete;
 import gov.usgs.earthquake.cube.CubeEvent;
 import gov.usgs.earthquake.cube.CubeMessage;
-import gov.usgs.earthquake.quakeml.Quakeml_1_2rc3_Parser;
+import gov.usgs.earthquake.quakeml.Quakeml_1_2_Parser;
 
 /**
  * Test the CubeToQuakeml and EQMessageToQuakeml converters.
@@ -56,7 +56,7 @@ public class CubeToQuakemlConverterTest {
 		Quakeml converted = new CubeToQuakemlConverter()
 				.convertCubeMessage(event);
 		System.err.println("Converted to Quakeml");
-		Quakeml_1_2rc3_Parser.serialize(converted, System.err);
+		Quakeml_1_2_Parser.serialize(converted, System.err);
 		System.err.println();
 
 		CubeMessage reconverted = new QuakemlToCubeConverter()

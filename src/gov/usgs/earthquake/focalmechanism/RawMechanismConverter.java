@@ -10,27 +10,27 @@ import java.math.BigInteger;
 
 import gov.usgs.earthquake.quakeml.*;
 
-import org.quakeml_1_2rc3.CreationInfo;
-import org.quakeml_1_2rc3.Event;
-import org.quakeml_1_2rc3.EventParameters;
-import org.quakeml_1_2rc3.EventType;
-import org.quakeml_1_2rc3.FocalMechanism;
-import org.quakeml_1_2rc3.MomentTensor;
-import org.quakeml_1_2rc3.NodalPlane;
-import org.quakeml_1_2rc3.NodalPlanes;
-import org.quakeml_1_2rc3.Origin;
-import org.quakeml_1_2rc3.OriginQuality;
-import org.quakeml_1_2rc3.Magnitude;
-import org.quakeml_1_2rc3.Tensor;
-import org.quakeml_1_2rc3.Quakeml;
-import org.quakeml_1_2rc3.DataUsed;
-import org.quakeml_1_2rc3.DataUsedWaveType;
-import org.quakeml_1_2rc3.PrincipalAxes;
-import org.quakeml_1_2rc3.Axis;
-import org.quakeml_1_2rc3.RealQuantity;
-import org.quakeml_1_2rc3.TimeQuantity;
-import org.quakeml_1_2rc3.SourceTimeFunction;
-import org.quakeml_1_2rc3.SourceTimeFunctionType;
+import org.quakeml_1_2.CreationInfo;
+import org.quakeml_1_2.Event;
+import org.quakeml_1_2.EventParameters;
+import org.quakeml_1_2.EventType;
+import org.quakeml_1_2.FocalMechanism;
+import org.quakeml_1_2.MomentTensor;
+import org.quakeml_1_2.NodalPlane;
+import org.quakeml_1_2.NodalPlanes;
+import org.quakeml_1_2.Origin;
+import org.quakeml_1_2.OriginQuality;
+import org.quakeml_1_2.Magnitude;
+import org.quakeml_1_2.Tensor;
+import org.quakeml_1_2.Quakeml;
+import org.quakeml_1_2.DataUsed;
+import org.quakeml_1_2.DataUsedWaveType;
+import org.quakeml_1_2.PrincipalAxes;
+import org.quakeml_1_2.Axis;
+import org.quakeml_1_2.RealQuantity;
+import org.quakeml_1_2.TimeQuantity;
+import org.quakeml_1_2.SourceTimeFunction;
+import org.quakeml_1_2.SourceTimeFunctionType;
 
 public abstract class RawMechanismConverter{
 	Boolean debug = false;
@@ -203,7 +203,7 @@ public abstract class RawMechanismConverter{
 	 * @param eventId
 	 * @param type
 	 * @param other
-	 * @return
+	 * @return same as getQuakemlID(dataSource, eventId, type, other, true)
 	 * @throws Exception
 	 */
 	private String getQuakemlId(final String dataSource, final String eventId,

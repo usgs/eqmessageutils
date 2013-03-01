@@ -2,7 +2,7 @@ package gov.usgs.earthquake.quakeml;
 
 import java.io.File;
 
-import org.quakeml_1_2rc3.Quakeml;
+import org.quakeml_1_2.Quakeml;
 
 /**
  * Interface for parsers to generate Quakeml objects.

@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.quakeml_1_2rc3.Quakeml;
+import org.quakeml_1_2.Quakeml;
 
 public class VaxToQuakemlConverter extends RawMechanismConverter implements FileToQuakemlConverter {
     
