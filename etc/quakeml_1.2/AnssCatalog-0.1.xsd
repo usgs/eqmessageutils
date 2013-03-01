@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://anss.org/xmlns/catalog/0.1"
+           xmlns="http://anss.org/xmlns/catalog/0.1"
+           elementFormDefault="qualified" 
+           attributeFormDefault="qualified">
+
+
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      ANSS Catalog metadata for use with quakeml 1.2rc3.
+
+      Jeremy Fee &lt;jmfee@usgs.gov&gt;
+      2012-05-23
+    </xs:documentation>
+  </xs:annotation>
+
+
+  <xs:attributeGroup name="CatalogAttributes">
+    <xs:annotation>
+      <xs:documentation><![CDATA[
+        Used to identify multiple versions of the same information, and related
+        information from multiple sources.
+
+        - Version is defined by creationInfo/creationTime;
+            more recent creationTimes imply newer versions.
+
+        - datasource+dataid are required on <event> element to be cataloged.
+            (dataid is still optional, see below)
+
+        - eventsource+eventid associate to a specific event 
+            (optional, but strongly recommended) 
+
+        - Events from different eventsources are considered to be the 
+            same event if they are within 100 kilometers and 16 seconds.
+
+        - Events from the same eventsource with different eventids are
+            different events regardless of how close their locations 
+            in space and time.
+
+        - eventsource+eventid is the strongest association between information;
+            when omitted, origin latitude, longitude, and time are 
+            used to associate.
+
+        - All attributes and creationTime are inherited by child elements, and 
+            may be overridden by different values in the child element.
+      ]]></xs:documentation>
+    </xs:annotation>
+
+
+    <xs:attribute name="datasource" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          A unique catalog data source.
+          Usually 2 character FDSN network code.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="dataid" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          A unique, alpha-numeric data identifier from the datasource.
+
+          This is optional when eventsource and eventid are used; 
+              and is implied to be eventsource+eventid.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="eventsource" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          A unique catalog event source.
+          Usually 2 character FDSN network code.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="eventid" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          A unique, alpha-numeric event identifier from the eventsource.
+          EVENTSOURCE+EVENTID combine to form a unique identifier for an event.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+  </xs:attributeGroup>
+
+</xs:schema>

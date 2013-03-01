@@ -85,7 +85,7 @@ public class QWEventsDump {
 						while (magIter.hasNext()) {
 							Magnitude mag = magIter.next();
 							/* Boolean isPreferred = mag.isPreferredFlag(); */
-							Boolean isPreferred = mag.isPreferredFlag();
+							Boolean isPreferred = mag.getPreferredFlag();
 							if (isPreferred != null && isPreferred) {
 								System.err.println(String.format(
 										"%10s %7s %24s %8s %9s %5s %9s %24s",

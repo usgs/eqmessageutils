@@ -177,7 +177,7 @@ public class EQMessageToCubeConverter {
 
 		Origin origin = event.getOrigin().get(0);
 
-		Boolean preferredFlag = origin.isPreferredFlag();
+		Boolean preferredFlag = origin.getPreferredFlag();
 		if (preferredFlag == null || !preferredFlag) {
 			// only preferred origins map to CUBE messages
 			return null;

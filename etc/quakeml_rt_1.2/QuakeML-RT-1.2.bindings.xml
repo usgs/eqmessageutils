@@ -1,0 +1,90 @@
+<bindings version="2.0" 
+	xmlns="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+	extensionBindingPrefixes="xjc">
+
+	<globalBindings
+			fixedAttributeAsConstantProperty="true"
+			generateIsSetMethod="false">
+
+		<!-- override default Float mapping for floats -->
+		<javaType xmlType="xs:float" name="java.math.BigDecimal" 
+				parseMethod="javax.xml.bind.DatatypeConverter.parseDecimal"
+				printMethod="javax.xml.bind.DatatypeConverter.printDecimal" />
+
+		<!-- override default Double mapping for doubles -->
+		<javaType xmlType="xs:double" name="java.math.BigDecimal" 
+				parseMethod="javax.xml.bind.DatatypeConverter.parseDecimal"
+				printMethod="javax.xml.bind.DatatypeConverter.printDecimal" />
+
+		<!-- override default XMLGregorianCalendar mapping for dates. -->
+		<javaType xmlType="xs:dateTime" name="java.util.Date"
+				parseMethod="gov.usgs.earthquake.quakeml.QuakemlDateParser.getDate"
+				printMethod="gov.usgs.earthquake.quakeml.QuakemlDateParser.formatDate" />
+
+		<!-- tell JAXB this will not be embedded in another schema -->
+		<xjc:simple/>
+	</globalBindings>
+
+	<!-- bindings for QuakeML -->
+	<bindings schemaLocation="QuakeML-RT-1.2_jaxb.xsd" node="/xs:schema">
+		<schemaBindings>
+			<package name="org.quakeml_rt_1_2"/>
+		</schemaBindings>
+	</bindings>
+
+	<!-- bindings for QuakeML-RT-BED -->
+	<bindings schemaLocation="QuakeML-RT-BED-1.2_jaxb.xsd" node="/xs:schema">
+		<schemaBindings>
+			<package name="org.quakeml_rt_1_2"/>
+		</schemaBindings>
+
+		<!-- jaxb does okay with all the other enumerations -->
+		<bindings node="//xs:simpleType[@name='AmplitudeUnit']">
+			<typesafeEnumClass name="AmplitudeUnit">
+				<typesafeEnumMember value="m" name="METERS"/>
+				<typesafeEnumMember value="s" name="SECONDS"/>
+				<typesafeEnumMember value="m/s" name="METERS_PER_SECOND"/>
+				<typesafeEnumMember value="m/(s*s)" name="METERS_PER_SECOND_SQUARED"/>
+				<typesafeEnumMember value="m*s" name="METER_SECONDS"/>
+			</typesafeEnumClass>
+		</bindings>
+
+		<bindings node="//xs:complexType[@name='TimeQuantity']"><class name="TimeQuantity"/></bindings>
+		<bindings node="//xs:complexType[@name='CreationInfo']"><class name="CreationInfo"/></bindings>
+		<bindings node="//xs:complexType[@name='EventDescription']"><class name="EventDescription"/></bindings>
+		<bindings node="//xs:complexType[@name='Phase']"><class name="Phase"/></bindings>
+		<bindings node="//xs:complexType[@name='Comment']"><class name="Comment"/></bindings>
+		<bindings node="//xs:complexType[@name='Axis']"><class name="Axis"/></bindings>
+		<bindings node="//xs:complexType[@name='PrincipalAxes']"><class name="PrincipalAxes"/></bindings>
+		<bindings node="//xs:complexType[@name='DataUsed']"><class name="DataUsed"/></bindings>
+		<bindings node="//xs:complexType[@name='CompositeTime']"><class name="CompositeTime"/></bindings>
+		<bindings node="//xs:complexType[@name='Tensor']"><class name="Tensor"/></bindings>
+		<bindings node="//xs:complexType[@name='OriginQuality']"><class name="OriginQuality"/></bindings>
+		<bindings node="//xs:complexType[@name='RealQuantity']"><class name="RealQuantity"/></bindings>
+		<bindings node="//xs:complexType[@name='NodalPlane']"><class name="NodalPlane"/></bindings>
+		<bindings node="//xs:complexType[@name='TimeWindow']"><class name="TimeWindow"/></bindings>
+		<bindings node="//xs:complexType[@name='WaveformStreamID']"><class name="WaveformStreamID"/></bindings>
+		<bindings node="//xs:complexType[@name='IntegerQuantity']"><class name="IntegerQuantity"/></bindings>
+		<bindings node="//xs:complexType[@name='SourceTimeFunction']"><class name="SourceTimeFunction"/></bindings>
+		<bindings node="//xs:complexType[@name='NodalPlanes']"><class name="NodalPlanes"/></bindings>
+		<bindings node="//xs:complexType[@name='ConfidenceEllipsoid']"><class name="ConfidenceEllipsoid"/></bindings>
+		<bindings node="//xs:complexType[@name='Reading']"><class name="Reading"/></bindings>
+		<bindings node="//xs:complexType[@name='MomentTensor']"><class name="MomentTensor"/></bindings>
+		<bindings node="//xs:complexType[@name='FocalMechanism']"><class name="FocalMechanism"/></bindings>
+		<bindings node="//xs:complexType[@name='Amplitude']"><class name="Amplitude"/></bindings>
+		<bindings node="//xs:complexType[@name='StationMagnitudeContribution']"><class name="StationMagnitudeContribution"/></bindings>
+		<bindings node="//xs:complexType[@name='Magnitude']"><class name="Magnitude"/></bindings>
+		<bindings node="//xs:complexType[@name='StationMagnitude']"><class name="StationMagnitude"/></bindings>
+		<bindings node="//xs:complexType[@name='Pick']"><class name="Pick"/></bindings>
+		<bindings node="//xs:complexType[@name='Event']"><class name="Event"/></bindings>
+		<bindings node="//xs:complexType[@name='OriginUncertainty']"><class name="OriginUncertainty"/></bindings>
+		<bindings node="//xs:complexType[@name='Arrival']"><class name="Arrival"/></bindings>
+		<bindings node="//xs:complexType[@name='Origin']"><class name="Origin"/></bindings>
+		<bindings node="//xs:complexType[@name='EventParameters']"><class name="EventParameters"/></bindings>
+
+	</bindings>
+
+</bindings>
+
