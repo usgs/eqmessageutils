@@ -211,16 +211,21 @@ public class QuakemlToCubeConverter {
 		cubeEvent.setRmsTimeError(originQuality.getStandardError());
 
 		// location method
-		String locationMethod = origin.getMethodID();
+		String locationMethod = getCubeLocationMethod(origin.getMethodID());
 		cubeEvent.setLocationMethod(locationMethod);
 
 		RealQuantity mag = magnitude.getMag();
 
 		// magnitude type
-		String magnitudeType = magnitude.getMethodID();
-		if (magnitudeType != null) {
-			cubeEvent.setMagnitudeType(CubeMessage.getCubeCode(MagnitudeType
-					.valueOf(magnitudeType.toUpperCase())));
+		String magnitudeType = getCubeMagnitudeType(magnitude.getMethodID());
+		if (magnitudeType != null && magnitudeType.length() == 1) {
+			cubeEvent.setMagnitudeType(magnitudeType);
+		} else {
+			// TODO: should this check happen first?
+			magnitudeType = getCubeMagnitudeType(magnitude.getType());
+			if (magnitudeType != null && magnitudeType.length() == 1) {
+				cubeEvent.setMagnitudeType(magnitudeType);
+			}
 		}
 
 		// magnitude
@@ -285,6 +290,53 @@ public class QuakemlToCubeConverter {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Get a Cube LocationMethod string from a Quakeml Location Method.
+	 * 
+	 * @param locationMethod
+	 * @return locationMethod, currently same as input.
+	 */
+	private String getCubeLocationMethod(String locationMethod) {
+		if (locationMethod == null || locationMethod.trim().equals("")) {
+			return null;
+		} else if (locationMethod
+				.startsWith(CubeToQuakemlConverter.CUBE_LOCATION_METHOD_PUBLICID_PREFIX)) {
+			return locationMethod
+					.replace(
+							CubeToQuakemlConverter.CUBE_LOCATION_METHOD_PUBLICID_PREFIX,
+							"");
+		}
+
+		// unknown
+		return locationMethod;
+	}
+
+	/**
+	 * Get a Cube MagnitudeType string from a Quakeml Magnitude Type.
+	 * 
+	 * @param magnitudeType
+	 * @return magnitude type abbreviation.
+	 */
+	private String getCubeMagnitudeType(String magnitudeType) {
+		if (magnitudeType == null || magnitudeType.trim().equals("")) {
+			return null;
+		} else if (magnitudeType
+				.startsWith(CubeToQuakemlConverter.CUBE_MAGNITUDE_TYPE_PUBLICID_PREFIX)) {
+			return magnitudeType.replace(
+					CubeToQuakemlConverter.CUBE_MAGNITUDE_TYPE_PUBLICID_PREFIX,
+					"");
+		}
+
+		// try to interpret as magnitude abbreviation
+		MagnitudeType type = MagnitudeType.valueOf(magnitudeType.toUpperCase());
+		if (type != null) {
+			return CubeMessage.getCubeCode(type);
+		}
+
+		// unknown
+		return magnitudeType;
 	}
 
 }

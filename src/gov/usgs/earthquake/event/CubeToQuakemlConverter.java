@@ -36,6 +36,9 @@ public class CubeToQuakemlConverter {
 	public static final BigDecimal METERS_PER_KILOMETER = new BigDecimal("1000");
 	public static final String CUBE_COMMENT_TYPE = "cube";
 
+	public static final String CUBE_LOCATION_METHOD_PUBLICID_PREFIX = "quakeml:anss.org/cube/locationMethod/";
+	public static final String CUBE_MAGNITUDE_TYPE_PUBLICID_PREFIX = "quakeml:anss.org/cube/magnitudeType/";
+
 	/**
 	 * Convert a CubeMessage object to a Quakeml object.
 	 * 
@@ -248,6 +251,8 @@ public class CubeToQuakemlConverter {
 				.getMagnitudeType());
 		if (magnitudeType != null) {
 			magnitudeExtendedId = magnitudeType.getAbbreviation();
+			// also set plain text type
+			magnitude.setType(magnitudeType.getAbbreviation());
 		}
 		magnitude.setPublicID(getQuakemlId(message.getSource(),
 				message.getCode(), "magnitude", magnitudeExtendedId));
@@ -290,29 +295,26 @@ public class CubeToQuakemlConverter {
 	 * Get a Quakeml LocationMethod string from a Cube Location Method.
 	 * 
 	 * @param locationMethod
-	 * @return
+	 * @return locationMethod as a quakeml public id.
 	 */
 	private String getQuakemlLocationMethod(String locationMethod) {
-		return locationMethod;
+		if (locationMethod == null || locationMethod.trim().equals("")) {
+			return null;
+		}
+		return CUBE_LOCATION_METHOD_PUBLICID_PREFIX + locationMethod;
 	}
 
 	/**
 	 * Get a Quakeml MagnitudeType string from a Cube Magnitude Type.
 	 * 
 	 * @param magnitudeType
-	 * @return
+	 * @return magnitude type as a quakeml public id.
 	 */
 	private String getQuakemlMagnitudeType(String magnitudeType) {
-		if (magnitudeType == null) {
+		if (magnitudeType == null || magnitudeType.trim().equals("")) {
 			return null;
 		}
-
-		MagnitudeType type = CubeMessage.getMagnitudeType(magnitudeType);
-		if (type == null) {
-			return null;
-		}
-
-		return type.getAbbreviation();
+		return CUBE_MAGNITUDE_TYPE_PUBLICID_PREFIX + magnitudeType;
 	}
 
 	/**
@@ -322,7 +324,7 @@ public class CubeToQuakemlConverter {
 	 * @param eventId
 	 * @param type
 	 * @param other
-	 * @return
+	 * @return quakeml public id containing parameters.
 	 * @throws Exception
 	 */
 	private String getQuakemlId(final String dataSource, final String eventId,
