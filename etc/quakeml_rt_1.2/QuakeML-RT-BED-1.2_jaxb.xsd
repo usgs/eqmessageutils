@@ -8,6 +8,7 @@ This schema differs from the official quakeml schema in these ways:
 
 	- xs:choice removed
 	- updated min/max occurs to match class diagram, where they were previous implied by xs:choice
+	- added missing evaluationMode and evaluationStatus elements to focal mechanism.
 
 These differences are strictly for JAXB sanity, and SHOULD not affect marshalled/unmarshalled document validity.
 Do not use this schema for validation.
@@ -502,6 +503,8 @@ Jeremy Fee <jmfee@usgs.gov>
         <xs:element name="misfit" minOccurs="0" maxOccurs="1" type="xs:double"/>
         <xs:element name="stationDistributionRatio" minOccurs="0" maxOccurs="1" type="xs:double"/>
         <xs:element name="methodID" minOccurs="0" maxOccurs="1" type="bed:ResourceReference"/>
+        <xs:element name="evaluationMode" minOccurs="0" maxOccurs="1" type="bed:EvaluationMode"/>
+        <xs:element name="evaluationStatus" minOccurs="0" maxOccurs="1" type="bed:EvaluationStatus"/>
         <xs:element name="creationInfo" minOccurs="0" maxOccurs="1" type="bed:CreationInfo"/>
       <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
