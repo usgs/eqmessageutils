@@ -52,9 +52,9 @@ public class QuakemlToCubeConverter {
 		Event event = events.get(0);
 		EventType eventType = event.getType();
 		if (eventType == EventType.NOT_EXISTING) {
-			return convertQuakemlDeleteMessage(message, event);
+			return convertQuakemlDeleteMessage(message, event, eventParameters);
 		} else {
-			return convertQuakemlEventMessage(message, event);
+			return convertQuakemlEventMessage(message, event, eventParameters);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class QuakemlToCubeConverter {
 	 * @return CubeDelete representation of Quakeml event.
 	 * @throws Exception
 	 */
-	public CubeDelete convertQuakemlDeleteMessage(Quakeml message, Event event)
+	public CubeDelete convertQuakemlDeleteMessage(Quakeml message, Event event, EventParameters eventParameters)
 			throws Exception {
 		if (event.getType() != EventType.NOT_EXISTING) {
 			// not a delete message
@@ -88,6 +88,8 @@ public class QuakemlToCubeConverter {
 		// read version and sent timestamp from event creation info
 		CreationInfo creationInfo = event.getCreationInfo();
 		cubeDelete.setVersion(creationInfo.getVersion());
+
+		creationInfo = eventParameters.getCreationInfo();
 		cubeDelete.setSent(creationInfo.getCreationTime());
 
 		try {
@@ -110,7 +112,7 @@ public class QuakemlToCubeConverter {
 	 * @return CubeEvent representation of Quakeml event.
 	 * @throws Exception
 	 */
-	public CubeEvent convertQuakemlEventMessage(Quakeml message, Event event)
+	public CubeEvent convertQuakemlEventMessage(Quakeml message, Event event, EventParameters eventParameters)
 			throws Exception {
 		if (event.getType() == EventType.NOT_EXISTING) {
 			// not a event
@@ -130,6 +132,8 @@ public class QuakemlToCubeConverter {
 		// read version and sent timestamp from event creation info
 		CreationInfo creationInfo = event.getCreationInfo();
 		cubeEvent.setVersion(creationInfo.getVersion());
+
+		creationInfo = eventParameters.getCreationInfo();
 		cubeEvent.setSent(creationInfo.getCreationTime());
 
 		String preferredOriginID = event.getPreferredOriginID();
