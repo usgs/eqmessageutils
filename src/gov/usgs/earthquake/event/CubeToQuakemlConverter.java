@@ -100,6 +100,11 @@ public class CubeToQuakemlConverter {
 		creationInfo.setCreationTime(created);
 		event.setCreationInfo(creationInfo);
 
+		// update time comes from event parameters
+		creationInfo = new CreationInfo();
+		creationInfo.setCreationTime(created);
+		eventParameters.setCreationInfo(creationInfo);
+
 		String deleteMessage = message.getMessage();
 		if (deleteMessage != null) {
 			Comment deleteComment = new Comment();
@@ -157,6 +162,11 @@ public class CubeToQuakemlConverter {
 		creationInfo.setVersion(message.getVersion());
 		creationInfo.setCreationTime(created);
 		event.setCreationInfo(creationInfo);
+
+		// update time comes from event parameters
+		creationInfo = new CreationInfo();
+		creationInfo.setCreationTime(created);
+		eventParameters.setCreationInfo(creationInfo);
 
 		// mark quarry events
 		if (message.isQuarry()) {
