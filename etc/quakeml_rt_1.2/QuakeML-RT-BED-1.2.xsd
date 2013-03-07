@@ -525,6 +525,8 @@
         <xs:element name="misfit" minOccurs="0" maxOccurs="1" type="xs:double"/>
         <xs:element name="stationDistributionRatio" minOccurs="0" maxOccurs="1" type="xs:double"/>
         <xs:element name="methodID" minOccurs="0" maxOccurs="1" type="bed:ResourceReference"/>
+        <xs:element name="evaluationMode" minOccurs="0" maxOccurs="1" type="bed:EvaluationMode"/>
+        <xs:element name="evaluationStatus" minOccurs="0" maxOccurs="1" type="bed:EvaluationStatus"/>
         <xs:element name="creationInfo" minOccurs="0" maxOccurs="1" type="bed:CreationInfo"/>
       </xs:choice>
       <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
