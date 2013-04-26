@@ -129,6 +129,11 @@ public class QuakemlToCubeConverter {
 		cubeEvent.setSource(event.getEventsource());
 		cubeEvent.setCode(event.getEventid());
 
+		// mark quarry blast events
+		if (event.getType() == EventType.QUARRY_BLAST) {
+			cubeEvent.setQuarry(true);
+		}
+
 		// read version and sent timestamp from event creation info
 		CreationInfo creationInfo = event.getCreationInfo();
 		cubeEvent.setVersion(creationInfo.getVersion());
