@@ -231,10 +231,10 @@ public class EQMessageToCubeConverter {
 
 		BigInteger numMagnitudeStations = magnitude.getNumStations();
 		cubeEvent.setNumMagnitudeStations(numMagnitudeStations);
-		if (cubeEvent.getMagnitudeType() == null) {
+		if (cubeEvent.getMagnitudeType() == null && magnitude.getTypeKey() != null) {
 			// no CUBE_CODE comment, try magnitude type
 			cubeEvent.setMagnitudeType(CubeMessage.getCubeCode(MagnitudeType
-					.valueOf(magnitude.getTypeKey())));
+					.valueOf(magnitude.getTypeKey().toUpperCase())));
 		}
 
 		return cubeEvent;
