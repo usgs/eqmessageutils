@@ -178,7 +178,7 @@ public class EQMessageToCubeConverter {
 		Origin origin = event.getOrigin().get(0);
 
 		Boolean preferredFlag = origin.getPreferredFlag();
-		if (preferredFlag == null || !preferredFlag) {
+		if (preferredFlag != null && !preferredFlag) {
 			// only preferred origins map to CUBE messages
 			return null;
 		}
@@ -231,10 +231,10 @@ public class EQMessageToCubeConverter {
 
 		BigInteger numMagnitudeStations = magnitude.getNumStations();
 		cubeEvent.setNumMagnitudeStations(numMagnitudeStations);
-		if (cubeEvent.getMagnitudeType() == null) {
+		if (cubeEvent.getMagnitudeType() == null && magnitude.getTypeKey() != null) {
 			// no CUBE_CODE comment, try magnitude type
 			cubeEvent.setMagnitudeType(CubeMessage.getCubeCode(MagnitudeType
-					.valueOf(magnitude.getTypeKey())));
+					.valueOf(magnitude.getTypeKey().toUpperCase())));
 		}
 
 		return cubeEvent;
