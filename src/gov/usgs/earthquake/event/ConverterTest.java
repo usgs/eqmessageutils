@@ -1,5 +1,7 @@
 package gov.usgs.earthquake.event;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.Date;
 
 import javax.xml.bind.JAXBException;
@@ -11,6 +13,8 @@ import gov.usgs.ansseqmsg.EQMessage;
 import gov.usgs.earthquake.cube.CubeDelete;
 import gov.usgs.earthquake.cube.CubeEvent;
 import gov.usgs.earthquake.cube.CubeMessage;
+import gov.usgs.earthquake.util.IOUtil;
+
 import org.quakeml_1_2.Quakeml;
 
 /**
@@ -74,5 +78,36 @@ public class ConverterTest {
 		System.err.println(cubeStringFromCube);
 		System.err.println(eqxmlFromEQMessage);
 		System.err.println(quakexmlFromCube);
+	}
+
+	/**
+	 * Test using a specific message from nevada.
+	 *
+	 * This message was expected to convert from EQXML to CUBE and then Quakeml.
+	 *
+	 * This test is designed to reproduce 2 separate issues: 1) implicit origin
+	 * preferredFlag, when omitted should still imply preferred. 2) magnitude
+	 * type without Cube_Code comment, should convert.
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testNevadaEQXML() throws Exception {
+		Converter converter = new Converter();
+		InputStream in = IOUtil.getInputStream(new File(
+				"etc/test_messages/nn00415463.eqxml"));
+		try {
+			EQMessage eqxml = converter.getEQMessage(in);
+			System.err.println(converter.getString(eqxml));
+			CubeMessage cube = converter.getCubeMessage(eqxml);
+			Assert.assertNotNull(
+					"implicit preferredFlag is considered preferred", cube);
+			System.err.println(converter.getString(cube));
+			Quakeml quakeml = converter.getQuakeml(eqxml);
+			Assert.assertNotNull("message converts to quakeml", quakeml);
+			System.err.println(converter.getString(quakeml));
+		} finally {
+			in.close();
+		}
 	}
 }
