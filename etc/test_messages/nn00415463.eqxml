@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<EQMessage xmlns="http://www.usgs.gov/ansseqmsg">
+    <Source>NN</Source>
+    <Sender>Nevada Seismological Laboratory</Sender>
+    <Module>QuakeWatch Server, Version 1.0</Module>
+    <Sent>2013-06-17T19:59:28.124Z</Sent>
+    <Event>
+        <DataSource>NN</DataSource>
+        <EventID>00415463</EventID>
+        <Version>1025878</Version>
+        <Action>Update</Action>
+        <Region>NEVADA</Region>
+        <Type>Earthquake</Type>
+        <Origin>
+            <SourceKey>NN</SourceKey>
+            <Time>2013-06-06T06:29:34.528Z</Time>
+            <LocalTime>
+                <Value>2013-06-05T23:29:34.528Z</Value>
+                <TZShortDesc>PDT</TZShortDesc>
+                <TZLongDesc>Pacific Daylight Time</TZLongDesc>
+                <TZOffset>-07:00</TZOffset>
+            </LocalTime>
+            <Latitude>37.3810</Latitude>
+            <Longitude>-115.9627</Longitude>
+            <Depth>0.0000</Depth>
+            <StdError>0.1551</StdError>
+            <AzimGap>283</AzimGap>
+            <MinDist>0.218</MinDist>
+            <Errh>2.1761</Errh>
+            <Errz>0.0000</Errz>
+            <NumPhaUsed>18</NumPhaUsed>
+            <NumStaUsed>11</NumStaUsed>
+            <Status>Reviewed</Status>
+            <Magnitude>
+                <SourceKey>NN</SourceKey>
+                <TypeKey>ml</TypeKey>
+                <Value>0.18</Value>
+                <Method>
+                    <Class>Nevada</Class>
+                </Method>
+            </Magnitude>
+        </Origin>
+    </Event>
+</EQMessage>
