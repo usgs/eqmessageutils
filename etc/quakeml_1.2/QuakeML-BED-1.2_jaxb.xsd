@@ -608,6 +608,7 @@ Jeremy Fee <jmfee@usgs.gov>
         <xs:element name="azimuthMaxHorizontalUncertainty" minOccurs="0" maxOccurs="1" type="xs:double"/>
         <xs:element name="confidenceEllipsoid" minOccurs="0" maxOccurs="1" type="bed:ConfidenceEllipsoid"/>
         <xs:element name="preferredDescription" minOccurs="0" maxOccurs="1" type="bed:OriginUncertaintyDescription"/>
+        <xs:element name="confidenceLevel" minOccurs="0" maxOccurs="1" type="xs:double"/>
       <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:anyAttribute namespace="##other" processContents="lax"/>
