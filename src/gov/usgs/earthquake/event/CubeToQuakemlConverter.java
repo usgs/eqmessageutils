@@ -289,7 +289,7 @@ public class CubeToQuakemlConverter {
 
 			// magnitude value
 			if (message.getMagnitude() != null
-					&& message.getMagnitudeError() != null) {
+					|| message.getMagnitudeError() != null) {
 				RealQuantity mag = new RealQuantity();
 				mag.setValue(message.getMagnitude());
 
