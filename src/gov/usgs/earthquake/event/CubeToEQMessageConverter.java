@@ -1,7 +1,6 @@
 package gov.usgs.earthquake.event;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Date;
 
 import gov.usgs.ansseqmsg.Action;
@@ -205,8 +204,7 @@ public class CubeToEQMessageConverter {
 		Magnitude magnitude = new Magnitude();
 		magnitude.setValue(message.getMagnitude());
 		magnitude.setError(message.getMagnitudeError());
-		magnitude.setNumStations(new BigInteger(message
-				.getNumMagnitudeStations().toString()));
+		magnitude.setNumStations(message.getNumMagnitudeStations());
 		magnitude.setPreferredFlag(true);
 		origin.getMagnitude().add(magnitude);
 

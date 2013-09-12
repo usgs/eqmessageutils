@@ -68,8 +68,8 @@ public class QuakemlToCubeConverter {
 	 * @return CubeDelete representation of Quakeml event.
 	 * @throws Exception
 	 */
-	public CubeDelete convertQuakemlDeleteMessage(Quakeml message, Event event, EventParameters eventParameters)
-			throws Exception {
+	public CubeDelete convertQuakemlDeleteMessage(Quakeml message, Event event,
+			EventParameters eventParameters) throws Exception {
 		if (event.getType() != EventType.NOT_EXISTING) {
 			// not a delete message
 			return null;
@@ -112,8 +112,8 @@ public class QuakemlToCubeConverter {
 	 * @return CubeEvent representation of Quakeml event.
 	 * @throws Exception
 	 */
-	public CubeEvent convertQuakemlEventMessage(Quakeml message, Event event, EventParameters eventParameters)
-			throws Exception {
+	public CubeEvent convertQuakemlEventMessage(Quakeml message, Event event,
+			EventParameters eventParameters) throws Exception {
 		if (event.getType() == EventType.NOT_EXISTING) {
 			// not a event
 			return null;
@@ -150,10 +150,7 @@ public class QuakemlToCubeConverter {
 		}
 
 		Origin origin = findOrigin(event.getOrigins(), preferredOriginID);
-		Magnitude magnitude = findMagnitude(event.getMagnitudes(),
-				preferredMagnitudeID);
-
-		if (origin == null || magnitude == null) {
+		if (origin == null) {
 			// the preferred information is not in this message, cannot
 			// translate
 			return null;
@@ -181,8 +178,8 @@ public class QuakemlToCubeConverter {
 		// vertical uncertainty
 		BigDecimal verticalError = depth.getUncertainty();
 		if (verticalError != null) {
-			cubeEvent.setVerticalError(depth.getUncertainty().divide(
-					CubeToQuakemlConverter.METERS_PER_KILOMETER));
+			cubeEvent.setVerticalError(verticalError
+					.divide(CubeToQuakemlConverter.METERS_PER_KILOMETER));
 		}
 		if (origin.getDepthType() == OriginDepthType.OPERATOR_ASSIGNED) {
 			// TODO: is this necessary, operator might assign uncertainty?
@@ -194,70 +191,72 @@ public class QuakemlToCubeConverter {
 		if (originUncertainty.getPreferredDescription().equals(
 				OriginUncertaintyDescription.HORIZONTAL_UNCERTAINTY)) {
 			// TODO: set this regardless of preferred description?
-			cubeEvent.setHorizontalError(originUncertainty
-					.getHorizontalUncertainty().divide(
-							CubeToQuakemlConverter.METERS_PER_KILOMETER));
+			if (originUncertainty.getHorizontalUncertainty() != null) {
+				cubeEvent.setHorizontalError(originUncertainty
+						.getHorizontalUncertainty().divide(
+								CubeToQuakemlConverter.METERS_PER_KILOMETER));
+			}
 		}
 
 		OriginQuality originQuality = origin.getQuality();
+		if (originQuality != null) {
+			// num stations used
+			BigInteger usedStations = originQuality.getUsedStationCount();
+			cubeEvent.setNumLocationStations(usedStations);
 
-		// num stations used
-		BigInteger usedStations = originQuality.getUsedStationCount();
-		cubeEvent.setNumLocationStations(usedStations);
+			// num phases used
+			BigInteger usedPhases = originQuality.getUsedPhaseCount();
+			cubeEvent.setNumLocationPhases(usedPhases);
 
-		// num phases used
-		BigInteger usedPhases = originQuality.getUsedPhaseCount();
-		cubeEvent.setNumLocationPhases(usedPhases);
+			// azimuthal gap
+			cubeEvent.setAzimuthalGap(originQuality.getAzimuthalGap());
 
-		// azimuthal gap
-		cubeEvent.setAzimuthalGap(originQuality.getAzimuthalGap());
+			// min station distance
+			cubeEvent.setMinStationDistanceDegrees(originQuality
+					.getMinimumDistance());
 
-		// min station distance
-		cubeEvent.setMinStationDistanceDegrees(originQuality
-				.getMinimumDistance());
-
-		// rms time error (standard error)
-		cubeEvent.setRmsTimeError(originQuality.getStandardError());
+			// rms time error (standard error)
+			cubeEvent.setRmsTimeError(originQuality.getStandardError());
+		}
 
 		// location method
 		String locationMethod = getCubeLocationMethod(origin.getMethodID());
 		cubeEvent.setLocationMethod(locationMethod);
 
-		RealQuantity mag = magnitude.getMag();
-
-		// magnitude type
-		String magnitudeType = getCubeMagnitudeType(magnitude.getMethodID());
-		if (magnitudeType != null && magnitudeType.length() == 1) {
-			cubeEvent.setMagnitudeType(magnitudeType);
-		} else {
-			// TODO: should this check happen first?
-			magnitudeType = getCubeMagnitudeType(magnitude.getType());
-			if (magnitudeType != null && magnitudeType.length() == 1) {
-				cubeEvent.setMagnitudeType(magnitudeType);
-			}
-		}
-
-		// magnitude
-		cubeEvent.setMagnitude(mag.getValue());
-
-		// magnitude error
-		cubeEvent.setMagnitudeError(mag.getUncertainty());
-
-		// magnitude num stations
-		BigInteger numMagnitudeStations = magnitude.getStationCount();
-		cubeEvent.setNumMagnitudeStations(numMagnitudeStations);
-
 		// determine review status
 		EvaluationMode originEvaluationMode = origin.getEvaluationMode();
-		EvaluationMode magnitudeEvaluationMode = magnitude.getEvaluationMode();
-
-		if (originEvaluationMode == EvaluationMode.MANUAL
-				&& magnitudeEvaluationMode == EvaluationMode.MANUAL) {
-			// origin AND magnitude manual
+		if (originEvaluationMode == EvaluationMode.MANUAL) {
 			cubeEvent.setReviewed(true);
 		} else {
-			// either or both are automatic
 			cubeEvent.setReviewed(false);
+		}
+
+		Magnitude magnitude = findMagnitude(event.getMagnitudes(),
+				preferredMagnitudeID);
+		if (magnitude != null) {
+			// magnitude type
+			String magnitudeType = getCubeMagnitudeType(magnitude.getMethodID());
+			if (magnitudeType != null && magnitudeType.length() == 1) {
+				cubeEvent.setMagnitudeType(magnitudeType);
+			} else {
+				// TODO: should this check happen first?
+				magnitudeType = getCubeMagnitudeType(magnitude.getType());
+				if (magnitudeType != null && magnitudeType.length() == 1) {
+					cubeEvent.setMagnitudeType(magnitudeType);
+				}
+			}
+
+			RealQuantity mag = magnitude.getMag();
+			if (mag != null) {
+				// magnitude
+				cubeEvent.setMagnitude(mag.getValue());
+
+				// magnitude error
+				cubeEvent.setMagnitudeError(mag.getUncertainty());
+
+				// magnitude num stations
+				cubeEvent.setNumMagnitudeStations(magnitude.getStationCount());
+			}
 		}
 
 		return cubeEvent;
