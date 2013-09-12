@@ -205,8 +205,10 @@ public class CubeToEQMessageConverter {
 		Magnitude magnitude = new Magnitude();
 		magnitude.setValue(message.getMagnitude());
 		magnitude.setError(message.getMagnitudeError());
-		magnitude.setNumStations(new BigInteger(message
-				.getNumMagnitudeStations().toString()));
+		if (message.getNumMagnitudeStations() != null) {
+			magnitude.setNumStations(new BigInteger(message
+					.getNumMagnitudeStations().toString()));
+		}
 		magnitude.setPreferredFlag(true);
 		origin.getMagnitude().add(magnitude);
 
