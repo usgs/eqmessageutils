@@ -1,7 +1,6 @@
 package gov.usgs.earthquake.event;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 
@@ -200,11 +199,8 @@ public class EQMessageToCubeConverter {
 			cubeEvent.setVerticalError(BigDecimal.ZERO);
 		}
 
-		BigInteger numPhaUsed = origin.getNumPhaUsed();
-		cubeEvent.setNumLocationPhases(numPhaUsed);
-
-		BigInteger numStaUsed = origin.getNumStaUsed();
-		cubeEvent.setNumLocationStations(numStaUsed);
+		cubeEvent.setNumLocationPhases(origin.getNumPhaUsed());
+		cubeEvent.setNumLocationStations(origin.getNumStaUsed());
 
 		OriginStatus status = origin.getStatus();
 		if (status != null && status == OriginStatus.REVIEWED) {
@@ -228,9 +224,8 @@ public class EQMessageToCubeConverter {
 		cubeEvent.setMagnitude(magnitude.getValue());
 		cubeEvent.setMagnitudeError(magnitude.getError());
 		cubeEvent.setMagnitudeType(getCubeCode(magnitude.getComment()));
+		cubeEvent.setNumMagnitudeStations(magnitude.getNumStations());
 
-		BigInteger numMagnitudeStations = magnitude.getNumStations();
-		cubeEvent.setNumMagnitudeStations(numMagnitudeStations);
 		if (cubeEvent.getMagnitudeType() == null && magnitude.getTypeKey() != null) {
 			// no CUBE_CODE comment, try magnitude type
 			cubeEvent.setMagnitudeType(CubeMessage.getCubeCode(MagnitudeType
