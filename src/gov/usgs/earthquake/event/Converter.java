@@ -14,6 +14,7 @@ import gov.usgs.earthquake.quakeml.Quakeml_1_2_Parser;
 import gov.usgs.earthquake.util.IOUtil;
 
 import org.quakeml_1_2.Quakeml;
+import org.xml.sax.SAXException;
 
 /**
  * Factory for parsing and converting between formats.
@@ -189,8 +190,9 @@ public class Converter {
 	 *            EQMessage to convert.
 	 * @return String format of EQMessage.
 	 * @throws JAXBException
+	 * @throws SAXException
 	 */
-	public String getString(final EQMessage message) throws JAXBException {
+	public String getString(final EQMessage message) throws JAXBException, SAXException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		EQMessageParser.serialize(message, baos);
 		return baos.toString();
