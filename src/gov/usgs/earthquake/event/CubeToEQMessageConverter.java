@@ -39,6 +39,8 @@ public class CubeToEQMessageConverter {
 	public static final String DEPTH_METHOD_FIXED = "Fixed";
 	public static final String LOCATION_METHOD_UNKNOWN = "Unknown";
 
+	public static final String PRODUCT_LINK_TYPEKEY = "LinkURL";
+
 	/**
 	 * Convert either a CubeEvent or CubeDelete object to an EQMessage.
 	 * 
@@ -81,6 +83,7 @@ public class CubeToEQMessageConverter {
 		eqMessage.getEvent().add(event);
 
 		ProductLink productLink = new ProductLink();
+		productLink.setTypeKey(PRODUCT_LINK_TYPEKEY);
 		productLink.setSourceKey(message.getSource().toLowerCase());
 		productLink.setCode(message.getAddonType());
 		productLink.setLink(message.getAddonUrl());
@@ -227,6 +230,7 @@ public class CubeToEQMessageConverter {
 		Method locationMethod = new Method();
 		Comment comment = getCubeCodeComment(message.getLocationMethod());
 		if (comment != null) {
+			locationMethod.setClazz(CUBE_CODE_TYPEKEY);
 			locationMethod.setAlgorithm(message.getLocationMethod());
 			locationMethod.getComment().add(comment);
 			origin.getMethod().add(locationMethod);
