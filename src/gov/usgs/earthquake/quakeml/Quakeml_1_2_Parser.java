@@ -63,7 +63,7 @@ public class Quakeml_1_2_Parser extends NamespacePrefixMapper {
 	}
 
 	/** Path to the EQXML schema. */
-	public static String SCHEMA_RESOURCE_PATH = "quakeml_1.2/QuakeML-1.2.xsd";
+	public static String SCHEMA_RESOURCE_PATH = "quakeml_1.2/QuakeML-1.2_jaxb.xsd";
 
 	/** Only load the schema once. */
 	private static Schema SCHEMA = null;
