@@ -2,9 +2,11 @@ package gov.usgs.earthquake.quakeml;
 
 import gov.usgs.earthquake.util.IOUtil;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -12,8 +14,11 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import org.quakeml_1_2.Quakeml;
+import org.xml.sax.SAXException;
 
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
@@ -57,14 +62,59 @@ public class Quakeml_1_2_Parser extends NamespacePrefixMapper {
 		CONTEXT = context;
 	}
 
+	/** Path to the EQXML schema. */
+	public static String SCHEMA_RESOURCE_PATH = "quakeml_1.2/QuakeML-1.2.xsd";
+
+	/** Only load the schema once. */
+	private static Schema SCHEMA = null;
+
 	/**
-	 * Parse an EQMessage from an InputStream-able object.
+	 * Get an EQXML Schema object, for use with validation.
+	 * 
+	 * @return Schema object.
+	 * @throws SAXException
+	 *             if unable to load schema.
+	 */
+	public static synchronized Schema getSchema() throws SAXException {
+		if (SCHEMA == null) {
+			SchemaFactory schemaFactory = SchemaFactory
+					.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			SCHEMA = schemaFactory.newSchema(Quakeml_1_2_Parser.class
+					.getClassLoader().getResource(SCHEMA_RESOURCE_PATH));
+		}
+		return SCHEMA;
+	}
+
+	/**
+	 * Parse a Quakeml 1.2 from an InputStream-able object, without validation.
 	 * 
 	 * @param source
 	 *            InputStream-able object, as defined by Utility.getInputStream.
 	 * @return an EQMessage object, or null if an error occurred.
+	 * @throws SAXException
+	 * @throws JAXBException
+	 * @throws IOException
 	 */
-	public static synchronized Quakeml parse(final Object source) {
+	public static synchronized Quakeml parse(final Object source)
+			throws IOException, JAXBException, SAXException {
+		return parse(source, false);
+	}
+
+	/**
+	 * Parse a Quakeml 1.2 from an InputStream-able object.
+	 * 
+	 * @param source
+	 *            InputStream-able object, as defined by Utility.getInputStream.
+	 * @param validate
+	 *            Whether to validate while parsing (true) or not (false).
+	 * @return an EQMessage object, or null if an error occurred.
+	 * @throws IOException
+	 * @throws JAXBException
+	 * @throws SAXException
+	 */
+	public static synchronized Quakeml parse(final Object source,
+			final boolean validate) throws IOException, JAXBException,
+			SAXException {
 		Quakeml message = null;
 		InputStream in = null;
 
@@ -73,12 +123,11 @@ public class Quakeml_1_2_Parser extends NamespacePrefixMapper {
 			// to be thread safe, must create unmarshaller per call
 			Unmarshaller unmarshaller = CONTEXT.createUnmarshaller();
 			if (unmarshaller != null) {
+				if (validate) {
+					unmarshaller.setSchema(getSchema());
+				}
 				message = (Quakeml) unmarshaller.unmarshal(in);
 			}
-		} catch (Exception e) {
-			System.err.println("Error processing source " + e.toString());
-			System.err.println(source);
-			System.err.println();
 		} finally {
 			IOUtil.close(in);
 		}
@@ -87,16 +136,36 @@ public class Quakeml_1_2_Parser extends NamespacePrefixMapper {
 	}
 
 	/**
-	 * Convert an EQMessage to XML.
+	 * Convert a Quakeml 1.2 to XML, without validation.
 	 * 
 	 * @param message
 	 *            the message to serialize.
 	 * @param out
 	 *            the outputstream where xml is written.
 	 * @throws JAXBException
+	 * @throws SAXException
 	 */
 	public static synchronized void serialize(final Quakeml message,
-			final OutputStream out) throws JAXBException {
+			final OutputStream out) throws JAXBException, SAXException {
+		serialize(message, out, false);
+	}
+
+	/**
+	 * Convert a Quakeml 1.2 to XML.
+	 * 
+	 * @param message
+	 *            the message to serialize.
+	 * @param out
+	 *            the outputstream where xml is written.
+	 * @param validate
+	 *            whether to validate the message being serialized (true) or not
+	 *            (false).
+	 * @throws JAXBException
+	 * @throws SAXException
+	 */
+	public static synchronized void serialize(final Quakeml message,
+			final OutputStream out, final boolean validate)
+			throws JAXBException, SAXException {
 		// to be thread safe, must create marshaller per call
 		Marshaller marshaller = CONTEXT.createMarshaller();
 
@@ -112,6 +181,10 @@ public class Quakeml_1_2_Parser extends NamespacePrefixMapper {
 		XmlType quakemlXmlType = Quakeml.class.getAnnotation(XmlType.class);
 		JAXBElement<Quakeml> element = new JAXBElement<Quakeml>(new QName(
 				quakemlXmlType.namespace(), "quakeml"), Quakeml.class, message);
+
+		if (validate) {
+			marshaller.setSchema(getSchema());
+		}
 
 		marshaller.marshal(element, out);
 	}

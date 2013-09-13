@@ -12,6 +12,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.quakeml_1_2.Quakeml;
+import org.xml.sax.SAXException;
 
 /**
  * Tests for Quakeml_1_2rc3_Parser.
@@ -26,15 +27,16 @@ public class Quakeml_1_2_Test {
 	 * 
 	 * @throws JAXBException
 	 * @throws IOException
+	 * @throws SAXException 
 	 */
 	@Test
-	public void fromSchemaExample() throws JAXBException, IOException {
+	public void fromSchemaExample() throws JAXBException, IOException, SAXException {
 		byte[] example = IOUtil.readFile(new File(
 				"etc/quakeml_1.2/qml-example-1.2-RC3.xml"));
 		System.err.println("Read\n" + new String(example));
 		Quakeml message = Quakeml_1_2_Parser.parse(example);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		Quakeml_1_2_Parser.serialize(message, baos);
+		Quakeml_1_2_Parser.serialize(message, baos, true);
 		System.err.println("After\n" + new String(baos.toByteArray()));
 
 		// before, when testing on a non-UTC system, the date would be
