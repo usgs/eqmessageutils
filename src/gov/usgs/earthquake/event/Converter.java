@@ -16,6 +16,7 @@ import gov.usgs.earthquake.util.IOUtil;
 
 import org.quakeml_1_2.Quakeml;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * Factory for parsing and converting between formats.
@@ -396,45 +397,57 @@ public class Converter {
 		Converter converter = new Converter();
 
 		String input = new String(IOUtil.readStream(System.in));
-
-		if (informat.equals("cube")) {
-			CubeMessage in = converter.getCubeMessage(input);
-			if (outformat.equals("cube")) {
-				System.out.println(converter.getString(in));
-			} else if (outformat.equals("quakeml")) {
-				System.out.println(converter.getString(
-						converter.getQuakeml(in), validate));
-			} else if (outformat.equals("eqxml")) {
-				System.out.println(converter.getString(
-						converter.getEQMessage(in), validate));
-			} else {
-				printUsage();
+		try {
+			if (informat.equals("cube")) {
+				CubeMessage in = converter.getCubeMessage(input);
+				if (outformat.equals("cube")) {
+					System.out.println(converter.getString(in));
+				} else if (outformat.equals("quakeml")) {
+					System.out.println(converter.getString(
+							converter.getQuakeml(in), validate));
+				} else if (outformat.equals("eqxml")) {
+					System.out.println(converter.getString(
+							converter.getEQMessage(in), validate));
+				} else {
+					printUsage();
+				}
+			} else if (informat.equals("eqxml")) {
+				EQMessage in = converter.getEQMessage(input, validate);
+				if (outformat.equals("cube")) {
+					System.out.println(converter.getString(converter
+							.getCubeMessage(in)));
+				} else if (outformat.equals("quakeml")) {
+					System.out.println(converter.getString(
+							converter.getQuakeml(in), validate));
+				} else if (outformat.equals("eqxml")) {
+					System.out.println(converter.getString(in));
+				} else {
+					printUsage();
+				}
+			} else if (informat.equals("quakeml")) {
+				Quakeml in = converter.getQuakeml(input, validate);
+				if (outformat.equals("cube")) {
+					System.out.println(converter.getString(converter
+							.getCubeMessage(in)));
+				} else if (outformat.equals("quakeml")) {
+					System.out.println(converter.getString(in, validate));
+				} else if (outformat.equals("eqxml")) {
+					System.out.println(converter.getString(
+							converter.getEQMessage(in), validate));
+				} else {
+					printUsage();
+				}
 			}
-		} else if (informat.equals("eqxml")) {
-			EQMessage in = converter.getEQMessage(input, validate);
-			if (outformat.equals("cube")) {
-				System.out.println(converter.getString(converter
-						.getCubeMessage(in)));
-			} else if (outformat.equals("quakeml")) {
-				System.out.println(converter.getString(
-						converter.getQuakeml(in), validate));
-			} else if (outformat.equals("eqxml")) {
-				System.out.println(converter.getString(in));
+		} catch (JAXBException je) {
+			if (je.getLinkedException() instanceof SAXParseException) {
+				SAXParseException spe = (SAXParseException) je
+						.getLinkedException();
+				System.err.println(spe.getMessage() + ", line "
+						+ spe.getLineNumber() + ", column "
+						+ spe.getColumnNumber());
+				System.exit(1);
 			} else {
-				printUsage();
-			}
-		} else if (informat.equals("quakeml")) {
-			Quakeml in = converter.getQuakeml(input, validate);
-			if (outformat.equals("cube")) {
-				System.out.println(converter.getString(converter
-						.getCubeMessage(in)));
-			} else if (outformat.equals("quakeml")) {
-				System.out.println(converter.getString(in, validate));
-			} else if (outformat.equals("eqxml")) {
-				System.out.println(converter.getString(
-						converter.getEQMessage(in), validate));
-			} else {
-				printUsage();
+				throw je;
 			}
 		}
 	}
