@@ -3,6 +3,7 @@ package gov.usgs.earthquake.eqxml;
 import gov.usgs.ansseqmsg.EQMessage;
 import gov.usgs.earthquake.util.IOUtil;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -67,8 +68,12 @@ public class EQMessageParser {
 	 * @param source
 	 *            InputStream-able object, as defined by Utility.getInputStream.
 	 * @return an EQMessage object, or null if an error ocurred.
+	 * @throws SAXException
+	 * @throws JAXBException
+	 * @throws IOException
 	 */
-	public static synchronized EQMessage parse(final Object source) {
+	public static synchronized EQMessage parse(final Object source)
+			throws IOException, JAXBException, SAXException {
 		return parse(source, false);
 	}
 
@@ -80,9 +85,13 @@ public class EQMessageParser {
 	 * @param validate
 	 *            whether to use validation (true) or not (false).
 	 * @return an EQMessage object, or null if an error occurred.
+	 * @throws IOException
+	 * @throws JAXBException
+	 * @throws SAXException
 	 */
 	public static synchronized EQMessage parse(final Object source,
-			final boolean validate) {
+			final boolean validate) throws IOException, JAXBException,
+			SAXException {
 		EQMessage message = null;
 		InputStream in = null;
 
@@ -95,10 +104,6 @@ public class EQMessageParser {
 				}
 				message = (EQMessage) unmarshaller.unmarshal(in);
 			}
-		} catch (Exception e) {
-			System.err.println("Error processing source " + e.toString());
-			System.err.println(source);
-			System.err.println();
 		} finally {
 			IOUtil.close(in);
 		}
