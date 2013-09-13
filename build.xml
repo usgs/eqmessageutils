@@ -129,8 +129,7 @@
 		<mkdir dir="${build}/quakeml_1.2"/>
 		<copy todir="${build}/quakeml_1.2">
 			<fileset dir="${etc}/quakeml_1.2">
-				<include name="*_jaxb.xsd"/>
-				<include name="AnssCatalog-0.1.xsd"/>
+				<include name="*.xsd"/>
 			</fileset>
 		</copy>
 
