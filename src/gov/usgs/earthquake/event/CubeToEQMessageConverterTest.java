@@ -1,12 +1,14 @@
 package gov.usgs.earthquake.event;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import gov.usgs.ansseqmsg.EQMessage;
 import gov.usgs.earthquake.cube.CubeAddon;
@@ -30,9 +32,11 @@ public class CubeToEQMessageConverterTest {
 	 * Convert each example event and delete provided in the cube documentation.
 	 * 
 	 * @throws JAXBException
+	 * @throws SAXException 
+	 * @throws IOException 
 	 */
 	@Test
-	public void convertExampleCubes() throws JAXBException {
+	public void convertExampleCubes() throws JAXBException, SAXException {
 		convertCubeString(CubeEvent.EXAMPLE1);
 		convertCubeString(CubeEvent.EXAMPLE2);
 		convertCubeString(CubeDelete.EXAMPLE);
@@ -45,8 +49,9 @@ public class CubeToEQMessageConverterTest {
 	 * 
 	 * @param cube
 	 * @throws JAXBException
+	 * @throws SAXException 
 	 */
-	public void convertCubeString(final String cube) throws JAXBException {
+	public void convertCubeString(final String cube) throws JAXBException, SAXException {
 		System.err.println(CubeEvent.HUMAN_PARSING_GUIDE);
 
 		// parse cube
@@ -63,7 +68,7 @@ public class CubeToEQMessageConverterTest {
 		EQMessage converted = new CubeToEQMessageConverter()
 				.convertCubeMessage(event);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		EQMessageParser.serialize(converted, baos);
+		EQMessageParser.serialize(converted, baos, true);
 		System.err.println("Converted to EQXML");
 		System.err.println(baos.toString());
 

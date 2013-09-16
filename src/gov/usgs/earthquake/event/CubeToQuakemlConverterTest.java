@@ -56,7 +56,7 @@ public class CubeToQuakemlConverterTest {
 		Quakeml converted = new CubeToQuakemlConverter()
 				.convertCubeMessage(event);
 		System.err.println("Converted to Quakeml");
-		Quakeml_1_2_Parser.serialize(converted, System.err);
+		Quakeml_1_2_Parser.serialize(converted, System.err, true);
 		System.err.println();
 
 		CubeMessage reconverted = new QuakemlToCubeConverter()
