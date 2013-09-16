@@ -34,6 +34,7 @@
 		<pathelement location="${lib}/junit-4.7.jar" />
 		<path refid="classpath" />
 		<pathelement path="${build}" />
+		<pathelement path="${etc}" />
 	</path>
 
 
@@ -120,6 +121,18 @@
 
 	<target name="jar" depends="compile" description="Build jar">
 		<mkdir dir="${dist}" />
+
+		<!-- copy eqxml schema into jar -->
+		<mkdir dir="${build}/eqxml"/>
+		<copy todir="${build}/eqxml" file="${etc}/eqxml/ANSS_EQ_XML_doc.xsd"/>
+
+		<mkdir dir="${build}/quakeml_1.2"/>
+		<copy todir="${build}/quakeml_1.2">
+			<fileset dir="${etc}/quakeml_1.2">
+				<include name="*.xsd"/>
+			</fileset>
+		</copy>
+
 		<jar jarfile="${jarfile}" basedir="${build}" excludes="**/*Test*">
 			<zipgroupfileset refid="lib.jars" />
 		</jar>
