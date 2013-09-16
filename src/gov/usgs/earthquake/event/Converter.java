@@ -54,7 +54,7 @@ public class Converter {
 	}
 
 	/**
-	 * Convert a Quakeml input stream to a Quakeml object, without validation.
+	 * Convert a Quakeml input stream to a Quakeml object.
 	 * 
 	 * @param quakeml
 	 *            InputStream containing Quakeml.
@@ -177,7 +177,7 @@ public class Converter {
 	}
 
 	/**
-	 * Convert an XML string to an EQMessage.
+	 * Convert an XML string to an EQMessage, without validation.
 	 * 
 	 * @param eqxml
 	 *            String containing EQXML.
