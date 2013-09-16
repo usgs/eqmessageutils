@@ -216,8 +216,7 @@ public class CubeToQuakemlConverter {
 				// if vertical error 0, depth was fixed
 				origin.setDepthType(OriginDepthType.OPERATOR_ASSIGNED);
 			} else {
-				depth.setUncertainty(kilometersToMeters(message
-						.getVerticalError()));
+				depth.setUncertainty(kilometersToMeters(verticalError));
 			}
 		}
 
@@ -251,51 +250,60 @@ public class CubeToQuakemlConverter {
 		// rms time error (standard error)
 		originQuality.setStandardError(message.getRmsTimeError());
 
-		Magnitude magnitude = new Magnitude();
-		event.getMagnitudes().add(magnitude);
+		// only add magnitude if message has magnitude
+		if (message.getMagnitudeType() != null
+				|| message.getMagnitude() != null
+				|| message.getMagnitudeError() != null
+				|| message.getNumMagnitudeStations() != null) {
+			Magnitude magnitude = new Magnitude();
+			event.getMagnitudes().add(magnitude);
 
-		// append magnitude type on extended id, in case agency generates
-		// multiple types
-		String magnitudeExtendedId = null;
-		MagnitudeType magnitudeType = CubeMessage.getMagnitudeType(message
-				.getMagnitudeType());
-		if (magnitudeType != null) {
-			magnitudeExtendedId = magnitudeType.getAbbreviation();
-			// also set plain text type
-			magnitude.setType(magnitudeType.getAbbreviation());
+			// append magnitude type on extended id, in case agency generates
+			// multiple types
+			String magnitudeExtendedId = null;
+			MagnitudeType magnitudeType = CubeMessage.getMagnitudeType(message
+					.getMagnitudeType());
+			if (magnitudeType != null) {
+				magnitudeExtendedId = magnitudeType.getAbbreviation();
+				// also set plain text type
+				magnitude.setType(magnitudeType.getAbbreviation());
+			}
+			magnitude.setPublicID(getQuakemlId(message.getSource(),
+					message.getCode(), "magnitude", magnitudeExtendedId));
+
+			// tie to the origin
+			magnitude.setOriginID(origin.getPublicID());
+
+			// num stations for magnitude
+			magnitude.setStationCount(message.getNumMagnitudeStations());
+
+			// magnitude type
+			magnitude.setMethodID(getQuakemlMagnitudeType(message
+					.getMagnitudeType()));
+
+			// preferred signals this is the magnitude to use for the "origin"
+			// type
+			// message instead of, for example, a moment-tensor derived
+			// magnitude
+			event.setPreferredMagnitudeID(magnitude.getPublicID());
+
+			// magnitude value
+			if (message.getMagnitude() != null
+					|| message.getMagnitudeError() != null) {
+				RealQuantity mag = new RealQuantity();
+				mag.setValue(message.getMagnitude());
+
+				// magnitude error
+				mag.setUncertainty(message.getMagnitudeError());
+				magnitude.setMag(mag);
+			}
 		}
-		magnitude.setPublicID(getQuakemlId(message.getSource(),
-				message.getCode(), "magnitude", magnitudeExtendedId));
-
-		// tie to the origin
-		magnitude.setOriginID(origin.getPublicID());
-
-		// num stations for magnitude
-		magnitude.setStationCount(message.getNumMagnitudeStations());
-
-		// magnitude type
-		magnitude.setMethodID(getQuakemlMagnitudeType(message
-				.getMagnitudeType()));
-
-		// preferred signals this is the magnitude to use for the "origin" type
-		// message instead of, for example, a moment-tensor derived magnitude
-		event.setPreferredMagnitudeID(magnitude.getPublicID());
-
-		// magnitude value
-		RealQuantity mag = new RealQuantity();
-		mag.setValue(message.getMagnitude());
-
-		// magnitude error
-		mag.setUncertainty(message.getMagnitudeError());
-		magnitude.setMag(mag);
 
 		// review status
 		if (message.isReviewed()) {
 			origin.setEvaluationMode(EvaluationMode.MANUAL);
-			magnitude.setEvaluationMode(EvaluationMode.MANUAL);
 		} else {
 			origin.setEvaluationMode(EvaluationMode.AUTOMATIC);
-			magnitude.setEvaluationMode(EvaluationMode.AUTOMATIC);
 		}
 
 		return quakeml;
