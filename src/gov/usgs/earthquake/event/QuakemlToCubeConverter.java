@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.quakeml_1_2.Comment;
 import org.quakeml_1_2.CreationInfo;
@@ -25,12 +26,18 @@ import org.quakeml_1_2.EventParameters;
 import org.quakeml_1_2.RealQuantity;
 import org.quakeml_1_2.TimeQuantity;
 
+import java.util.logging.Logger;
+
 /**
  * Convert from Quakeml to CubeMessage
  * 
  * @author jmfee
  */
 public class QuakemlToCubeConverter {
+
+	/** Logging object. */
+	private static final Logger LOGGER = Logger
+			.getLogger(QuakemlToCubeConverter.class.getName());
 
 	/**
 	 * Convert a Quakeml object to a CubeMessage object.
@@ -338,9 +345,15 @@ public class QuakemlToCubeConverter {
 		}
 
 		// try to interpret as magnitude abbreviation
-		MagnitudeType type = MagnitudeType.valueOf(magnitudeType.toUpperCase());
-		if (type != null) {
-			return CubeMessage.getCubeCode(type);
+		try {
+			MagnitudeType type = MagnitudeType.valueOf(magnitudeType
+					.toUpperCase());
+			if (type != null) {
+				return CubeMessage.getCubeCode(type);
+			}
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "unexpected magnitude type '"
+					+ magnitudeType + "'", e);
 		}
 
 		// unknown
