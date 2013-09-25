@@ -94,10 +94,14 @@ public class QuakemlToCubeConverter {
 
 		// read version and sent timestamp from event creation info
 		CreationInfo creationInfo = event.getCreationInfo();
-		cubeDelete.setVersion(creationInfo.getVersion());
+		if (creationInfo != null) {
+			cubeDelete.setVersion(creationInfo.getVersion());
+		}
 
 		creationInfo = eventParameters.getCreationInfo();
-		cubeDelete.setSent(creationInfo.getCreationTime());
+		if (creationInfo != null) {
+			cubeDelete.setSent(creationInfo.getCreationTime());
+		}
 
 		try {
 			Comment deleteComment = event.getComments().get(0);
@@ -143,10 +147,14 @@ public class QuakemlToCubeConverter {
 
 		// read version and sent timestamp from event creation info
 		CreationInfo creationInfo = event.getCreationInfo();
-		cubeEvent.setVersion(creationInfo.getVersion());
+		if (creationInfo != null) {
+			cubeEvent.setVersion(creationInfo.getVersion());
+		}
 
 		creationInfo = eventParameters.getCreationInfo();
-		cubeEvent.setSent(creationInfo.getCreationTime());
+		if (creationInfo != null) {
+			cubeEvent.setSent(creationInfo.getCreationTime());
+		}
 
 		String preferredOriginID = event.getPreferredOriginID();
 		String preferredMagnitudeID = event.getPreferredMagnitudeID();
@@ -180,14 +188,14 @@ public class QuakemlToCubeConverter {
 		if (depth != null) {
 			cubeEvent.setDepth(depth.getValue().divide(
 					CubeToQuakemlConverter.METERS_PER_KILOMETER));
+			// vertical uncertainty
+			BigDecimal verticalError = depth.getUncertainty();
+			if (verticalError != null) {
+				cubeEvent.setVerticalError(verticalError
+						.divide(CubeToQuakemlConverter.METERS_PER_KILOMETER));
+			}
 		}
 
-		// vertical uncertainty
-		BigDecimal verticalError = depth.getUncertainty();
-		if (verticalError != null) {
-			cubeEvent.setVerticalError(verticalError
-					.divide(CubeToQuakemlConverter.METERS_PER_KILOMETER));
-		}
 		if (origin.getDepthType() == OriginDepthType.OPERATOR_ASSIGNED) {
 			// TODO: is this necessary, operator might assign uncertainty?
 			cubeEvent.setVerticalError(BigDecimal.ZERO);
@@ -195,8 +203,8 @@ public class QuakemlToCubeConverter {
 
 		// horizontal uncertainty
 		OriginUncertainty originUncertainty = origin.getOriginUncertainty();
-		if (originUncertainty.getPreferredDescription().equals(
-				OriginUncertaintyDescription.HORIZONTAL_UNCERTAINTY)) {
+		if (OriginUncertaintyDescription.HORIZONTAL_UNCERTAINTY
+				.equals(originUncertainty.getPreferredDescription())) {
 			// TODO: set this regardless of preferred description?
 			if (originUncertainty.getHorizontalUncertainty() != null) {
 				cubeEvent.setHorizontalError(originUncertainty
@@ -260,10 +268,10 @@ public class QuakemlToCubeConverter {
 
 				// magnitude error
 				cubeEvent.setMagnitudeError(mag.getUncertainty());
-
-				// magnitude num stations
-				cubeEvent.setNumMagnitudeStations(magnitude.getStationCount());
 			}
+
+			// magnitude num stations
+			cubeEvent.setNumMagnitudeStations(magnitude.getStationCount());
 		}
 
 		return cubeEvent;
