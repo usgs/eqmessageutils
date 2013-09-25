@@ -120,10 +120,8 @@ public class EQMessageToCubeConverter {
 			while (iter.hasNext()) {
 				Comment comment = iter.next();
 				String typeKey = comment.getTypeKey();
-				if (typeKey != null
-						&& typeKey
-								.equals(CubeToEQMessageConverter.DELETE_MESSAGE_COMMENT_TYPEKEY)
-						&& comment.getText() != null) {
+				if (CubeToEQMessageConverter.DELETE_MESSAGE_COMMENT_TYPEKEY
+						.equals(typeKey) && comment.getText() != null) {
 					cubeDelete.setMessage(comment.getText().trim());
 					break;
 				}
@@ -196,9 +194,7 @@ public class EQMessageToCubeConverter {
 		cubeEvent.setVerticalError(origin.getErrz());
 
 		String depthMethod = origin.getDepthMethod();
-		if (depthMethod != null
-				&& depthMethod
-						.equals(CubeToEQMessageConverter.DEPTH_METHOD_FIXED)) {
+		if (CubeToEQMessageConverter.DEPTH_METHOD_FIXED.equals(depthMethod)) {
 			cubeEvent.setVerticalError(BigDecimal.ZERO);
 		}
 
