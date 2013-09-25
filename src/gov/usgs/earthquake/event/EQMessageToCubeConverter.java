@@ -115,15 +115,18 @@ public class EQMessageToCubeConverter {
 		cubeDelete.setCode(event.getEventID().toLowerCase());
 		cubeDelete.setVersion(event.getVersion());
 
-		Iterator<Comment> iter = event.getComment().iterator();
-		while (iter.hasNext()) {
-			Comment comment = iter.next();
-			String typeKey = comment.getTypeKey();
-			if (typeKey != null
-					&& typeKey
-							.equals(CubeToEQMessageConverter.DELETE_MESSAGE_COMMENT_TYPEKEY)) {
-				cubeDelete.setMessage(comment.getText().trim());
-				break;
+		if (event.getComment() != null) {
+			Iterator<Comment> iter = event.getComment().iterator();
+			while (iter.hasNext()) {
+				Comment comment = iter.next();
+				String typeKey = comment.getTypeKey();
+				if (typeKey != null
+						&& typeKey
+								.equals(CubeToEQMessageConverter.DELETE_MESSAGE_COMMENT_TYPEKEY)
+						&& comment.getText() != null) {
+					cubeDelete.setMessage(comment.getText().trim());
+					break;
+				}
 			}
 		}
 
@@ -209,15 +212,17 @@ public class EQMessageToCubeConverter {
 			cubeEvent.setReviewed(false);
 		}
 
-		Iterator<Method> locationMethodIter = origin.getMethod().iterator();
-		while (locationMethodIter.hasNext()) {
-			Method locationMethod = locationMethodIter.next();
-			cubeEvent
-					.setLocationMethod(getCubeCode(locationMethod.getComment()));
-			if (cubeEvent.getLocationMethod() == null) {
-				// try to reverse engineer algorithm
+		if (origin.getMethod() != null) {
+			Iterator<Method> locationMethodIter = origin.getMethod().iterator();
+			while (locationMethodIter.hasNext()) {
+				Method locationMethod = locationMethodIter.next();
+				cubeEvent.setLocationMethod(getCubeCode(locationMethod
+						.getComment()));
+				if (cubeEvent.getLocationMethod() == null) {
+					// try to reverse engineer algorithm
+				}
+				break;
 			}
-			break;
 		}
 
 		Magnitude magnitude = origin.getMagnitude().get(0);
@@ -226,10 +231,16 @@ public class EQMessageToCubeConverter {
 		cubeEvent.setMagnitudeType(getCubeCode(magnitude.getComment()));
 		cubeEvent.setNumMagnitudeStations(magnitude.getNumStations());
 
-		if (cubeEvent.getMagnitudeType() == null && magnitude.getTypeKey() != null) {
+		if (cubeEvent.getMagnitudeType() == null
+				&& magnitude.getTypeKey() != null) {
 			// no CUBE_CODE comment, try magnitude type
-			cubeEvent.setMagnitudeType(CubeMessage.getCubeCode(MagnitudeType
-					.valueOf(magnitude.getTypeKey().toUpperCase())));
+			try {
+				cubeEvent.setMagnitudeType(CubeMessage
+						.getCubeCode(MagnitudeType.valueOf(magnitude
+								.getTypeKey().toUpperCase())));
+			} catch (Exception e) {
+				// ignore
+			}
 		}
 
 		return cubeEvent;
@@ -250,7 +261,8 @@ public class EQMessageToCubeConverter {
 			String typeKey = comment.getTypeKey();
 			if (typeKey != null
 					&& typeKey
-							.equals(CubeToEQMessageConverter.CUBE_CODE_TYPEKEY)) {
+							.equals(CubeToEQMessageConverter.CUBE_CODE_TYPEKEY)
+					&& comment.getText() != null) {
 				return comment.getText().replace(
 						CubeToEQMessageConverter.CUBE_CODE_PREFIX, "");
 			}
