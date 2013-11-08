@@ -6,7 +6,7 @@ import java.util.Date;
 
 /**
  * Base class for CubeMessages.
- * 
+ *
  * @author jmfee
  */
 public abstract class CubeMessage {
@@ -23,7 +23,7 @@ public abstract class CubeMessage {
 
 	/**
 	 * Each CUBEMessage has a two character type, "E ", "DE", "TR", etc.
-	 * 
+	 *
 	 * @return message type prefix.
 	 */
 	public abstract String getType();
@@ -35,10 +35,10 @@ public abstract class CubeMessage {
 
 	/**
 	 * When this message was sent.
-	 * 
+	 *
 	 * CUBE doesn't represent this in the message, but it is useful when
 	 * converting between formats that do.
-	 * 
+	 *
 	 * @return sent time.
 	 */
 	public Date getSent() {
@@ -75,7 +75,7 @@ public abstract class CubeMessage {
 
 	/**
 	 * Parse a cube message based on the first two characters.
-	 * 
+	 *
 	 * @param line
 	 *            line to parse
 	 * @return parsed message, or null if unable to parse.
@@ -96,7 +96,7 @@ public abstract class CubeMessage {
 
 	/**
 	 * Left pad a string using spaces.
-	 * 
+	 *
 	 * @see #leftPad(String, int, char).
 	 */
 	public static String leftPad(final String value, final int length) {
@@ -105,9 +105,9 @@ public abstract class CubeMessage {
 
 	/**
 	 * Left pad a string.
-	 * 
+	 *
 	 * Cube is a fixed width record format, so this helps with layout.
-	 * 
+	 *
 	 * @param value
 	 *            value being padded.
 	 * @param length
@@ -138,7 +138,7 @@ public abstract class CubeMessage {
 
 	/**
 	 * Translate from Cube magnitude type code to MagnitudeType.
-	 * 
+	 *
 	 * @param cubeCode
 	 *            cube code to translate.
 	 * @return magnitude type corresponding to cube code.
@@ -184,7 +184,7 @@ public abstract class CubeMessage {
 
 	/**
 	 * Translate from MagnitudeType to Cube magnitude type.
-	 * 
+	 *
 	 * @param magnitudeType
 	 *            magnitude type to translate.
 	 * @return magnitude type corresponding to cube code.
@@ -217,9 +217,14 @@ public abstract class CubeMessage {
 			return "L";
 		case MS:
 			return "S";
+		case MWB:
 		case MT:
 			return "T";
 		case MW:
+		case MWC:
+		case MWD:
+		case MWP:
+		case MWW:
 			return "O";
 		case MWR:
 			return "W";
