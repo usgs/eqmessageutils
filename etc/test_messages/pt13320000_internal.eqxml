@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<EQMessage xmlns="http://www.usgs.gov/ansseqmsg">
+    <Source>PT</Source>
+    <Module>QuakeWatch Server, Version 1.0</Module>
+    <Sent>2013-11-16T03:42:11.365Z</Sent>
+    <Event>
+        <DataSource>PT</DataSource>
+        <EventID>13320000</EventID>
+        <Version>A</Version>
+        <Action>Update</Action>
+        <Type>Earthquake</Type>
+        <Usage>Actual</Usage>
+        <Scope>Internal</Scope>
+        <Origin>
+            <Time>2013-11-16T03:34:31.000Z</Time>
+            <Latitude>-60.44</Latitude>
+            <Longitude>-46.915</Longitude>
+            <Depth>23.0</Depth>
+            <StdError>0.56</StdError>
+            <AzimGap>183.6</AzimGap>
+            <NumStaUsed>7</NumStaUsed>
+            <Status>Reviewed</Status>
+            <PreferredFlag>true</PreferredFlag>
+            <Magnitude>
+                <TypeKey>Mi</TypeKey>
+                <Value>7.4</Value>
+                <NumStations>6</NumStations>
+                <PreferredFlag>true</PreferredFlag>
+                <Comment>
+                    <TypeKey>CUBE_Code</TypeKey>
+                    <Text>CUBE_Code I</Text>
+                </Comment>
+            </Magnitude>
+            <Method>
+                <Class>Unknown</Class>
+                <Algorithm>z</Algorithm>
+                <Comment>
+                    <TypeKey>CUBE_Code</TypeKey>
+                    <Text>CUBE_Code z</Text>
+                </Comment>
+            </Method>
+        </Origin>
+    </Event>
+</EQMessage>
