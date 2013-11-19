@@ -22,7 +22,9 @@ Jeremy Fee <jmfee@usgs.gov>
 
 2013-11-19: added internalEvent and scenarioEvent elements to eventParameters.
 Most quakeml readers not using this modified schema will generate validation errors.
-This meets the original design goal of not being processed like regular event elements, even if less elegant than putting them in a separate namespace (which proved too difficult for XML schema, it's likely possible in RelaxNG).
+This meets the original design goal of not being processed like regular event elements,
+even if less elegant than putting them in a separate namespace
+(which proved too difficult for XML schema, it's likely possible in RelaxNG).
 
 -->
 
