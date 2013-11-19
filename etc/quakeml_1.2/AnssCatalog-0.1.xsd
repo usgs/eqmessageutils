@@ -8,7 +8,7 @@
 
   <xs:annotation>
     <xs:documentation xml:lang="en">
-      ANSS Catalog metadata for use with quakeml 1.2rc3.
+      ANSS Catalog metadata for use with quakeml 1.2.
 
       Jeremy Fee &lt;jmfee@usgs.gov&gt;
       2012-05-23

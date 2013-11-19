@@ -110,4 +110,25 @@ public class ConverterTest {
 			in.close();
 		}
 	}
+
+	@Test
+	public void testPtwcInternalEQXML() throws Exception {
+		Converter converter = new Converter();
+		InputStream in = IOUtil.getInputStream(new File(
+				"etc/test_messages/pt13320000_internal.eqxml"));
+		try {
+			EQMessage eqxml = converter.getEQMessage(in);
+			System.err.println(converter.getString(eqxml));
+			CubeEvent cube = (CubeEvent) converter.getCubeMessage(eqxml);
+			Assert.assertTrue("message has internal flag set", cube.isInternal());
+			System.err.println(converter.getString(cube));
+			Quakeml quakeml = converter.getQuakeml(eqxml);
+			Assert.assertNotNull("message converts to quakeml", quakeml);
+			System.err.println(converter.getString(quakeml));
+			Assert.assertTrue("quakeml has internalEvent", 
+					quakeml.getEventParameters().getInternalEvents().size() != 0);
+		} finally {
+			in.close();
+		}
+	}
 }

@@ -123,12 +123,6 @@ public class CubeToQuakemlConverter {
 	 * @throws Exception
 	 */
 	public Quakeml convertCubeEvent(CubeEvent message) throws Exception {
-		if (message.isInternal()) {
-			// quakeml does not differentiate between internal/public
-			// TODO: remove this and send internal-origin type products?
-			return null;
-		}
-
 		Quakeml quakeml = new Quakeml();
 
 		// if message already has sent time, use that
@@ -154,7 +148,11 @@ public class CubeToQuakemlConverter {
 		event.setEventsource(message.getSource());
 		event.setEventid(message.getCode());
 
-		eventParameters.getEvents().add(event);
+		if (message.isInternal()) {
+			eventParameters.getInternalEvents().add(event);
+		} else {
+			eventParameters.getEvents().add(event);
+		}
 
 		// version and sent timestamp in event creation info
 		CreationInfo creationInfo = new CreationInfo();
