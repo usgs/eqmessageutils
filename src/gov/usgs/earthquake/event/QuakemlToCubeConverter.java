@@ -50,19 +50,29 @@ public class QuakemlToCubeConverter {
 	public CubeMessage convertQuakeml(final Quakeml message) throws Exception {
 		EventParameters eventParameters = message.getEventParameters();
 
+		boolean internal = false;
 		List<Event> events = eventParameters.getEvents();
 		if (events.size() == 0) {
-			// no events to convert
-			return null;
+			// no regular events, check for internal
+			events = eventParameters.getInternalEvents();
+			internal = true;
 		}
 
-		Event event = events.get(0);
-		EventType eventType = event.getType();
-		if (eventType == EventType.NOT_EXISTING) {
-			return convertQuakemlDeleteMessage(message, event, eventParameters);
-		} else {
-			return convertQuakemlEventMessage(message, event, eventParameters);
+		if (events.size() > 0) {
+			Event event = events.get(0);
+			EventType eventType = event.getType();
+			if (eventType == EventType.NOT_EXISTING) {
+				return convertQuakemlDeleteMessage(message, event, eventParameters);
+			} else {
+				CubeEvent cubeEvent = convertQuakemlEventMessage(message, event, eventParameters);
+				if (cubeEvent != null) {
+					cubeEvent.setInternal(internal);
+				}
+				return cubeEvent;
+			}
 		}
+		// no events to convert
+		return null;
 	}
 
 	/**
