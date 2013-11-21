@@ -63,20 +63,6 @@
 			<arg value="-enableIntrospection"/>
 		</xjc>
 
-		<!-- QuakeML 1.2rc3 -->
-		<xjc destdir="${gensrc}" binding="${etc}/quakeml_1.2rc3/QuakeML-1.2rc3.bindings.xml" removeOldOutput="yes" extension="true">
-			<schema dir="${etc}/quakeml_1.2rc3" includes="*_jaxb.xsd" />
-			<produces dir="${gensrc}/org/quakeml1_2rc3" includes="*" />
-			<arg value="-enableIntrospection"/>
-		</xjc>
-
-		<!-- QuakeML RT 1.2rc3 -->
-		<xjc destdir="${gensrc}" binding="${etc}/quakeml_rt_1.2rc3/QuakeML-RT-1.2rc3.bindings.xml" removeOldOutput="yes" extension="true">
-			<schema dir="${etc}/quakeml_rt_1.2rc3" includes="*_jaxb.xsd" />
-			<produces dir="${gensrc}/org/quakeml_rt_1_2rc3" includes="*" />
-			<arg value="-enableIntrospection"/>
-		</xjc>
-
 		<!-- QuakeML 1.2 -->
 		<xjc destdir="${gensrc}" binding="${etc}/quakeml_1.2/QuakeML-1.2.bindings.xml" removeOldOutput="yes" extension="true">
 			<schema dir="${etc}/quakeml_1.2" includes="*_jaxb.xsd" />
