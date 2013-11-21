@@ -723,20 +723,6 @@ even if less elegant than putting them in a separate namespace
     <xs:sequence>
         <xs:element name="comment" type="bed:Comment" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="event" type="bed:Event" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element name="internalEvent" type="bed:Event" minOccurs="0" maxOccurs="unbounded">
-          <xs:annotation>
-            <xs:documentation>
-              Internal events represent preliminary solutions for actual events.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
-        <xs:element name="scenarioEvent" type="bed:Event" minOccurs="0" maxOccurs="unbounded">
-          <xs:annotation>
-            <xs:documentation>
-              Scenario events represent hypothetical events used for planning purposes.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
         <xs:element name="description" minOccurs="0" maxOccurs="1" type="xs:string"/>
         <xs:element name="creationInfo" minOccurs="0" maxOccurs="1" type="bed:CreationInfo"/>
       <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>

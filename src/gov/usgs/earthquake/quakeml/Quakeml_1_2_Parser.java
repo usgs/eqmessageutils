@@ -23,9 +23,9 @@ import org.xml.sax.SAXException;
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
 /**
- * Parse Quakeml 1.2rc3 messages.
+ * Parse Quakeml 1.2 messages.
  * 
- * @see org.quakeml_1_2rc3.Quakeml
+ * @see org.quakeml_1_2.Quakeml
  */
 public class Quakeml_1_2_Parser extends NamespacePrefixMapper {
 
@@ -47,6 +47,10 @@ public class Quakeml_1_2_Parser extends NamespacePrefixMapper {
 	/** Catalog namespace. */
 	public static final String ANSS_EVENTID_NAMESPACE = "http://anss.org/xmlns/catalog/0.1";
 	public static final String ANSS_EVENTID_PREFIX = "catalog";
+
+	/** Event namespace. */
+	public static final String ANSS_EVENT_NAMESPACE = "http://anss.org/xmlns/event/0.1";
+	public static final String ANSS_EVENT_PREFIX = "anss";
 
 	/** JAXB Context for parsing. */
 	public static final JAXBContext CONTEXT;
@@ -201,6 +205,8 @@ public class Quakeml_1_2_Parser extends NamespacePrefixMapper {
 			return QUAKEML_1_2_BED_PREFIX;
 		} else if (ANSS_EVENTID_NAMESPACE.equals(namespaceUri)) {
 			return ANSS_EVENTID_PREFIX;
+		} else if (ANSS_EVENT_NAMESPACE.equals(namespaceUri)) {
+			return ANSS_EVENT_PREFIX;
 		} else {
 			return suggestion;
 		}

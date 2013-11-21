@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://anss.org/xmlns/event/0.1"
+           xmlns="http://anss.org/xmlns/event/0.1"
+           xmlns:bed="http://quakeml.org/xmlns/bed/1.2"
+           elementFormDefault="qualified" 
+           attributeFormDefault="qualified">
+
+
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      ANSS Internal and Scenario events for use with quakeml 1.2.
+
+      Jeremy Fee &lt;jmfee@usgs.gov&gt;
+      2013-11-21
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- include Quakeml BED namespace, so bed:Event can be extended -->
+  <xs:import namespace="http://quakeml.org/xmlns/bed/1.2" schemaLocation="QuakeML-BED-1.2_jaxb.xsd"/>
+
+  <xs:complexType name="InternalEvent">
+    <xs:complexContent>
+      <xs:extension base="bed:Event">
+        <xs:annotation>
+          <xs:documentation>
+            Internal events represent preliminary solutions for actual events.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ScenarioEvent">
+    <xs:complexContent>
+      <xs:extension base="bed:Event">
+        <xs:annotation>
+          <xs:documentation>
+            Scenario events represent hypothetical events used for planning purposes.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="internalEvent" type="InternalEvent"/>
+  <xs:element name="scenarioEvent" type="ScenarioEvent"/>
+
+</xs:schema>

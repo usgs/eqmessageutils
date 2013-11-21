@@ -15,6 +15,7 @@ import gov.usgs.earthquake.cube.CubeEvent;
 import gov.usgs.earthquake.cube.CubeMessage;
 import gov.usgs.earthquake.util.IOUtil;
 
+import org.quakeml_1_2.InternalEvent;
 import org.quakeml_1_2.Quakeml;
 
 /**
@@ -82,13 +83,13 @@ public class ConverterTest {
 
 	/**
 	 * Test using a specific message from nevada.
-	 *
+	 * 
 	 * This message was expected to convert from EQXML to CUBE and then Quakeml.
-	 *
+	 * 
 	 * This test is designed to reproduce 2 separate issues: 1) implicit origin
 	 * preferredFlag, when omitted should still imply preferred. 2) magnitude
 	 * type without Cube_Code comment, should convert.
-	 *
+	 * 
 	 * @throws Exception
 	 */
 	@Test
@@ -120,15 +121,34 @@ public class ConverterTest {
 			EQMessage eqxml = converter.getEQMessage(in);
 			System.err.println(converter.getString(eqxml));
 			CubeEvent cube = (CubeEvent) converter.getCubeMessage(eqxml);
-			Assert.assertTrue("message has internal flag set", cube.isInternal());
+			Assert.assertTrue("message has internal flag set",
+					cube.isInternal());
 			System.err.println(converter.getString(cube));
 			Quakeml quakeml = converter.getQuakeml(eqxml);
 			Assert.assertNotNull("message converts to quakeml", quakeml);
 			System.err.println(converter.getString(quakeml));
-			Assert.assertTrue("quakeml has internalEvent", 
-					quakeml.getEventParameters().getInternalEvents().size() != 0);
+			Assert.assertTrue("quakeml event is InternalEvent",
+					quakeml.getEventParameters().getAnies().get(0) instanceof InternalEvent);
 		} finally {
 			in.close();
 		}
 	}
+
+	@Test
+	public void testPtwcInternalQuakeml() throws Exception {
+		Converter converter = new Converter();
+		InputStream in = IOUtil.getInputStream(new File(
+				"etc/test_messages/pt13320000_internal.quakeml"));
+		try {
+			Quakeml quakeml = converter.getQuakeml(in);
+			Assert.assertNotNull("message converts to quakeml", quakeml);
+			System.err.println(converter.getString(quakeml));
+			Assert.assertTrue("quakeml event is InternalEvent",
+					quakeml.getEventParameters().getAnies().get(0) instanceof InternalEvent);
+		} finally {
+			in.close();
+		}
+
+	}
+
 }
