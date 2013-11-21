@@ -44,7 +44,8 @@ print """<bindings version="2.0"
 	xmlns="http://java.sun.com/xml/ns/jaxb"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
-	extensionBindingPrefixes="xjc">
+	xmlns:wildcard="http://jaxb2-commons.dev.java.net/basic/wildcard"
+	extensionBindingPrefixes="xjc wildcard">
 
 	<globalBindings
 			fixedAttributeAsConstantProperty="true"
@@ -78,6 +79,8 @@ print """<bindings version="2.0"
 
 	<!-- bindings for QuakeML-BED -->
 	<bindings schemaLocation="QuakeML-BED-1.2_jaxb.xsd" node="/xs:schema">
+		<wildcard:lax/>
+
 		<schemaBindings map="true">
 			<package name="org.quakeml_1_2"/>
 		</schemaBindings>
@@ -98,6 +101,13 @@ for el in complexElements:
 	print """		<bindings node="//xs:complexType[@name='%s']"><class name="%s"/></bindings>""" % (el, el)
 
 print """
+	</bindings>
+
+	<!-- bindings for AnssEvent -->
+	<bindings schemaLocation="AnssEvent-0.1.xsd" node="/xs:schema">
+		<schemaBindings>
+			<package name="org.quakeml_1_2"/>
+		</schemaBindings>
 	</bindings>
 
 </bindings>

@@ -6,6 +6,7 @@ import gov.usgs.earthquake.cube.CubeMessage;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -15,6 +16,7 @@ import org.quakeml_1_2.CreationInfo;
 import org.quakeml_1_2.EvaluationMode;
 import org.quakeml_1_2.Event;
 import org.quakeml_1_2.EventType;
+import org.quakeml_1_2.InternalEvent;
 import org.quakeml_1_2.Magnitude;
 import org.quakeml_1_2.Origin;
 import org.quakeml_1_2.OriginDepthType;
@@ -50,12 +52,22 @@ public class QuakemlToCubeConverter {
 	public CubeMessage convertQuakeml(final Quakeml message) throws Exception {
 		EventParameters eventParameters = message.getEventParameters();
 
-		boolean internal = false;
 		List<Event> events = eventParameters.getEvents();
 		if (events.size() == 0) {
-			// no regular events, check for internal
-			events = eventParameters.getInternalEvents();
-			internal = true;
+			events = new ArrayList<Event>();
+
+			// no events found, check for internalEvents
+			List<Object> anies = eventParameters.getAnies();
+			Iterator<Object> anyIter = anies.iterator();
+			while (anyIter.hasNext()) {
+				Object object = anyIter.next();
+				if (object instanceof InternalEvent) {
+					// found internal event
+					events.add((InternalEvent) object);
+					// done
+					break;
+				}
+			}
 		}
 
 		if (events.size() > 0) {
@@ -65,8 +77,8 @@ public class QuakemlToCubeConverter {
 				return convertQuakemlDeleteMessage(message, event, eventParameters);
 			} else {
 				CubeEvent cubeEvent = convertQuakemlEventMessage(message, event, eventParameters);
-				if (cubeEvent != null) {
-					cubeEvent.setInternal(internal);
+				if (cubeEvent != null && event instanceof InternalEvent) {
+					cubeEvent.setInternal(true);
 				}
 				return cubeEvent;
 			}

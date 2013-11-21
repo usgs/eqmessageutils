@@ -20,10 +20,8 @@
 
 
 	<fileset id="lib.jars" dir="${lib}">
-		<include name="*.jar" />
-		<!-- only need this for compilation -->
-		<exclude name="jaxb-xjc.jar" />
-		<exclude name="junit-4.7.jar" />
+		<include name="jaxb-impl-2.2.5-2.jar"/>
+		<include name="jaxb2-basics-runtime-0.6.4.jar"/>
 	</fileset>
 
 	<path id="classpath">
@@ -39,12 +37,13 @@
 
 
 	<!-- for auto generating classes from xml schema -->
-	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+	<taskdef name="xjc" classname="org.jvnet.jaxb2_commons.xjc.XJC2Task">
 		<classpath>
-			<pathelement location="${lib}/jaxb-xjc.jar" />
-			<pathelement location="${lib}/jaxb-api.jar" />
-			<pathelement location="${lib}/jaxb-impl.jar" />
-			<pathelement location="${lib}/jsr173_1.0_api.jar" />
+			<fileset dir="${lib}">
+				<include name="jaxb-impl-*.jar"/>
+				<include name="jaxb-xjc-*.jar"/>
+				<include name="jaxb2-basics-ant-*.jar"/>
+			</fileset>
 		</classpath>
 	</taskdef>
 
@@ -64,25 +63,24 @@
 			<arg value="-enableIntrospection"/>
 		</xjc>
 
-		<!-- QuakeML 1.2rc3 -->
-		<xjc destdir="${gensrc}" binding="${etc}/quakeml_1.2rc3/QuakeML-1.2rc3.bindings.xml" removeOldOutput="yes" extension="true">
-			<schema dir="${etc}/quakeml_1.2rc3" includes="*_jaxb.xsd" />
-			<produces dir="${gensrc}/org/quakeml1_2rc3" includes="*" />
-			<arg value="-enableIntrospection"/>
-		</xjc>
-
-		<!-- QuakeML RT 1.2rc3 -->
-		<xjc destdir="${gensrc}" binding="${etc}/quakeml_rt_1.2rc3/QuakeML-RT-1.2rc3.bindings.xml" removeOldOutput="yes" extension="true">
-			<schema dir="${etc}/quakeml_rt_1.2rc3" includes="*_jaxb.xsd" />
-			<produces dir="${gensrc}/org/quakeml_rt_1_2rc3" includes="*" />
-			<arg value="-enableIntrospection"/>
-		</xjc>
-
 		<!-- QuakeML 1.2 -->
 		<xjc destdir="${gensrc}" binding="${etc}/quakeml_1.2/QuakeML-1.2.bindings.xml" removeOldOutput="yes" extension="true">
 			<schema dir="${etc}/quakeml_1.2" includes="*_jaxb.xsd" />
 			<produces dir="${gensrc}/org/quakeml1_2" includes="*" />
 			<arg value="-enableIntrospection"/>
+			<!-- Wildcard plugin, supports parsing of InternalEvent and ScenarioEvent from non-quakeml namespace -->
+			<arg value="-Xwildcard"/>
+			<classpath>
+				<fileset dir="${basedir}/lib">
+					<!-- JAXB2 Basics library -->
+					<include name="jaxb2-basics-*.jar"/>
+					<!-- JAXB2 Basics library dependencies -->
+					<include name="javaparser-*.jar"/>
+					<include name="commons-beanutils-*.jar"/>
+					<include name="commons-lang-*.jar"/>
+					<include name="commons-logging-*.jar"/>
+				</fileset>
+			</classpath>
 		</xjc>
 
 		<!-- QuakeML RT 1.2 -->

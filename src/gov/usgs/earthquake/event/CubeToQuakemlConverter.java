@@ -15,6 +15,7 @@ import org.quakeml_1_2.EvaluationMode;
 import org.quakeml_1_2.Event;
 import org.quakeml_1_2.EventParameters;
 import org.quakeml_1_2.EventType;
+import org.quakeml_1_2.InternalEvent;
 import org.quakeml_1_2.Magnitude;
 import org.quakeml_1_2.OriginDepthType;
 import org.quakeml_1_2.OriginQuality;
@@ -139,7 +140,16 @@ public class CubeToQuakemlConverter {
 		quakeml.setEventParameters(eventParameters);
 
 		// event container
-		Event event = new Event();
+		Event event = null;
+		if (message.isInternal()) {
+			// add InternalEvent in anss namespace
+			event = new InternalEvent();
+			eventParameters.getAnies().add(event);
+		} else {
+			// add Event in quakeml namespace
+			event = new Event();
+			eventParameters.getEvents().add(event);
+		}
 		event.setPublicID(getQuakemlId(message.getSource(), message.getCode(),
 				"event", null));
 
@@ -147,12 +157,6 @@ public class CubeToQuakemlConverter {
 		event.setDatasource(message.getSource());
 		event.setEventsource(message.getSource());
 		event.setEventid(message.getCode());
-
-		if (message.isInternal()) {
-			eventParameters.getInternalEvents().add(event);
-		} else {
-			eventParameters.getEvents().add(event);
-		}
 
 		// version and sent timestamp in event creation info
 		CreationInfo creationInfo = new CreationInfo();

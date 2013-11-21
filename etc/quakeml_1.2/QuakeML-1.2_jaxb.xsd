@@ -20,16 +20,17 @@ Jeremy Fee <jmfee@usgs.gov>
 2013-03-01
 
 -->
-           
+
   <xs:import namespace="http://quakeml.org/xmlns/bed/1.2" schemaLocation="QuakeML-BED-1.2_jaxb.xsd"/>
- 
+  <xs:import namespace="http://anss.org/xmlns/event/0.1" schemaLocation="AnssEvent-0.1.xsd"/>
+
   <xs:complexType name="Quakeml">
     <xs:all>
       <xs:element ref="bed:eventParameters" minOccurs="0" maxOccurs="1"/>
     </xs:all>
     <xs:anyAttribute namespace="##other" processContents="lax"/>
   </xs:complexType>
-  
+
   <xs:element name="quakeml" type="Quakeml"/>
-  
+
 </xs:schema>
