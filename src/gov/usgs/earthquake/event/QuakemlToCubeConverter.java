@@ -225,14 +225,11 @@ public class QuakemlToCubeConverter {
 
 		// horizontal uncertainty
 		OriginUncertainty originUncertainty = origin.getOriginUncertainty();
-		if (OriginUncertaintyDescription.HORIZONTAL_UNCERTAINTY
-				.equals(originUncertainty.getPreferredDescription())) {
-			// TODO: set this regardless of preferred description?
-			if (originUncertainty.getHorizontalUncertainty() != null) {
-				cubeEvent.setHorizontalError(originUncertainty
-						.getHorizontalUncertainty().divide(
-								CubeToQuakemlConverter.METERS_PER_KILOMETER));
-			}
+		if (originUncertainty != null &&
+				originUncertainty.getHorizontalUncertainty() != null) {
+			cubeEvent.setHorizontalError(originUncertainty
+					.getHorizontalUncertainty().divide(
+							CubeToQuakemlConverter.METERS_PER_KILOMETER));
 		}
 
 		OriginQuality originQuality = origin.getQuality();
