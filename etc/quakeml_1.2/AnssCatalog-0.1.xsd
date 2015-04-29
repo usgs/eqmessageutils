@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://anss.org/xmlns/catalog/0.1"
            xmlns="http://anss.org/xmlns/catalog/0.1"
-           elementFormDefault="qualified" 
+           elementFormDefault="qualified"
            attributeFormDefault="qualified">
 
 
@@ -28,21 +28,21 @@
         - datasource+dataid are required on <event> element to be cataloged.
             (dataid is still optional, see below)
 
-        - eventsource+eventid associate to a specific event 
-            (optional, but strongly recommended) 
+        - eventsource+eventid associate to a specific event
+            (optional, but strongly recommended)
 
-        - Events from different eventsources are considered to be the 
+        - Events from different eventsources are considered to be the
             same event if they are within 100 kilometers and 16 seconds.
 
         - Events from the same eventsource with different eventids are
-            different events regardless of how close their locations 
+            different events regardless of how close their locations
             in space and time.
 
         - eventsource+eventid is the strongest association between information;
-            when omitted, origin latitude, longitude, and time are 
+            when omitted, origin latitude, longitude, and time are
             used to associate.
 
-        - All attributes and creationTime are inherited by child elements, and 
+        - All attributes and creationTime are inherited by child elements, and
             may be overridden by different values in the child element.
       ]]></xs:documentation>
     </xs:annotation>
@@ -62,8 +62,19 @@
         <xs:documentation>
           A unique, alpha-numeric data identifier from the datasource.
 
-          This is optional when eventsource and eventid are used; 
+          This is optional when eventsource and eventid are used;
               and is implied to be eventsource+eventid.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="datatype" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          A data type.
+
+          Currently used by focal-mechanism elements, which may
+          represent focal mechanism, moment tensor, or broadband-depth.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
