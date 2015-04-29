@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 /**
  * An enumeration of magnitude types.
- * 
+ *
  * @author jmfee
  */
 public enum MagnitudeType {
@@ -49,12 +49,19 @@ public enum MagnitudeType {
 	/** Mw */
 	MW("Mw", "Moment", new BigDecimal("5.8"), null),
 
+	/** Mwp */
+	MWP("Mwp", "P-wave moment", null, null),
+
 	/** Mwr */
-	MWR("Mwr", "Regional moment", null, new BigDecimal("7"));
+	MWR("Mwr", "Regional moment", null, new BigDecimal("7")),
+
+	/** Mww */
+	MWW("Mww", "W-phase moment", new BigDecimal("5.8"), null);
+
 
 	/**
 	 * Internal constructor used by enumeration.
-	 * 
+	 *
 	 * @param abbreviation
 	 * @param description
 	 * @param minimum
@@ -107,7 +114,7 @@ public enum MagnitudeType {
 
 	/**
 	 * Whether value is between the suggested minimum and maximum for this type.
-	 * 
+	 *
 	 * @param value
 	 *            the magnitude to test
 	 * @return true if within range, or no range specified; false if below
