@@ -5,6 +5,10 @@
 		The MessageUtils project provides utilities for generating, parsing, sending, and receiving earthquake messages.
 
 		Using ant it should be fairly easy to build this project from source (try "ant jar").
+
+		NOTE: on Java 1.8+, you must run ant with ANT_OPTS for the XJC tasks to run
+
+			ANT_OPTS="-Djavax.xml.accessExternalSchema=all" ant all
 	</description>
 
 
