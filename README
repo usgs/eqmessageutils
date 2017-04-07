@@ -20,3 +20,8 @@ Files:
 Interesting Classes:
     - gov.usgs.earthquake.event.Converter has methods for converting most formats.
     - gov.usgs.earthquake.quakeml.FileToQuakemlConverter is an interface for parsers to create Quakeml from other formats.
+
+
+> NOTE: on Java 1.8+, you must run ant with ANT_OPTS for the XJC tasks to run
+>
+> 	ANT_OPTS="-Djavax.xml.accessExternalSchema=all" ant all
