@@ -28,10 +28,17 @@ ext {
 }
 
 configurations {
+  codacy
   jaxb
 }
 
 dependencies {
+  codacy 'com.codacy:codacy-coverage-reporter:4.0+'
+
+  compile "javax.activation:activation:${activation_version}"
+  compile "javax.xml.bind:jaxb-api:${jaxb_version}"
+  compile "org.glassfish.jaxb:jaxb-runtime:${jaxb_version}"
+
   jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant:${jaxb2_basics_version}"
   jaxb "org.jvnet.jaxb2_commons:jaxb2-basics:${jaxb2_basics_version}"
 
@@ -51,10 +58,6 @@ dependencies {
   jaxb "org.slf4j:slf4j-simple:1.7.7"
   jaxb "org.slf4j:jcl-over-slf4j:1.7.7"
   jaxb "com.google.code.javaparser:javaparser:1.0.11"
-
-  compile "javax.activation:activation:${activation_version}"
-  compile "javax.xml.bind:jaxb-api:${jaxb_version}"
-  compile "org.glassfish.jaxb:jaxb-runtime:${jaxb_version}"
 
   testCompile "junit:junit-dep:4.11"
 }
@@ -174,3 +177,15 @@ task jaxb() {
   }
 }
 compileJava.dependsOn jaxb
+
+task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
+    main = "com.codacy.CodacyCoverageReporter"
+    classpath = configurations.codacy
+    args = [
+        "report",
+        "-l",
+        "Java",
+        "-r",
+        "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+    ]
+}
