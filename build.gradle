@@ -85,6 +85,7 @@ sourceSets {
 
 clean.doFirst {
   delete("bin")
+  delete(gensrc)
 }
 
 jacocoTestReport {
