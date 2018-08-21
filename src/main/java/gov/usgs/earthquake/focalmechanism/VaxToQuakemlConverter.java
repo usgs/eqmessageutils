@@ -203,17 +203,17 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         return(values);
     }
 
-    private double[] parseComponents(String input,double exponent){
+    private BigDecimal[] parseComponents(String input,int exponent){
         String line = input;
         line = line.replaceAll("[a-zA-Z]{3}=","").trim(); //get rid of Mrr=
         String parts[];
         parts = line.split("\\s+");
-        double[] values;
-        values = new double[2];
+        BigDecimal[] values;
+        values = new BigDecimal[2];
         //one would need to Add 7 to exponent to get to Dynes-cm units (from Newton-meters)
         //Data is in Newton meters, we want newton meters in quakeml
-        values[0] = Double.parseDouble(parts[0].trim()) * Math.pow(10.0,exponent);
-        values[1] = Double.parseDouble(parts[1].trim()) * Math.pow(10.0,exponent);
+        values[0] = new BigDecimal(parts[0].trim()).movePointRight(exponent);
+        values[1] = new BigDecimal(parts[1].trim()).movePointRight(exponent);
         return(values);
     }
 
@@ -280,7 +280,9 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
     protected void parseDepthNumStationsLine (String line) throws IOException
     {
     	String[] parts;
-    	int i0=0,i1=0;
+        int i0=0;
+        int i1=0;
+
     	try {
     	
     	Matcher mdepth = Pattern.compile("Depth\\s+[0-9]*").matcher(line);
@@ -295,9 +297,9 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
             parts = stastr.split(":");
             numStations = new BigInteger(parts[1].trim()); //number of long period body wave stations
         }
-        else{
-            //derivedDepth = 0;
-        }
+        // else{
+        // derivedDepth = 0;
+        // }
     	} catch (Exception e) {
     		throw new IOException(e.getMessage());
     	}
@@ -327,17 +329,17 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         parts = lineA.split(";");
         int idx = parts[1].indexOf("Nm");
         String expstr = parts[1].substring(idx-3,idx-1);
-        double exponent = Double.parseDouble(expstr);
+        int exponent = Integer.parseInt(expstr);
         
       // line has Mrr and Mtt
         String lineB = br.readLine().trim();
         if (debug){
             System.out.println("Line 11");
         }
-        double compvalues[];
+        BigDecimal[] compvalues;
         compvalues = parseComponents(lineB,exponent);
-        tensorMrr = new BigDecimal(compvalues[0]);
-        tensorMtt = new BigDecimal(compvalues[1]);
+        tensorMrr = compvalues[0];
+        tensorMtt = compvalues[1];
 
         // line has Mpp and Mrt
         String lineC = br.readLine();
@@ -345,8 +347,8 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
             System.out.println("Line c");
         }
         compvalues = parseComponents(lineC,exponent);
-        tensorMpp = new BigDecimal(compvalues[0]);
-        tensorMrt = new BigDecimal(compvalues[1]);
+        tensorMpp = compvalues[0];
+        tensorMrt = compvalues[1];
         
         //thirteenth line has Mrp and Mtp
         String lineD = br.readLine();
@@ -354,8 +356,8 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
             System.out.println("Line D");
         }
         compvalues = parseComponents(lineD,exponent);
-        tensorMrp = new BigDecimal(compvalues[0]);
-        tensorMtp = new BigDecimal(compvalues[1]);
+        tensorMrp = compvalues[0];
+        tensorMtp = compvalues[1];
     }
     
     protected void parsePrincipalAxes(BufferedReader br) throws IOException

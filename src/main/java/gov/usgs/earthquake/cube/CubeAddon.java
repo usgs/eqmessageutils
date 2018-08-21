@@ -50,8 +50,6 @@ public class CubeAddon extends CubeMessage {
 	private String addonUrl;
 	private String addonText;
 
-	public CubeAddon() {
-	}
 
 	@Override
 	public String getType() {

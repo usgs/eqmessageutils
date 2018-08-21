@@ -358,7 +358,7 @@ public abstract class RawMechanismConverter{
 			//**************************************
 			//Derived Origin
 			if(derivedEventTime != null && derivedEventLatitude != null && derivedEventLongitude != null)
-			{;
+			{
 			Origin originDerived = new Origin();
 
 			originDerived.setPublicID(getQuakemlId(localMechSrc, getEventID(),

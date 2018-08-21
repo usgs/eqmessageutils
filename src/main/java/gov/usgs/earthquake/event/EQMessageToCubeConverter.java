@@ -214,9 +214,9 @@ public class EQMessageToCubeConverter {
 				Method locationMethod = locationMethodIter.next();
 				cubeEvent.setLocationMethod(getCubeCode(locationMethod
 						.getComment()));
-				if (cubeEvent.getLocationMethod() == null) {
-					// try to reverse engineer algorithm
-				}
+				// if (cubeEvent.getLocationMethod() == null) {
+				// try to reverse engineer algorithm
+				// }
 			}
 		}
 
