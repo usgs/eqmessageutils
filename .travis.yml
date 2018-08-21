@@ -1,5 +1,4 @@
 language: java
-
 jdk:
   - openjdk8
   - openjdk9
@@ -14,13 +13,14 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+    - "$HOME/.gradle/caches/"
+    - "$HOME/.gradle/wrapper/"
 
-# coverage reporting
+# upload coverage
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - ./gradlew sendCoverageToCodacy
+  - "./gradlew sendCoverageToCodacy"
+
 env:
-  CODACY_PROJECT_TOKEN:
-    secure: pK7Mko+xsXdAxosEjTF0oRpvnNoTx4ZLSzI3N75fj7sL7U96EKr7ThGkxq93KX23SDFi9TXnDYeA3GfQ7+N5t9aDmkTI077L3hEo0jsNXIgQ31pVkOpUwxhTBW5LyMv2BtfjaDRhdFm24wD+5JhEm3hp2pMOJhJJWl05JA+pWqc=
+  # CODACY_PROJECT_TOKEN
+  secure: SNMgNOUl3lwd6J4/MFNJDPW7VsAqWxtOTa0xpoOP9gjEBj2cBH8s1eYJuY/mWGT+am7VOPp/+D6kRz8WjIiUrlr8I78/hvnCz0phlrfd1Ygg6zBF3mwcpbP5T5uHkdYMiHjt1LOFMtF6BDk/V+bn8pf+mwdM7pq7WS8K5AObzJg=
