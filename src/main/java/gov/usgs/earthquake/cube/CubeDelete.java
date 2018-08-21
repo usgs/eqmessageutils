@@ -87,10 +87,10 @@ public class CubeDelete extends CubeMessage {
 		String message = line.substring(13).trim();
 
 		CubeDelete delete = new CubeDelete();
-		delete.setCode(code.equals("") ? null : code);
-		delete.setSource(source.equals("") ? null : source);
-		delete.setVersion(version.equals("") ? null : version);
-		delete.setMessage(message.equals("") ? null : message);
+		delete.setCode("".equals(code) ? null : code);
+		delete.setSource("".equals(source) ? null : source);
+		delete.setVersion("".equals(version) ? null : version);
+		delete.setMessage("".equals(message) ? null : message);
 		return delete;
 	}
 

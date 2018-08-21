@@ -90,10 +90,10 @@ public class CubeTrump extends CubeMessage {
 		String message = line.substring(13).trim();
 
 		CubeTrump trump = new CubeTrump();
-		trump.setCode(code.equals("") ? null : code);
-		trump.setSource(source.equals("") ? null : source);
-		trump.setVersion(version.equals("") ? null : version);
-		trump.setMessage(message.equals("") ? null : message);
+		trump.setCode("".equals(code) ? null : code);
+		trump.setSource("".equals(source) ? null : source);
+		trump.setVersion("".equals(version) ? null : version);
+		trump.setMessage("".equals(message) ? null : message);
 		return trump;
 	}
 

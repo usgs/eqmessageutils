@@ -55,7 +55,7 @@ public class QWEventsDump {
 				Date sent = eq.getSent();
 
 				Iterator<Event> eventIter = eq.getEvent().iterator();
-				while (eventIter.hasNext()) {
+				if (eventIter.hasNext()) {
 					Event event = eventIter.next();
 					String datasource = event.getDataSource().toLowerCase();
 					String eventid = event.getEventID().toLowerCase();
@@ -70,7 +70,7 @@ public class QWEventsDump {
 					}
 
 					Iterator<Origin> originIter = event.getOrigin().iterator();
-					while (originIter.hasNext()) {
+					if (originIter.hasNext()) {
 						Origin origin = originIter.next();
 						BigDecimal latitude = origin.getLatitude();
 						BigDecimal longitude = origin.getLongitude();
@@ -82,7 +82,7 @@ public class QWEventsDump {
 
 						Iterator<Magnitude> magIter = origin.getMagnitude()
 								.iterator();
-						while (magIter.hasNext()) {
+						if (magIter.hasNext()) {
 							Magnitude mag = magIter.next();
 							/* Boolean isPreferred = mag.isPreferredFlag(); */
 							Boolean isPreferred = mag.getPreferredFlag();
@@ -93,12 +93,9 @@ public class QWEventsDump {
 										ISO8601.format(time), latitude,
 										longitude, depth, mag.getValue(),
 										ISO8601.format(sent)));
-								break;
 							}
 						}
-						break;
 					}
-					break;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

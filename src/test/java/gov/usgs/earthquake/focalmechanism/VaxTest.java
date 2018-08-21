@@ -23,7 +23,7 @@ public class VaxTest {
 				file = listOfFiles[i];
 				String fname = file.getAbsolutePath();
 				String ext = getExtension(fname);
-				if (ext.equals("xml")){
+				if ("xml".equals(ext)){
 					continue;					
 				}
 				String outfilename = createFile(file.getAbsolutePath(),"xml");

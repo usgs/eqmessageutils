@@ -67,7 +67,7 @@ complexElements = (
 
 
 
-print """<bindings version="2.0" 
+print """<bindings version="2.0"
 	xmlns="http://java.sun.com/xml/ns/jaxb"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"

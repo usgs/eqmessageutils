@@ -59,6 +59,15 @@ public enum MagnitudeType {
 	MWW("Mww", "W-phase moment", new BigDecimal("5.8"), null);
 
 
+	/** Abbreviation for this type. */
+	private final String abbreviation;
+	/** Full name for this type. */
+	private final String description;
+	/** suggested minimum value. */
+	private final BigDecimal minimum;
+	/** suggested maximum value. */
+	private final BigDecimal maximum;
+
 	/**
 	 * Internal constructor used by enumeration.
 	 *
@@ -74,15 +83,6 @@ public enum MagnitudeType {
 		this.minimum = minimum;
 		this.maximum = maximum;
 	}
-
-	/** Abbreviation for this type. */
-	private final String abbreviation;
-	/** Full name for this type. */
-	private final String description;
-	/** suggested minimum value. */
-	private final BigDecimal minimum;
-	/** suggested maximum value. */
-	private final BigDecimal maximum;
 
 	/**
 	 * @return abbreviation for this type.

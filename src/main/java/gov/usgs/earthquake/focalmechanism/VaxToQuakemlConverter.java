@@ -39,7 +39,8 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         }
         return convertToQuakeml();
     }
-    void parseInputFormat(BufferedReader br) throws IOException{
+
+    protected void parseInputFormat(BufferedReader br) throws IOException{
         debug = true;
         try{
             //Read in the date and time from the first line
@@ -102,7 +103,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         } 
     }
     
-    void parseRMT(BufferedReader br) throws IOException{
+    protected void parseRMT(BufferedReader br) throws IOException{
     	//7th line has the derived depth and number of stations for RMT
         String seventhline = br.readLine();
         if (debug){
@@ -133,7 +134,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         derivedEpicenterFixed = true;
     }
     
-    void parseWCMT(BufferedReader br) throws IOException{
+    protected void parseWCMT(BufferedReader br) throws IOException{
         
     	//seventh line has the derived centroid time in WCMT
         String seventhline = br.readLine();
@@ -185,6 +186,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         values[2] = new BigDecimal(parts[2].trim());
         return(values);
     }
+
     private BigDecimal[] parsePlane(String line){
         String parts[];
         parts = line.split(":");
@@ -231,7 +233,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         return(eventTime);
     }
     
-    void parseDoubleCouple(BufferedReader br) throws IOException
+    protected void parseDoubleCouple(BufferedReader br) throws IOException
     {
     	BigDecimal values[];
     	
@@ -272,7 +274,8 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         nodalPlane2Slip = values[2];
     
     }
-    void parseDepthNumStationsLine (String line) throws IOException
+
+    protected void parseDepthNumStationsLine (String line) throws IOException
     {
     	String[] parts;
     	int i0=0,i1=0;
@@ -298,7 +301,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
     	}
     }
     
-    void parseDerivedLatLon( String line) 
+    protected void parseDerivedLatLon( String line)
     {
     	String[] parts;
     	String epistr;
@@ -310,7 +313,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         derivedEventLongitude = new BigDecimal((parts[1]));
     }
     
-    void parseMomentTensor(BufferedReader br) throws IOException
+    protected void parseMomentTensor(BufferedReader br) throws IOException
     {
     	String[] parts;
     	String lineA = br.readLine();
@@ -353,7 +356,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         tensorMtp = new BigDecimal(compvalues[1]);
     }
     
-    void parsePrincipalAxes(BufferedReader br) throws IOException
+    protected void parsePrincipalAxes(BufferedReader br) throws IOException
     {
     	//fourteenth line has text we can skip
         br.readLine();

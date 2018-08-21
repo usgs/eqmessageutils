@@ -158,6 +158,12 @@ public class CubeEvent extends CubeMessage {
 			.multiply(new BigDecimal(Math.toRadians(1))).multiply(
 					EARTH_RADIUS_KM);
 
+	public static final BigDecimal TEN_THOUSAND = new BigDecimal("10000");
+	public static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
+	public static final BigDecimal TEN = BigDecimal.TEN;
+	public static final BigDecimal PERCENT_OF_CIRCLE = BigDecimal.ONE.divide(
+			new BigDecimal("3.6"), MathContext.DECIMAL32);
+
 	private Integer year;
 	private Integer month;
 	private Integer day;
@@ -192,11 +198,6 @@ public class CubeEvent extends CubeMessage {
 		quarry = false;
 	}
 
-	public static final BigDecimal TEN_THOUSAND = new BigDecimal("10000");
-	public static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
-	public static final BigDecimal TEN = BigDecimal.TEN;
-	public static final BigDecimal PERCENT_OF_CIRCLE = BigDecimal.ONE.divide(
-			new BigDecimal("3.6"), MathContext.DECIMAL32);
 
 	@Override
 	public String getType() {
@@ -322,49 +323,49 @@ public class CubeEvent extends CubeMessage {
 		String checksum = toParse.substring(79, 80).trim();
 
 		CubeEvent event = new CubeEvent();
-		event.setCode(code.equals("") ? null : code);
-		event.setSource(source.equals("") ? null : source);
-		event.setVersion(version.equals("") ? null : version);
-		event.setYear(year.equals("") ? null : Integer.valueOf(year));
-		event.setMonth(month.equals("") ? null : Integer.valueOf(month));
-		event.setDay(day.equals("") ? null : Integer.valueOf(day));
-		event.setHour(hour.equals("") ? null : Integer.valueOf(hour));
-		event.setMinute(minute.equals("") ? null : Integer.valueOf(minute));
-		event.setSecond(second.equals("") ? null : new BigDecimal(second)
+		event.setCode("".equals(code) ? null : code);
+		event.setSource("".equals(source) ? null : source);
+		event.setVersion("".equals(version) ? null : version);
+		event.setYear("".equals(year) ? null : Integer.valueOf(year));
+		event.setMonth("".equals(month) ? null : Integer.valueOf(month));
+		event.setDay("".equals(day) ? null : Integer.valueOf(day));
+		event.setHour("".equals(hour) ? null : Integer.valueOf(hour));
+		event.setMinute("".equals(minute) ? null : Integer.valueOf(minute));
+		event.setSecond("".equals(second) ? null : new BigDecimal(second)
 				.divide(TEN));
-		event.setLatitude(latitude.equals("") ? null : new BigDecimal(latitude)
+		event.setLatitude("".equals(latitude) ? null : new BigDecimal(latitude)
 				.divide(TEN_THOUSAND));
-		event.setLongitude(longitude.equals("") ? null : new BigDecimal(
+		event.setLongitude("".equals(longitude) ? null : new BigDecimal(
 				longitude).divide(TEN_THOUSAND));
-		event.setDepth(depth.equals("") ? null : new BigDecimal(depth)
+		event.setDepth("".equals(depth) ? null : new BigDecimal(depth)
 				.divide(TEN));
-		event.setMagnitude(magnitude.equals("") ? null : new BigDecimal(
+		event.setMagnitude("".equals(magnitude) ? null : new BigDecimal(
 				magnitude).divide(TEN));
-		event.setNumLocationStations(numLocationStations.equals("") ? null
+		event.setNumLocationStations("".equals(numLocationStations) ? null
 				: new BigInteger(numLocationStations));
-		event.setNumLocationPhases(numLocationPhases.equals("") ? null
+		event.setNumLocationPhases("".equals(numLocationPhases) ? null
 				: new BigInteger(numLocationPhases));
-		event.setMinStationDistance(minStationDistance.equals("") ? null
+		event.setMinStationDistance("".equals(minStationDistance) ? null
 				: new BigDecimal(minStationDistance).divide(TEN));
-		event.setRmsTimeError(rmsTimeError.equals("") ? null : new BigDecimal(
+		event.setRmsTimeError("".equals(rmsTimeError) ? null : new BigDecimal(
 				rmsTimeError).divide(ONE_HUNDRED));
-		event.setHorizontalError(horizontalError.equals("") ? null
+		event.setHorizontalError("".equals(horizontalError) ? null
 				: new BigDecimal(horizontalError).divide(TEN));
-		event.setVerticalError(verticalError.equals("") ? null
+		event.setVerticalError("".equals(verticalError) ? null
 				: new BigDecimal(verticalError).divide(TEN));
-		event.setAzimuthalGap(azimuthalGap.equals("") ? null : new BigDecimal(
+		event.setAzimuthalGap("".equals(azimuthalGap) ? null : new BigDecimal(
 				azimuthalGap).divide(PERCENT_OF_CIRCLE, MathContext.DECIMAL128)
 				.stripTrailingZeros());
-		event.setMagnitudeType(magnitudeType.equals("") ? null : magnitudeType);
-		event.setNumMagnitudeStations(numMagnitudeStations.equals("") ? null
+		event.setMagnitudeType("".equals(magnitudeType) ? null : magnitudeType);
+		event.setNumMagnitudeStations("".equals(numMagnitudeStations) ? null
 				: new BigInteger(numMagnitudeStations));
-		event.setMagnitudeError(magnitudeError.equals("") ? null
+		event.setMagnitudeError("".equals(magnitudeError) ? null
 				: new BigDecimal(magnitudeError).divide(TEN));
-		event.setLocationMethod(locationMethod.equals("") ? null
+		event.setLocationMethod("".equals(locationMethod) ? null
 				: locationMethod);
-		event.setChecksum(checksum.equals("") ? null : checksum);
+		event.setChecksum("".equals(checksum) ? null : checksum);
 
-		if (!locationMethod.equals("")
+		if (!"".equals(locationMethod)
 				&& Character.isLowerCase(locationMethod.charAt(0))) {
 			// reviewed if location method and location method is lower case
 			event.setReviewed(true);

@@ -19,9 +19,15 @@ import gov.usgs.earthquake.quakeml.FileToQuakemlConverter;
 import org.quakeml_1_2.Quakeml;
 
 
+/**
+ * Parse NDK format.
+ *
+ * http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/allorder.ndk_explained
+ */
 public class NDKToQuakemlConverter extends RawMechanismConverter implements FileToQuakemlConverter {
 
-	boolean debug = true;
+	private boolean debug = true;
+    private double exponent = 0;
 	
     public NDKToQuakemlConverter(){
     	eventMagnitudes = new ArrayList<BigDecimal>(2);
@@ -70,10 +76,9 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
         
         return convertToQuakeml();
     }
-    
-    double exponent = 0;
-    //http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/allorder.ndk_explained
-    void parseInputFormat(BufferedReader br) throws IOException{
+
+    @Override
+    public void parseInputFormat(BufferedReader br) throws IOException{
         //boolean debug = true;
         
         if (debug) System.out.println("Starting Parsing NDK input.");  
@@ -124,7 +129,7 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
                
     }
     
-    void parseLine1(String line){
+    private void parseLine1(String line){
     	if (debug) System.out.format("Starting Parsing line 1 of NDK input\n");
         eventSource = line.substring(0,4).trim();
         //note that if eventSource != PDE then anssFlag needs to be FALSE
@@ -170,7 +175,8 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
         eventLocation = line.substring(56,80).trim();        
         
     }
-    void parseLine2(String line){
+
+    private void parseLine2(String line){
         eventID = line.substring(0,16).trim();
         
         BodyWaveStations = new BigInteger(line.substring(19,22).trim());
@@ -214,7 +220,7 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
         momentRateFunctionDuration = new BigDecimal(line.substring(75).trim()).multiply(new BigDecimal("2.0"));
     }
 
-    void parseLine3(String line){
+    private void parseLine3(String line){
     	if (debug) System.out.format("Starting Parsing line 3 of NDK input\n");
 
         double dd = new Double(line.substring(9,18).trim()).doubleValue()*1000.0;
@@ -232,7 +238,7 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
         derivedDepthType = new String(line.substring(58,61).trim());
     }
     
-    void parseLine4(String line){
+    private void parseLine4(String line){
     	if (debug) System.out.format("Starting Parsing line 4 of NDK input\n");
         exponent = Double.parseDouble(line.substring(0,2));
         //we want units in N m
@@ -253,7 +259,8 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
         tensorMtp = new BigDecimal(Double.parseDouble(line.substring(67,74))*Math.pow(10.0,exponent));
         tensorMtpError = new BigDecimal(Double.parseDouble(line.substring(74))*Math.pow(10.0,exponent));
     }
-    void parseLine5(String line){
+
+    private void parseLine5(String line){
         programVersion = line.substring(0,3).trim();
 
         eigenVectorValues[0] = new BigDecimal(Double.parseDouble(line.substring(3,11))*Math.pow(10.0,exponent));

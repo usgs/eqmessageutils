@@ -171,10 +171,8 @@ public class IOUtil {
 		while (true) {
 			// compute how many bytes to try to read
 			int remaining = bufferSize;
-			if (limit > 0) {
-				if (limit - total < remaining) {
-					remaining = (int) (limit - total);
-				}
+			if (limit > 0 && (limit - total < remaining)) {
+				remaining = (int) (limit - total);
 			}
 			// read from source
 			int read = source.read(buffer, 0, remaining);

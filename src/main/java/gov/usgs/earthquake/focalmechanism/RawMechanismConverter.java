@@ -33,82 +33,82 @@ import org.quakeml_1_2.SourceTimeFunction;
 import org.quakeml_1_2.SourceTimeFunctionType;
 
 public abstract class RawMechanismConverter{
-	Boolean debug = false;
-	Date eventTime;
-	BigDecimal eventLatitude = null;
-	BigDecimal eventLongitude = null;
-	ArrayList<BigDecimal> eventMagnitudes = null;
-	String eventLocation = null;
-	BigDecimal eventDepth = null;
-	String eventSource = null;
-	String mechanismSource = null;
-	String eventID = null;
-	String momentTensorType = null;
-	BigInteger numStations = null;
-	BigDecimal shortestPeriodUsed = null;
-	BigInteger numComponents = null;
+	protected Boolean debug = false;
+	protected Date eventTime;
+	protected BigDecimal eventLatitude = null;
+	protected BigDecimal eventLongitude = null;
+	protected ArrayList<BigDecimal> eventMagnitudes = null;
+	protected String eventLocation = null;
+	protected BigDecimal eventDepth = null;
+	protected String eventSource = null;
+	protected String mechanismSource = null;
+	protected String eventID = null;
+	protected String momentTensorType = null;
+	protected BigInteger numStations = null;
+	protected BigDecimal shortestPeriodUsed = null;
+	protected BigInteger numComponents = null;
 	
-	Boolean derivedEpicenterFixed = false;
-	Boolean derivedTimeFixed = false;
+	protected Boolean derivedEpicenterFixed = false;
+	protected Boolean derivedTimeFixed = false;
 
-	BigInteger BodyWaveStations = null;
-	BigInteger BodyWaveComponents = null;
-	BigDecimal BodyWaveShortestPeriod = null;
+	protected BigInteger BodyWaveStations = null;
+	protected BigInteger BodyWaveComponents = null;
+	protected BigDecimal BodyWaveShortestPeriod = null;
 
-	BigInteger SurfaceWaveStations = null;
-	BigInteger SurfaceWaveComponents = null;
-	BigDecimal SurfaceWaveShortestPeriod = null;
+	protected BigInteger SurfaceWaveStations = null;
+	protected BigInteger SurfaceWaveComponents = null;
+	protected BigDecimal SurfaceWaveShortestPeriod = null;
 
-	BigInteger MantleWaveStations = null;
-	BigInteger MantleWaveComponents = null;
-	BigDecimal MantleWaveShortestPeriod = null;
+	protected BigInteger MantleWaveStations = null;
+	protected BigInteger MantleWaveComponents = null;
+	protected BigDecimal MantleWaveShortestPeriod = null;
 
-	String sourceInversionType = null;
+	protected String sourceInversionType = null;
 
-	String momentRateFunction = null;
-	BigDecimal momentRateFunctionDuration = null;
-	Date derivedEventTime;
-	BigDecimal derivedEventLatitude = null;
-	BigDecimal derivedEventLongitude = null;
-	BigDecimal derivedEventDepth = null;
-	BigDecimal derivedEventTimeError = null; //seconds
-	BigDecimal derivedEventLatitudeError = null;
-	BigDecimal derivedEventLongitudeError = null;
-	BigDecimal derivedEventDepthError = null;
-	String derivedDepthType = null;
+	protected String momentRateFunction = null;
+	protected BigDecimal momentRateFunctionDuration = null;
+	protected Date derivedEventTime;
+	protected BigDecimal derivedEventLatitude = null;
+	protected BigDecimal derivedEventLongitude = null;
+	protected BigDecimal derivedEventDepth = null;
+	protected BigDecimal derivedEventTimeError = null; //seconds
+	protected BigDecimal derivedEventLatitudeError = null;
+	protected BigDecimal derivedEventLongitudeError = null;
+	protected BigDecimal derivedEventDepthError = null;
+	protected String derivedDepthType = null;
 	//Calendar analysisTime = null;
 
-	BigDecimal tensorMrr = null;
-	BigDecimal tensorMtt = null;
-	BigDecimal tensorMpp = null;
-	BigDecimal tensorMrt = null;
-	BigDecimal tensorMrp = null;
-	BigDecimal tensorMtp = null;
+	protected BigDecimal tensorMrr = null;
+	protected BigDecimal tensorMtt = null;
+	protected BigDecimal tensorMpp = null;
+	protected BigDecimal tensorMrt = null;
+	protected BigDecimal tensorMrp = null;
+	protected BigDecimal tensorMtp = null;
 
-	BigDecimal tensorMrrError = null;
-	BigDecimal tensorMttError = null;
-	BigDecimal tensorMppError = null;
-	BigDecimal tensorMrtError = null;
-	BigDecimal tensorMrpError = null;
-	BigDecimal tensorMtpError = null;
+	protected BigDecimal tensorMrrError = null;
+	protected BigDecimal tensorMttError = null;
+	protected BigDecimal tensorMppError = null;
+	protected BigDecimal tensorMrtError = null;
+	protected BigDecimal tensorMrpError = null;
+	protected BigDecimal tensorMtpError = null;
 
-	BigDecimal eigenVectorValues[] = {null,null,null};
-	BigDecimal eigenVectorPlunges[] = {null,null,null};
-	BigDecimal eigenVectorAzimuths[] = {null,null,null};
+	protected BigDecimal eigenVectorValues[] = {null,null,null};
+	protected BigDecimal eigenVectorPlunges[] = {null,null,null};
+	protected BigDecimal eigenVectorAzimuths[] = {null,null,null};
 
-	BigDecimal scalarMoment = null; //Newton-meters
+	protected BigDecimal scalarMoment = null; //Newton-meters
 
-	BigDecimal nodalPlane1Strike = null;
-	BigDecimal nodalPlane1Dip = null;
-	BigDecimal nodalPlane1Slip = null;
+	protected BigDecimal nodalPlane1Strike = null;
+	protected BigDecimal nodalPlane1Dip = null;
+	protected BigDecimal nodalPlane1Slip = null;
 
-	BigDecimal nodalPlane2Strike = null;
-	BigDecimal nodalPlane2Dip = null;
-	BigDecimal nodalPlane2Slip = null;
+	protected BigDecimal nodalPlane2Strike = null;
+	protected BigDecimal nodalPlane2Dip = null;
+	protected BigDecimal nodalPlane2Slip = null;
 
-	BigDecimal percentDoubleCouple = null;
+	protected BigDecimal percentDoubleCouple = null;
 
-	String programVersion = null;
+	protected String programVersion = null;
 
 
 	public static double calculateMomentMagnitude(double scalarMoment){
@@ -330,10 +330,11 @@ public abstract class RawMechanismConverter{
 				SourceTimeFunction stf = new SourceTimeFunction();
 				mt.setSourceTimeFunction(stf);
 				stf.setDuration(getMomentRateFunctionDuration());
-				if (getMomentRateFunction().equals("TRIHD")){
+				String momentRateFunction = getMomentRateFunction();
+				if ("TRIHD".equals(momentRateFunction)){
 					stf.setType(SourceTimeFunctionType.TRIANGLE);
 				}
-				else if (getMomentRateFunction().equals("BOXHD")){
+				else if ("BOXHD".equals(momentRateFunction)){
 					stf.setType(SourceTimeFunctionType.BOX_CAR);
 				}
 			}

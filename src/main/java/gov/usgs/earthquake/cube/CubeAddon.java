@@ -95,20 +95,20 @@ public class CubeAddon extends CubeMessage {
 		String addonUrl = parts[1];
 		String addonText = parts[2].trim();
 		// type isn't empty because the string is trimmed before split
-		if (addonUrl.equals("")) {
+		if ("".equals(addonUrl)) {
 			throw new IllegalArgumentException(
 					"Unexpected cube addon format: '" + line +
 					"', there should be only one space between type, url, and text");
 		}
-		if (addonText.equals("")) {
+		if ("".equals(addonText)) {
 			throw new IllegalArgumentException(
 					"Unexpected cube addon format: '" + line + "', text is required");
 		}
 
 		CubeAddon addon = new CubeAddon();
-		addon.setCode(code.equals("") ? null : code);
-		addon.setSource(source.equals("") ? null : source);
-		addon.setVersion(version.equals("") ? null : version);
+		addon.setCode("".equals(code) ? null : code);
+		addon.setSource("".equals(source) ? null : source);
+		addon.setVersion("".equals(version) ? null : version);
 		addon.setAddonType(addonType);
 		addon.setAddonUrl(addonUrl);
 		addon.setAddonText(addonText);
