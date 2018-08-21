@@ -221,7 +221,7 @@ public class CubeToEQMessageConverter {
 			if (magnitudeTypeComment != null) {
 				magnitude.getComment().add(magnitudeTypeComment);
 			} else {
-				// TODO: should this just return null?
+				// maybe return null?
 			}
 		}
 
@@ -233,7 +233,7 @@ public class CubeToEQMessageConverter {
 			locationMethod.getComment().add(comment);
 			origin.getMethod().add(locationMethod);
 		} else {
-			// TODO: should this just return null?
+			// maybe return null?
 		}
 
 		return eqMessage;

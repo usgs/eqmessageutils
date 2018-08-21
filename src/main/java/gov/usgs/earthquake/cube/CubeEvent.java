@@ -10,7 +10,7 @@ import java.util.TimeZone;
 /**
  * CUBE earthquake message.
  * 
- * <pre>
+ * <pre>{@code
  *  E - Earthquake
  *     The E format messages are used to add an earthquake to the catalog or modify the summary information about and earthquake by issuing a new version. The highest version or most recently received information of the same version is used. The format is:
  * 
@@ -123,6 +123,7 @@ import java.util.TimeZone;
  *     put at the beginning of the line and the source code is changed to
  *     upper case if the event is in the networks authoritative region and
  *     lower case if it is not in the networks authoritative region.
+ * }
  * </pre>
  * 
  * @author jmfee
@@ -421,7 +422,6 @@ public class CubeEvent extends CubeMessage {
 				&& magnitude.compareTo(new BigDecimal("11.0")) <= 0
 				// magnitude type and location method are required
 				&& magnitudeType != null && locationMethod != null
-		// TODO: what else is required
 		);
 	}
 

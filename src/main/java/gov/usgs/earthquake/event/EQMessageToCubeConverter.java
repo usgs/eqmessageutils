@@ -166,7 +166,7 @@ public class EQMessageToCubeConverter {
 		if (type != null && type == EventType.QUARRY) {
 			cubeEvent.setQuarry(true);
 		} else {
-			// TODO: if not earthquake, return null?
+			// maybe return null?
 			cubeEvent.setQuarry(false);
 		}
 

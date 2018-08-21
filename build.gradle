@@ -76,6 +76,7 @@ sourceSets {
   }
 }
 
+
 test {
   filter {
     includeTestsMatching "*Test"
@@ -89,6 +90,11 @@ jacocoTestReport {
   }
 }
 check.dependsOn jacocoTestReport
+
+
+javadoc {
+  failOnError = false
+}
 
 
 task jaxb() {
@@ -147,5 +153,4 @@ task jaxb() {
 
   }
 }
-
 compileJava.dependsOn jaxb

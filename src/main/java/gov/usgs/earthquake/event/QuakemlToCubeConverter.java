@@ -22,7 +22,6 @@ import org.quakeml_1_2.Origin;
 import org.quakeml_1_2.OriginDepthType;
 import org.quakeml_1_2.OriginQuality;
 import org.quakeml_1_2.OriginUncertainty;
-import org.quakeml_1_2.OriginUncertaintyDescription;
 import org.quakeml_1_2.Quakeml;
 import org.quakeml_1_2.EventParameters;
 import org.quakeml_1_2.RealQuantity;
@@ -219,7 +218,7 @@ public class QuakemlToCubeConverter {
 		}
 
 		if (origin.getDepthType() == OriginDepthType.OPERATOR_ASSIGNED) {
-			// TODO: is this necessary, operator might assign uncertainty?
+			// operator might assign uncertainty?
 			cubeEvent.setVerticalError(BigDecimal.ZERO);
 		}
 
@@ -273,7 +272,7 @@ public class QuakemlToCubeConverter {
 			if (magnitudeType != null && magnitudeType.length() == 1) {
 				cubeEvent.setMagnitudeType(magnitudeType);
 			} else {
-				// TODO: should this check happen first?
+				// check this first?
 				magnitudeType = getCubeMagnitudeType(magnitude.getType());
 				if (magnitudeType != null && magnitudeType.length() == 1) {
 					cubeEvent.setMagnitudeType(magnitudeType);

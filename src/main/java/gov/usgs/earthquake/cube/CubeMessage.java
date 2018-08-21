@@ -97,7 +97,7 @@ public abstract class CubeMessage {
 	/**
 	 * Left pad a string using spaces.
 	 *
-	 * @see #leftPad(String, int, char).
+	 * See also {@link #leftPad(String, int, char)}.
 	 */
 	public static String leftPad(final String value, final int length) {
 		return leftPad(value, length, ' ');
@@ -130,7 +130,6 @@ public abstract class CubeMessage {
 
 		// original value may have been too long
 		if (padded.length() > length) {
-			// TODO: log/warn
 			return padded.substring(0, length);
 		}
 		return padded;

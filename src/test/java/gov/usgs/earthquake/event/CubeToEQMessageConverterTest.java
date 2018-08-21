@@ -5,8 +5,7 @@ import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
