@@ -20,27 +20,35 @@ configurations {
   jaxb
 }
 
+ext.gensrc = "gensrc"
+ext.activation_version = "1.1.1"
+ext.jaxb_version = "2.3+"
+ext.jaxb2_basics_version = "0.12.0"
+
 dependencies {
-  jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant:0.12.0"
-  jaxb "org.jvnet.jaxb2_commons:jaxb2-basics:0.12.0"
+  jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant:${jaxb2_basics_version}"
+  jaxb "org.jvnet.jaxb2_commons:jaxb2-basics:${jaxb2_basics_version}"
 
-  jaxb "javax.activation:activation:1.1.1"
-  jaxb "javax.xml.bind:jaxb-api:2.3+"
-  jaxb "org.glassfish.jaxb:jaxb-core:2.3+"
-  jaxb "org.glassfish.jaxb:jaxb-runtime:2.3+"
-  jaxb "org.glassfish.jaxb:jaxb-xjc:2.3+"
+  jaxb "javax.activation:activation:${activation_version}"
+  jaxb "javax.xml.bind:jaxb-api:${jaxb_version}"
+  // jaxb-core is slated to be removed in 2.4
+  jaxb "org.glassfish.jaxb:jaxb-core:${jaxb_version}"
+  jaxb "org.glassfish.jaxb:jaxb-runtime:${jaxb_version}"
+  jaxb "org.glassfish.jaxb:jaxb-xjc:${jaxb_version}"
 
+  // jaxb2-basics dependencies
   jaxb "commons-beanutils:commons-beanutils:1.9.3"
   jaxb "commons-collections:commons-collections:3.2.2"
   jaxb "commons-io:commons-io:2.4"
   jaxb "org.apache.commons:commons-lang3:3.2.1"
-
   jaxb "org.slf4j:slf4j-api:1.7.7"
   jaxb "org.slf4j:slf4j-simple:1.7.7"
   jaxb "org.slf4j:jcl-over-slf4j:1.7.7"
-
   jaxb "com.google.code.javaparser:javaparser:1.0.11"
 
+  compile "javax.activation:activation:${activation_version}"
+  compile "javax.xml.bind:jaxb-api:${jaxb_version}"
+  compile "org.glassfish.jaxb:jaxb-runtime:${jaxb_version}"
 
   testCompile "junit:junit-dep:4.11"
 }
@@ -48,7 +56,10 @@ dependencies {
 sourceSets {
   main {
     java {
-      srcDirs = ["src"]
+      srcDirs = [
+        "src/main/java",
+        "gensrc"
+      ]
     }
     resources {
       srcDirs = ["etc"]
@@ -58,10 +69,9 @@ sourceSets {
       ]
     }
   }
-
   test {
     java {
-      srcDirs = ["src"]
+      srcDirs = ["src/test/java"]
     }
   }
 }
@@ -82,7 +92,6 @@ check.dependsOn jacocoTestReport
 
 
 task jaxb() {
-  ext.gensrc = "gensrc"
   mkdir(gensrc)
 
   doLast() {
@@ -106,6 +115,17 @@ task jaxb() {
         destdir: gensrc,
         extension: true,
         fork: true,
+        package: "org.quakeml_1_1") {
+      arg(line: "-enableIntrospection")
+      binding(dir: "etc/quakeml_1.1", includes: "*.bindings.xml")
+      schema(dir: "etc/quakeml_1.1", includes: "*_jaxb.xsd")
+      produces(dir: "${gensrc}/org/quakeml_1_1")
+    }
+
+    ant.xjc(
+        destdir: gensrc,
+        extension: true,
+        fork: true,
         package: "org.quakeml_1_2") {
       arg(line: "-enableIntrospection")
       arg(line: "-Xwildcard")
@@ -114,5 +134,18 @@ task jaxb() {
       produces(dir: "${gensrc}/org/quakeml_1_2")
     }
 
+    ant.xjc(
+        destdir: gensrc,
+        extension: true,
+        fork: true,
+        package: "org.quakeml_rt_1_2") {
+      arg(line: "-enableIntrospection")
+      binding(dir: "etc/quakeml_rt_1.2", includes: "*.bindings.xml")
+      schema(dir: "etc/quakeml_rt_1.2", includes: "*_jaxb.xsd")
+      produces(dir: "${gensrc}/org/quakeml_rt_1_2")
+    }
+
   }
 }
+
+compileJava.dependsOn jaxb
