@@ -121,15 +121,9 @@ public enum MagnitudeType {
 	 *         minimum or above maximum.
 	 */
 	public boolean valueInRange(final BigDecimal value) {
-		if (minimum != null && minimum.compareTo(value) > 0) {
-			// too small
-			return false;
-		}
-		if (maximum != null && maximum.compareTo(value) < 0) {
-			// too large
-			return false;
-		}
-		return true;
+		boolean tooSmall = (minimum != null && minimum.compareTo(value) > 0);
+		boolean tooLarge = (maximum != null && maximum.compareTo(value) < 0);
+		return !(tooSmall || tooLarge);
 	}
 
 }

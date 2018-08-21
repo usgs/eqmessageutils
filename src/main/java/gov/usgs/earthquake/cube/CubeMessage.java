@@ -176,9 +176,9 @@ public abstract class CubeMessage {
 			return MagnitudeType.MW;
 		case 'W':
 			return MagnitudeType.MWR;
+		default:
+			return null;
 		}
-
-		return null;
 	}
 
 	/**
@@ -224,9 +224,9 @@ public abstract class CubeMessage {
 			return "O";
 		case MWR:
 			return "W";
+		default:
+			return null;
 		}
-
-		return null;
 	}
 
 }

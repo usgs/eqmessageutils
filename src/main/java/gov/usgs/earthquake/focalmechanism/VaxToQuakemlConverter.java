@@ -40,7 +40,7 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         return convertToQuakeml();
     }
 
-    protected void parseInputFormat(BufferedReader br) throws IOException{
+    public void parseInputFormat(BufferedReader br) throws IOException{
         debug = true;
         try{
             //Read in the date and time from the first line
@@ -174,7 +174,8 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         derivedEpicenterFixed = false;
     }
 
-    private BigDecimal[] parseAxis(String line){
+    private BigDecimal[] parseAxis(String input){
+        String line = input;
         line = line.trim().substring(1); //strip off leading axis character
         line = line.replaceAll("[a-zA-Z]*=","").trim();
         String[] parts;
@@ -202,7 +203,8 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         return(values);
     }
 
-    private double[] parseComponents(String line,double exponent){
+    private double[] parseComponents(String input,double exponent){
+        String line = input;
         line = line.replaceAll("[a-zA-Z]{3}=","").trim(); //get rid of Mrr=
         String parts[];
         parts = line.split("\\s+");

@@ -293,7 +293,7 @@ public class CubeEvent extends CubeMessage {
 		String toParse = line;
 		if (toParse.indexOf("*") != -1) {
 			// simplify parsing
-			toParse.replace("*", " ");
+			toParse = toParse.replace("*", " ");
 		}
 
 		String code = toParse.substring(2, 10).trim().toLowerCase();

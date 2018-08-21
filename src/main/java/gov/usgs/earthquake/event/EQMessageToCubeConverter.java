@@ -210,14 +210,13 @@ public class EQMessageToCubeConverter {
 
 		if (origin.getMethod() != null) {
 			Iterator<Method> locationMethodIter = origin.getMethod().iterator();
-			while (locationMethodIter.hasNext()) {
+			if (locationMethodIter.hasNext()) {
 				Method locationMethod = locationMethodIter.next();
 				cubeEvent.setLocationMethod(getCubeCode(locationMethod
 						.getComment()));
 				if (cubeEvent.getLocationMethod() == null) {
 					// try to reverse engineer algorithm
 				}
-				break;
 			}
 		}
 

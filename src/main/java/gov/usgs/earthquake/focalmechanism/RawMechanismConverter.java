@@ -116,85 +116,85 @@ public abstract class RawMechanismConverter{
 		double mw = (2.0/3.0)*(Math.log10(scalarMoment) - 9.1);
 		return mw;
 	}
-	BigDecimal getMomentMagnitude(){
+	public BigDecimal getMomentMagnitude(){
 		return (new BigDecimal(calculateMomentMagnitude(scalarMoment.doubleValue())));        
 	}
-	Date getEventTime(){return eventTime;}
-	BigDecimal getEventLatitude(){return eventLatitude;}
-	BigDecimal getEventLongitude(){return eventLongitude;}
-	BigDecimal getEventDepth(){return eventDepth;}
-	ArrayList<BigDecimal> getEventMagnitudes(){return eventMagnitudes;}
-	String getEventSource(){return eventSource;}
-	String getMechanismSource(){return mechanismSource;}
-	String getEventID(){return eventID;}
-	String getMomentTensorType(){return momentTensorType;}
-	BigInteger getNumStations(){return numStations;}
-	BigInteger getNumComponents(){return numComponents;}
-	BigDecimal getShortestPeriodUsed(){return shortestPeriodUsed;}
+	public Date getEventTime(){return eventTime;}
+	public BigDecimal getEventLatitude(){return eventLatitude;}
+	public BigDecimal getEventLongitude(){return eventLongitude;}
+	public BigDecimal getEventDepth(){return eventDepth;}
+	public ArrayList<BigDecimal> getEventMagnitudes(){return eventMagnitudes;}
+	public String getEventSource(){return eventSource;}
+	public String getMechanismSource(){return mechanismSource;}
+	public String getEventID(){return eventID;}
+	public String getMomentTensorType(){return momentTensorType;}
+	public BigInteger getNumStations(){return numStations;}
+	public BigInteger getNumComponents(){return numComponents;}
+	public BigDecimal getShortestPeriodUsed(){return shortestPeriodUsed;}
 
-	BigInteger getBodyWaveStations(){return BodyWaveStations;}
-	BigInteger getBodyWaveComponents(){return BodyWaveComponents;}
-	BigDecimal getBodyWaveShortestPeriod(){return BodyWaveShortestPeriod;}
+	public BigInteger getBodyWaveStations(){return BodyWaveStations;}
+	public BigInteger getBodyWaveComponents(){return BodyWaveComponents;}
+	public BigDecimal getBodyWaveShortestPeriod(){return BodyWaveShortestPeriod;}
 
-	BigInteger getSurfaceWaveStations(){return SurfaceWaveStations;}
-	BigInteger getSurfaceWaveComponents(){return SurfaceWaveComponents;}
-	BigDecimal getSurfaceWaveShortestPeriod(){return SurfaceWaveShortestPeriod;}
+	public BigInteger getSurfaceWaveStations(){return SurfaceWaveStations;}
+	public BigInteger getSurfaceWaveComponents(){return SurfaceWaveComponents;}
+	public BigDecimal getSurfaceWaveShortestPeriod(){return SurfaceWaveShortestPeriod;}
 
-	BigInteger getMantleWaveStations(){return MantleWaveStations;}
-	BigInteger getMantleWaveComponents(){return MantleWaveComponents;}
-	BigDecimal getMantleWaveShortestPeriod(){return MantleWaveShortestPeriod;}
+	public BigInteger getMantleWaveStations(){return MantleWaveStations;}
+	public BigInteger getMantleWaveComponents(){return MantleWaveComponents;}
+	public BigDecimal getMantleWaveShortestPeriod(){return MantleWaveShortestPeriod;}
 
-	String getMomentRateFunction(){return momentRateFunction;}
-	BigDecimal getMomentRateFunctionDuration(){return momentRateFunctionDuration;}
-	Date getDerivedEventTime(){return derivedEventTime;}
-	BigDecimal getDerivedEventLatitude(){return derivedEventLatitude;}
-	BigDecimal getDerivedEventLongitude(){return derivedEventLongitude;}
-	BigDecimal getDerivedEventDepth(){return derivedEventDepth;}
+	public String getMomentRateFunction(){return momentRateFunction;}
+	public BigDecimal getMomentRateFunctionDuration(){return momentRateFunctionDuration;}
+	public Date getDerivedEventTime(){return derivedEventTime;}
+	public BigDecimal getDerivedEventLatitude(){return derivedEventLatitude;}
+	public BigDecimal getDerivedEventLongitude(){return derivedEventLongitude;}
+	public BigDecimal getDerivedEventDepth(){return derivedEventDepth;}
 
-	BigDecimal getDerivedEventTimeError(){return derivedEventTimeError;}
-	BigDecimal getDerivedEventLatitudeError(){return derivedEventLatitudeError;}
-	BigDecimal getDerivedEventLongitudeError(){return derivedEventLongitudeError;}
-	BigDecimal getDerivedEventDepthError(){return derivedEventDepthError;}
+	public BigDecimal getDerivedEventTimeError(){return derivedEventTimeError;}
+	public BigDecimal getDerivedEventLatitudeError(){return derivedEventLatitudeError;}
+	public BigDecimal getDerivedEventLongitudeError(){return derivedEventLongitudeError;}
+	public BigDecimal getDerivedEventDepthError(){return derivedEventDepthError;}
 
-	String getDerivedDepthType(){return derivedDepthType;}
-	
-	Boolean getDerivedTimeFixed(){return derivedTimeFixed;}
-	Boolean getDerivedEpicenterFixed(){return derivedEpicenterFixed;}
+	public String getDerivedDepthType(){return derivedDepthType;}
 
-	BigDecimal getTensorMrr(){return tensorMrr;}
-	BigDecimal getTensorMtt(){return tensorMtt;}
-	BigDecimal getTensorMpp(){return tensorMpp;}
-	BigDecimal getTensorMrt(){return tensorMrt;}
-	BigDecimal getTensorMrp(){return tensorMrp;}
-	BigDecimal getTensorMtp(){return tensorMtp;}
+	public Boolean getDerivedTimeFixed(){return derivedTimeFixed;}
+	public Boolean getDerivedEpicenterFixed(){return derivedEpicenterFixed;}
 
-	BigDecimal getTensorMrrError(){return tensorMrrError;}
-	BigDecimal getTensorMttError(){return tensorMttError;}
-	BigDecimal getTensorMppError(){return tensorMppError;}
-	BigDecimal getTensorMrtError(){return tensorMrtError;}
-	BigDecimal getTensorMrpError(){return tensorMrpError;}
-	BigDecimal getTensorMtpError(){return tensorMtpError;}
+	public BigDecimal getTensorMrr(){return tensorMrr;}
+	public BigDecimal getTensorMtt(){return tensorMtt;}
+	public BigDecimal getTensorMpp(){return tensorMpp;}
+	public BigDecimal getTensorMrt(){return tensorMrt;}
+	public BigDecimal getTensorMrp(){return tensorMrp;}
+	public BigDecimal getTensorMtp(){return tensorMtp;}
 
-	BigDecimal[] getEigenVectorValues(){return eigenVectorValues;}
-	BigDecimal[] getEigenVectorPlunges(){return eigenVectorPlunges;}
-	BigDecimal[] getEigenVectorAzimuths(){return eigenVectorAzimuths;}
+	public BigDecimal getTensorMrrError(){return tensorMrrError;}
+	public BigDecimal getTensorMttError(){return tensorMttError;}
+	public BigDecimal getTensorMppError(){return tensorMppError;}
+	public BigDecimal getTensorMrtError(){return tensorMrtError;}
+	public BigDecimal getTensorMrpError(){return tensorMrpError;}
+	public BigDecimal getTensorMtpError(){return tensorMtpError;}
 
-	BigDecimal getScalarMoment(){return scalarMoment;}
+	public BigDecimal[] getEigenVectorValues(){return eigenVectorValues;}
+	public BigDecimal[] getEigenVectorPlunges(){return eigenVectorPlunges;}
+	public BigDecimal[] getEigenVectorAzimuths(){return eigenVectorAzimuths;}
 
-	BigDecimal getNodalPlane1Strike(){return nodalPlane1Strike;}
-	BigDecimal getNodalPlane1Dip(){return nodalPlane1Dip;}
-	BigDecimal getNodalPlane1Slip(){return nodalPlane1Slip;}
+	public BigDecimal getScalarMoment(){return scalarMoment;}
 
-	BigDecimal getNodalPlane2Strike(){return nodalPlane2Strike;}
-	BigDecimal getNodalPlane2Dip(){return nodalPlane2Dip;}
-	BigDecimal getNodalPlane2Slip(){return nodalPlane2Slip;}
+	public BigDecimal getNodalPlane1Strike(){return nodalPlane1Strike;}
+	public BigDecimal getNodalPlane1Dip(){return nodalPlane1Dip;}
+	public BigDecimal getNodalPlane1Slip(){return nodalPlane1Slip;}
 
-	BigDecimal getPercentDoubleCouple(){return percentDoubleCouple;}
-	String getProgramVersion(){return programVersion;}
+	public BigDecimal getNodalPlane2Strike(){return nodalPlane2Strike;}
+	public BigDecimal getNodalPlane2Dip(){return nodalPlane2Dip;}
+	public BigDecimal getNodalPlane2Slip(){return nodalPlane2Slip;}
 
-	void parseInputFormat(BufferedReader br) throws IOException{
-		//this must be implemented by subclass
-	}
+	public BigDecimal getPercentDoubleCouple(){return percentDoubleCouple;}
+	public String getProgramVersion(){return programVersion;}
+
+	//this must be implemented by subclass
+	abstract public void parseInputFormat(BufferedReader br) throws IOException;
+
 	/**
 	 * Get a QuakeML publicID attribute.
 	 * this should become a utility method, copied from CubeToQuakeml
