@@ -23,4 +23,4 @@ after_success:
   - ./gradlew sendCoverageToCodacy
 env:
   CODACY_PROJECT_TOKEN:
-    secure: "pK7Mko+xsXdAxosEjTF0oRpvnNoTx4ZLSzI3N75fj7sL7U96EKr7ThGkxq93KX23SDFi9TXnDYeA3GfQ7+N5t9aDmkTI077L3hEo0jsNXIgQ31pVkOpUwxhTBW5LyMv2BtfjaDRhdFm24wD+5JhEm3hp2pMOJhJJWl05JA+pWqc="
+    secure: pK7Mko+xsXdAxosEjTF0oRpvnNoTx4ZLSzI3N75fj7sL7U96EKr7ThGkxq93KX23SDFi9TXnDYeA3GfQ7+N5t9aDmkTI077L3hEo0jsNXIgQ31pVkOpUwxhTBW5LyMv2BtfjaDRhdFm24wD+5JhEm3hp2pMOJhJJWl05JA+pWqc=
