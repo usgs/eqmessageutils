@@ -3,6 +3,10 @@
 Message formatting and parsing utilities for
 EQXML, Quakeml 1.1, Quakeml 1.2, and Quakeml RT 1.2.
 
+[![Travis CI Badge](https://api.travis-ci.com/usgs/eqmessageutils.svg?branch=master)](https://travis-ci.com/usgs/eqmessageutils)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e4eba2d644ba4979b42773b9aabb03a5)](https://www.codacy.com/project/usgs/eqmessageutils/dashboard)
+[![codecov](https://codecov.io/gh/usgs/eqmessageutils/branch/master/graph/badge.svg)](https://codecov.io/gh/usgs/eqmessageutils)
+
 
 This java library is built using a Gradle build script (build.gradle).
 

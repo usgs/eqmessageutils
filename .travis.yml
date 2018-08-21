@@ -1,4 +1,3 @@
-
 language: java
 
 jdk:
@@ -19,11 +18,9 @@ cache:
     - $HOME/.gradle/wrapper/
 
 # coverage reporting
-# jar url from:
-#  - curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url
-#before_install:
-#  - wget -O ~/codacy-coverage-reporter-assembly-latest.jar https://github.com/codacy/codacy-coverage-reporter/releases/download/4.0.2/codacy-coverage-reporter-4.0.2-assembly.jar
-
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - ./gradlew sendCoverageToCodacy
+env:
+  CODACY_PROJECT_TOKEN:
+    secure: "pK7Mko+xsXdAxosEjTF0oRpvnNoTx4ZLSzI3N75fj7sL7U96EKr7ThGkxq93KX23SDFi9TXnDYeA3GfQ7+N5t9aDmkTI077L3hEo0jsNXIgQ31pVkOpUwxhTBW5LyMv2BtfjaDRhdFm24wD+5JhEm3hp2pMOJhJJWl05JA+pWqc="
