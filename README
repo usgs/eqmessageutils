@@ -20,7 +20,7 @@ Files:
     - Tests are in the `src/test/java` directory.
     - Schemas and sample files are in the "etc/" directory.
     - Generated source code is output to the `src/generated/java` directory,
-      by the gradle task `gradle jaxb`.
+      by the gradle task `gradle jaxb`; NOTE: this task requires JDK 1.9+
 
 Interesting Classes:
     - gov.usgs.earthquake.event.Converter has methods for converting most formats.

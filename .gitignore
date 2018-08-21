@@ -3,7 +3,6 @@ bin
 build
 dist
 gensrc
-src/generated
 etc/vax/*.xml
 .gradle
 .java-version
