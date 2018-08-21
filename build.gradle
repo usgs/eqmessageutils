@@ -5,7 +5,6 @@
  * Learn how to create Gradle builds at https://guides.gradle.org/creating-new-gradle-builds/
  */
 
-
 apply plugin: "java"
 apply plugin: "jacoco"
 
@@ -16,14 +15,21 @@ repositories {
   mavenCentral()
 }
 
+ext {
+  gensrc = "src/generated/java"
+  activation_version = "1.1.1"
+  jaxb_version = "2.3+"
+  jaxb2_basics_version = "0.12.0"
+
+  getGitCommit = { gitDir ->
+    def cmd = 'git --git-dir=' + gitDir + '/.git rev-parse HEAD'
+    return cmd.execute().text.replace('\n', '') ?: 'unknown'
+  }
+}
+
 configurations {
   jaxb
 }
-
-ext.gensrc = "gensrc"
-ext.activation_version = "1.1.1"
-ext.jaxb_version = "2.3+"
-ext.jaxb2_basics_version = "0.12.0"
 
 dependencies {
   jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant:${jaxb2_basics_version}"
@@ -58,7 +64,7 @@ sourceSets {
     java {
       srcDirs = [
         "src/main/java",
-        "gensrc"
+        gensrc
       ]
     }
     resources {
@@ -76,13 +82,6 @@ sourceSets {
   }
 }
 
-
-test {
-  filter {
-    includeTestsMatching "*Test"
-  }
-}
-
 jacocoTestReport {
   reports {
     html.enabled true
@@ -91,9 +90,24 @@ jacocoTestReport {
 }
 check.dependsOn jacocoTestReport
 
+jar {
+  manifest {
+    attributes "Git-Commit": getGitCommit('.')
+  }
+  baseName = "eqmessageutils"
+  from {
+      configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+  }
+}
 
 javadoc {
   failOnError = false
+}
+
+test {
+  filter {
+    includeTestsMatching "*Test"
+  }
 }
 
 
