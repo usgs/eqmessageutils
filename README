@@ -3,25 +3,25 @@ Jeremy Fee <jmfee@usgs.gov>
 2012-06-13
 
 
-This java library is built using an ANT build script (build.xml).
-To build this project, you need:
-    - JDK 1.6
-    - Ant
 
-Eclipse project files are included, but any editor may be used.
-You will need to run an ant task to generate jaxb classes after first opening in eclipse.
+Last Update 2018-08-20
+This java library is now built using a Gradle build script (build.gradle).
+
+To build this project, you need:
+    - JDK 1.8+ ( http://openjdk.java.net/ )
+    - Gradle ( https://gradle.org/ )
+
+You will need to run a gradle task to generate jaxb classes,
+or build the library from source.
 
 
 Files:
-    - All non-generated source code is in the "src/" directory.
-    - All generated source code is created in a "gensrc/" directory, by the ANT target "gensrc".
+    - Source code is in the `src/main/java` directory.
+    - Tests are in the `src/test/java` directory.
     - Schemas and sample files are in the "etc/" directory.
+    - Generated source code is output to the `src/generated/java` directory,
+      by the gradle task `gradle jaxb`.
 
 Interesting Classes:
     - gov.usgs.earthquake.event.Converter has methods for converting most formats.
     - gov.usgs.earthquake.quakeml.FileToQuakemlConverter is an interface for parsers to create Quakeml from other formats.
-
-
-> NOTE: on Java 1.8+, you must run ant with ANT_OPTS for the XJC tasks to run
->
-> 	ANT_OPTS="-Djavax.xml.accessExternalSchema=all" ant all

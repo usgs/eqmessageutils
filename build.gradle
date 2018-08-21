@@ -82,6 +82,11 @@ sourceSets {
   }
 }
 
+
+clean.doFirst {
+  delete("bin")
+}
+
 jacocoTestReport {
   reports {
     html.enabled true
