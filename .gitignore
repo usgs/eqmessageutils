@@ -1,6 +1,9 @@
 .DS_Store
+bin
 build
 dist
 gensrc
 etc/vax/*.xml
 .gradle
+.java-version
+.vscode

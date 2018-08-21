@@ -54,8 +54,8 @@ print """<bindings version="1.0"
 	
 	<!-- override default XMLGregorianCalendar mapping for dates. -->
 	<javaType xmlType="xs:dateTime" name="java.util.Date"
-			parseMethod="gov.usgs.util.XmlUtils.getDate"
-			printMethod="gov.usgs.util.XmlUtils.formatDate" />
+			parseMethod="gov.usgs.earthquake.util.ISO8601.parse"
+			printMethod="gov.usgs.earthquake.util.ISO8601.format" />
 
 </globalBindings>
 
