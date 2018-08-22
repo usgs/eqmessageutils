@@ -121,9 +121,9 @@ test {
 
 
 task jaxb() {
-  mkdir(gensrc)
-
   doLast() {
+    mkdir(gensrc)
+
     ant.taskdef(
         name: "xjc",
         classname: "org.jvnet.jaxb2_commons.xjc.XJC2Task",
