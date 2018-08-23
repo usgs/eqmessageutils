@@ -104,6 +104,7 @@ task jaxb() {
 
   doLast() {
     mkdir(gensrc)
+    System.properties["javax.xml.accessExternalSchema"] = "all"
 
     ant.taskdef(
         name: "xjc",
@@ -167,9 +168,10 @@ task jaxbCleanup {
   }
 }
 
-task generate(dependsOn: ["jaxbCleanup", "jaxb"]) {
+task generate(dependsOn: ["jaxbCleanup"]) {
   description "regenerated generated classes"
 }
+generate.finalizedBy jaxb
 
 
 // Tasks for building releases
