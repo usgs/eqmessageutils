@@ -1,0 +1,716 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CubeEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.cube</a> &gt; <span class="el_source">CubeEvent.java</span></div><h1>CubeEvent.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.cube;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+/**
+ * CUBE earthquake message.
+ * 
+ * &lt;pre&gt;{@code
+ *  E - Earthquake
+ *     The E format messages are used to add an earthquake to the catalog or modify the summary information about and earthquake by issuing a new version. The highest version or most recently received information of the same version is used. The format is:
+ * 
+ *     TpEidnumbrSoVYearMoDyHrMnSecLatddddLongddddDeptMgNstNphDminRmssErhoErzzGpMNmEmLC
+ *     12345678901234567890123456789012345678901234567890123456789012345678901234567890
+ *              1         2         3         4         5         6         7         8
+ * 
+ *     a2 * Tp   = Message type = &quot;E &quot; (seismic event)
+ *     a8 * Eid  = Event identification number  (any string)
+ *     a2 * So   = Data Source =  regional network designation
+ *     a1 * V    = Event Version     (ASCII char, except [,])
+ *     i4 * Year = Calendar year                (GMT) (-999-6070)
+ *     i2 * Mo   = Month of the year            (GMT) (1-12)
+ *     i2 * Dy   = Day of the month             (GMT) (1-31)
+ *     i2 * Hr   = Hours since midnight         (GMT) (0-23)
+ *     i2 * Mn   = Minutes past the hour        (GMT) (0-59)
+ *     i3 * Sec  = Seconds past the minute * 10 (GMT) (0-599)
+ *     i7 * Lat  = Latitude:  signed decimal degrees*10000 north&gt;0
+ *     i8 * Long = Longitude: signed decimal degrees*10000 west &lt;0
+ *     i4   Dept = Depth below sea level, kilometers * 10
+ *     i2   Mg   = Magnitude * 10
+ *     i3   Nst  = Number of stations used for location
+ *     i3   Nph  = Number of phases used for location
+ *     i4   Dmin = Distance to 1st station;   kilometers * 10
+ *     i4   Rmss = Rms time error; sec * 100
+ *     i4   Erho = Horizontal standard error; kilometers * 10
+ *     i4   Erzz = Vertical standard error;   kilometers * 10
+ *     i2   Gp   = Azimuthal gap, percent of circle; degrees/3.6
+ *     a1   M    = Magnitude type
+ *     i2   Nm   = Number of stations for magnitude determination
+ *     i2   Em   = Standard error of the magnitude * 10
+ *     a1   L    = Location method
+ *     a1 * C    = Menlo Park check character, defined below
+ * 
+ *     &quot;Message Type&quot; field:
+ *          The second character, following the 'E', is no
+ *          longer used for magnitude validation.  Prior &quot;En&quot;
+ *          format that used the 2nd char for magnitude
+ *          validation is no longer supported.
+ * 
+ *     &quot;Event Identification Number&quot; field:
+ *          Any string, excluding '[' and ']' characters.
+ *          Must be a unique identifier for the event.
+ *          Two events with the same identifier from the same
+ *          source will be the same event.  Format varies by
+ *          source - either numeric or alpha-numeric.
+ * 
+ *     &quot;Data Source&quot; field: regional seismic network designation:
+ *          See http://www.iris.washington.edu/FDSN/networks.txt
+ * 
+ *     &quot;Version Number&quot; field:
+ *          May have any value (ASCII 32-126, except 91 or 93).
+ *          Meaning varies by source. Used to distinguish between
+ *          different versions of the same event.
+ * 
+ *     &quot;Location Method&quot; field: varies by source (in parentheses):
+ *          Upper-case indicates an unconfirmed event,
+ *          Lower-case indicates event is confirmed by human review
+ * 
+ *          A = Binder (AK)
+ *          D = Antelope (NN)
+ *          F = nonNEIC-furnished (US)
+ *          H = Hypoinverse (CI,UU,UW)
+ *          L = Earthworm &quot;local&quot; event (NC)
+ *          M = macroseismic or &quot;felt&quot; (US)
+ *          R = NEIC-furnished (US)
+ * 
+ *     &quot;Magnitude Type&quot; field:
+ *          B = body magnitude (Mb)
+ *          C = duration magnitude (Md)
+ *          D = duration magnitude (Md)
+ *          E = energy magnitude (Me)
+ *          G = local magnitude (Ml)
+ *          I = &quot;Tsuboi&quot; moment magnitude (Mi)
+ *          L = local magnitude (Ml)
+ *          N = &quot;Nuttli&quot; surface wave magnitude (MbLg)
+ *          O = moment magnitude (Mw)
+ *          P = body magnitude (Mb)
+ *          S = surface wave magnitude (Ms)
+ *          T = teleseismic moment magnitude (Mt)
+ *          W = regional moment magnitude (Mw)
+ * 
+ *     &quot;Menlo Park Check Character&quot; field:
+ *          Menlo-Park checksum, calculated 1st through 79th
+ *          char in the message.  Checksum method defined by
+ *          C language source code, below.
+ *          NB: Square bracket characters ARE ACCEPTED in this
+ *              field.
+ * 
+ *     // -------------------------------------------------------
+ *     // Menlo Park(USGS) check char (Nov.94) cleaned up by PTG
+ *     // Argument:  pch = null terminated string
+ *     // Returns:   Menlo Park check char, excess 36 modulo 91
+ *     int MenloCheckChar( char* pch )
+ *     {
+ *          unsigned short sum;
+ * 
+ *          for( sum=0; *pch; pch++ )
+ *              sum = ((sum&amp;01)?0x8000:0) + (sum&gt;&gt;1) + *pch;
+ * 
+ *          return (int)(36+sum%91);
+ *     }
+ * 
+ *     Examples:
+ *     E 09082344CI21999040217051050339860-1169945017316000014001800120009004332C0002hP
+ *     E meav    US3199904021838195-201884 1681247 33054 19 192283 062 387  00  B 8   v
+ * 
+ * 
+ *     Note: when stored in the catalog directory a 20 column time stamp is
+ *     put at the beginning of the line and the source code is changed to
+ *     upper case if the event is in the networks authoritative region and
+ *     lower case if it is not in the networks authoritative region.
+ * }
+ * &lt;/pre&gt;
+ * 
+ * @author jmfee
+ */
+public class CubeEvent extends CubeMessage {
+
+	/**
+	 * Three lines that make reading cube format easier (though still not easy).
+	 */
+	public static final String HUMAN_PARSING_GUIDE = &quot;&quot;
+			+ &quot;TpEidnumbrSoVYearMoDyHrMnSecLatddddLongddddDeptMgNstNphDminRmssErhoErzzGpMNmEmLC\n&quot;
+			+ &quot;12345678901234567890123456789012345678901234567890123456789012345678901234567890\n&quot;
+			+ &quot;         1         2         3         4         5         6         7         8&quot;;
+
+	public static final String EXAMPLE1 = &quot;E 09082344CI21999040217051050339860-1169945017316000014001800120009004332C0002hP&quot;;
+	public static final String EXAMPLE2 = &quot;E meav    US3199904021838195-201884 1681247 33054 19 192283 062 387  00  B 8   v&quot;;
+	public static final String EXAMPLE3 = &quot;E 71767785NC2201204200434279 376357-1188813  89 4    22  20   4   4   426D2002hJ&quot;;
+
+	/** Cube event messages start with &quot;E &quot;. */
+	public static final String TYPE = &quot;E &quot;;
+
+	/** Used to identify an internal event that should not be listed. */
+	public static final String INTERNAL_LOCATION_METHOD = &quot;Z&quot;;
+	/** Used to identify a quarry event. */
+	public static final String QUARRY_LOCATION_METHOD = &quot;Q&quot;;
+
+	/** Earth radius in km, used to compute kilometers per degree. */
+<span class="fc" id="L154">	public static final BigDecimal EARTH_RADIUS_KM = new BigDecimal(&quot;6378.137&quot;);</span>
+
+	/** some prefer degrees for minimum station distance, cube uses kilometers */
+<span class="fc" id="L157">	public static final BigDecimal KILOMETERS_PER_DEGREE = BigDecimal.ONE</span>
+<span class="fc" id="L158">			.multiply(new BigDecimal(Math.toRadians(1))).multiply(</span>
+					EARTH_RADIUS_KM);
+
+<span class="fc" id="L161">	public static final BigDecimal TEN_THOUSAND = new BigDecimal(&quot;10000&quot;);</span>
+<span class="fc" id="L162">	public static final BigDecimal ONE_HUNDRED = new BigDecimal(&quot;100&quot;);</span>
+<span class="fc" id="L163">	public static final BigDecimal TEN = BigDecimal.TEN;</span>
+<span class="fc" id="L164">	public static final BigDecimal PERCENT_OF_CIRCLE = BigDecimal.ONE.divide(</span>
+			new BigDecimal(&quot;3.6&quot;), MathContext.DECIMAL32);
+
+	private Integer year;
+	private Integer month;
+	private Integer day;
+	private Integer hour;
+	private Integer minute;
+	private BigDecimal second;
+	private BigDecimal latitude;
+	private BigDecimal longitude;
+	private BigDecimal depth;
+	private BigDecimal magnitude;
+	private BigInteger numLocationStations;
+	private BigInteger numLocationPhases;
+	private BigDecimal minStationDistance;
+	private BigDecimal rmsTimeError;
+	private BigDecimal horizontalError;
+	private BigDecimal verticalError;
+	private BigDecimal azimuthalGap;
+	private String magnitudeType;
+	private BigInteger numMagnitudeStations;
+	private BigDecimal magnitudeError;
+	private String locationMethod;
+	private String checksum;
+
+	private boolean reviewed;
+	private boolean internal;
+	private boolean quarry;
+
+<span class="fc" id="L194">	public CubeEvent() {</span>
+		// set defaults
+<span class="fc" id="L196">		reviewed = false;</span>
+<span class="fc" id="L197">		internal = false;</span>
+<span class="fc" id="L198">		quarry = false;</span>
+<span class="fc" id="L199">	}</span>
+
+
+	@Override
+	public String getType() {
+<span class="fc" id="L204">		return TYPE;</span>
+	}
+
+	@Override
+	public String toCUBE() {
+<span class="fc" id="L209">		StringBuffer buf = new StringBuffer();</span>
+<span class="fc" id="L210">		buf.append(super.toCUBE());</span>
+<span class="fc" id="L211">		buf.append(CubeMessage.leftPad(year.toString(), 4, '0'));</span>
+<span class="fc" id="L212">		buf.append(CubeMessage.leftPad(month.toString(), 2, '0'));</span>
+<span class="fc" id="L213">		buf.append(CubeMessage.leftPad(day.toString(), 2, '0'));</span>
+<span class="fc" id="L214">		buf.append(CubeMessage.leftPad(hour.toString(), 2, '0'));</span>
+<span class="fc" id="L215">		buf.append(CubeMessage.leftPad(minute.toString(), 2, '0'));</span>
+<span class="fc" id="L216">		buf.append(CubeMessage.leftPad(</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">				(second == null) ? &quot;&quot; : second.multiply(TEN).toBigInteger()</span>
+<span class="fc" id="L218">						.toString(), 3));</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">		buf.append(CubeMessage.leftPad((latitude == null) ? &quot;&quot; : latitude</span>
+<span class="fc" id="L220">				.multiply(TEN_THOUSAND).toBigInteger().toString(), 7));</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">		buf.append(CubeMessage.leftPad((longitude == null) ? &quot;&quot; : longitude</span>
+<span class="fc" id="L222">				.multiply(TEN_THOUSAND).toBigInteger().toString(), 8));</span>
+<span class="fc" id="L223">		buf.append(CubeMessage.leftPad(</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">				(depth == null) ? &quot;&quot; : depth.multiply(TEN).toBigInteger()</span>
+<span class="fc" id="L225">						.toString(), 4));</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">		buf.append(CubeMessage.leftPad((magnitude == null) ? &quot;&quot; : magnitude</span>
+<span class="fc" id="L227">				.multiply(TEN).toBigInteger().toString(), 2));</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">		buf.append(CubeMessage.leftPad((numLocationStations == null) ? &quot;&quot;</span>
+<span class="fc" id="L229">				: numLocationStations.toString(), 3));</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">		buf.append(CubeMessage.leftPad((numLocationPhases == null) ? &quot;&quot;</span>
+<span class="fc" id="L231">				: numLocationPhases.toString(), 3));</span>
+<span class="fc" id="L232">		buf.append(CubeMessage</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">				.leftPad((minStationDistance == null) ? &quot;&quot; : minStationDistance</span>
+<span class="fc" id="L234">						.multiply(TEN).toBigInteger().toString(), 4));</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">		buf.append(CubeMessage.leftPad((rmsTimeError == null) ? &quot;&quot;</span>
+<span class="fc" id="L236">				: rmsTimeError.multiply(ONE_HUNDRED).toBigInteger().toString(),</span>
+				4));
+<span class="fc bfc" id="L238" title="All 2 branches covered.">		buf.append(CubeMessage.leftPad((horizontalError == null) ? &quot;&quot;</span>
+<span class="fc" id="L239">				: horizontalError.multiply(TEN).toBigInteger().toString(), 4));</span>
+<span class="fc bfc" id="L240" title="All 2 branches covered.">		buf.append(CubeMessage.leftPad((verticalError == null) ? &quot;&quot;</span>
+<span class="fc" id="L241">				: verticalError.multiply(TEN).toBigInteger().toString(), 4));</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">		buf.append(CubeMessage.leftPad((azimuthalGap == null) ? &quot;&quot;</span>
+<span class="fc" id="L243">				: azimuthalGap.multiply(PERCENT_OF_CIRCLE).toBigInteger()</span>
+<span class="fc" id="L244">						.toString(), 2));</span>
+<span class="fc" id="L245">		buf.append(CubeMessage.leftPad(magnitudeType, 1));</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">		buf.append(CubeMessage.leftPad((numMagnitudeStations == null) ? &quot;&quot;</span>
+<span class="fc" id="L247">				: numMagnitudeStations.toString(), 2));</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">		buf.append(CubeMessage.leftPad((magnitudeError == null) ? &quot;&quot;</span>
+<span class="fc" id="L249">				: magnitudeError.multiply(TEN).toBigInteger().toString(), 2));</span>
+
+		// may need to override for special meanings
+<span class="fc" id="L252">		String locMethod = locationMethod;</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">		if (isQuarry()) {</span>
+<span class="nc" id="L254">			locMethod = QUARRY_LOCATION_METHOD;</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">		} else if (isInternal()) {</span>
+<span class="fc" id="L256">			locMethod = INTERNAL_LOCATION_METHOD;</span>
+		}
+<span class="fc bfc" id="L258" title="All 2 branches covered.">		if (locMethod != null) { // if null, invalid, but docs provide example</span>
+									// without...
+			// review status determines case
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">			if (isReviewed()) {</span>
+<span class="fc" id="L262">				locMethod = locMethod.toLowerCase();</span>
+			} else {
+<span class="nc" id="L264">				locMethod = locMethod.toUpperCase();</span>
+			}
+		}
+<span class="fc" id="L267">		buf.append(CubeMessage.leftPad(locMethod, 1));</span>
+
+		// compute checksum and append
+<span class="fc" id="L270">		buf.append(CubeMessage.leftPad(</span>
+<span class="fc" id="L271">				CubeChecksum.strChecksum(buf.toString()), 1));</span>
+
+<span class="fc" id="L273">		return buf.toString();</span>
+	}
+
+	public static CubeEvent parseCUBE(final String line) {
+<span class="fc" id="L277">		String type = line.substring(0, 2);</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">		if (!TYPE.equals(type)) {</span>
+			// not a cube event
+<span class="nc" id="L280">			throw new IllegalArgumentException(</span>
+					&quot;Unexpected CUBE type, expected '&quot; + TYPE + &quot;', got '&quot;
+							+ type + &quot;'&quot;);
+		}
+
+<span class="fc" id="L285">		String expectedChecksum = CubeChecksum.strChecksum(line</span>
+<span class="fc" id="L286">				.substring(0, 79));</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">		if (!expectedChecksum.equals(line.substring(79, 80))) {</span>
+			// bad checksum
+<span class="nc" id="L289">			throw new IllegalArgumentException(&quot;Invalid checksum, expected '&quot;</span>
+					+ expectedChecksum + &quot;'&quot;);
+		}
+
+<span class="fc" id="L293">		String toParse = line;</span>
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">		if (toParse.indexOf(&quot;*&quot;) != -1) {</span>
+			// simplify parsing
+<span class="nc" id="L296">			toParse = toParse.replace(&quot;*&quot;, &quot; &quot;);</span>
+		}
+
+<span class="fc" id="L299">		String code = toParse.substring(2, 10).trim().toLowerCase();</span>
+<span class="fc" id="L300">		String source = toParse.substring(10, 12).trim().toLowerCase();</span>
+<span class="fc" id="L301">		String version = toParse.substring(12, 13).trim();</span>
+<span class="fc" id="L302">		String year = toParse.substring(13, 17).trim();</span>
+<span class="fc" id="L303">		String month = toParse.substring(17, 19).trim();</span>
+<span class="fc" id="L304">		String day = toParse.substring(19, 21).trim();</span>
+<span class="fc" id="L305">		String hour = toParse.substring(21, 23).trim();</span>
+<span class="fc" id="L306">		String minute = toParse.substring(23, 25).trim();</span>
+<span class="fc" id="L307">		String second = toParse.substring(25, 28).trim();</span>
+<span class="fc" id="L308">		String latitude = toParse.substring(28, 35).trim();</span>
+<span class="fc" id="L309">		String longitude = toParse.substring(35, 43).trim();</span>
+<span class="fc" id="L310">		String depth = toParse.substring(43, 47).trim();</span>
+<span class="fc" id="L311">		String magnitude = toParse.substring(47, 49).trim();</span>
+<span class="fc" id="L312">		String numLocationStations = toParse.substring(49, 52).trim();</span>
+<span class="fc" id="L313">		String numLocationPhases = toParse.substring(52, 55).trim();</span>
+<span class="fc" id="L314">		String minStationDistance = toParse.substring(55, 59).trim();</span>
+<span class="fc" id="L315">		String rmsTimeError = toParse.substring(59, 63).trim();</span>
+<span class="fc" id="L316">		String horizontalError = toParse.substring(63, 67).trim();</span>
+<span class="fc" id="L317">		String verticalError = toParse.substring(67, 71).trim();</span>
+<span class="fc" id="L318">		String azimuthalGap = toParse.substring(71, 73).trim();</span>
+<span class="fc" id="L319">		String magnitudeType = toParse.substring(73, 74).trim();</span>
+<span class="fc" id="L320">		String numMagnitudeStations = toParse.substring(74, 76).trim();</span>
+<span class="fc" id="L321">		String magnitudeError = toParse.substring(76, 78).trim();</span>
+<span class="fc" id="L322">		String locationMethod = toParse.substring(78, 79).trim();</span>
+<span class="fc" id="L323">		String checksum = toParse.substring(79, 80).trim();</span>
+
+<span class="fc" id="L325">		CubeEvent event = new CubeEvent();</span>
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">		event.setCode(&quot;&quot;.equals(code) ? null : code);</span>
+<span class="pc bpc" id="L327" title="1 of 2 branches missed.">		event.setSource(&quot;&quot;.equals(source) ? null : source);</span>
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">		event.setVersion(&quot;&quot;.equals(version) ? null : version);</span>
+<span class="pc bpc" id="L329" title="1 of 2 branches missed.">		event.setYear(&quot;&quot;.equals(year) ? null : Integer.valueOf(year));</span>
+<span class="pc bpc" id="L330" title="1 of 2 branches missed.">		event.setMonth(&quot;&quot;.equals(month) ? null : Integer.valueOf(month));</span>
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">		event.setDay(&quot;&quot;.equals(day) ? null : Integer.valueOf(day));</span>
+<span class="pc bpc" id="L332" title="1 of 2 branches missed.">		event.setHour(&quot;&quot;.equals(hour) ? null : Integer.valueOf(hour));</span>
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">		event.setMinute(&quot;&quot;.equals(minute) ? null : Integer.valueOf(minute));</span>
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">		event.setSecond(&quot;&quot;.equals(second) ? null : new BigDecimal(second)</span>
+<span class="fc" id="L335">				.divide(TEN));</span>
+<span class="pc bpc" id="L336" title="1 of 2 branches missed.">		event.setLatitude(&quot;&quot;.equals(latitude) ? null : new BigDecimal(latitude)</span>
+<span class="fc" id="L337">				.divide(TEN_THOUSAND));</span>
+<span class="pc bpc" id="L338" title="1 of 2 branches missed.">		event.setLongitude(&quot;&quot;.equals(longitude) ? null : new BigDecimal(</span>
+<span class="fc" id="L339">				longitude).divide(TEN_THOUSAND));</span>
+<span class="pc bpc" id="L340" title="1 of 2 branches missed.">		event.setDepth(&quot;&quot;.equals(depth) ? null : new BigDecimal(depth)</span>
+<span class="fc" id="L341">				.divide(TEN));</span>
+<span class="pc bpc" id="L342" title="1 of 2 branches missed.">		event.setMagnitude(&quot;&quot;.equals(magnitude) ? null : new BigDecimal(</span>
+<span class="fc" id="L343">				magnitude).divide(TEN));</span>
+<span class="fc bfc" id="L344" title="All 2 branches covered.">		event.setNumLocationStations(&quot;&quot;.equals(numLocationStations) ? null</span>
+<span class="fc" id="L345">				: new BigInteger(numLocationStations));</span>
+<span class="pc bpc" id="L346" title="1 of 2 branches missed.">		event.setNumLocationPhases(&quot;&quot;.equals(numLocationPhases) ? null</span>
+<span class="fc" id="L347">				: new BigInteger(numLocationPhases));</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">		event.setMinStationDistance(&quot;&quot;.equals(minStationDistance) ? null</span>
+<span class="fc" id="L349">				: new BigDecimal(minStationDistance).divide(TEN));</span>
+<span class="pc bpc" id="L350" title="1 of 2 branches missed.">		event.setRmsTimeError(&quot;&quot;.equals(rmsTimeError) ? null : new BigDecimal(</span>
+<span class="fc" id="L351">				rmsTimeError).divide(ONE_HUNDRED));</span>
+<span class="pc bpc" id="L352" title="1 of 2 branches missed.">		event.setHorizontalError(&quot;&quot;.equals(horizontalError) ? null</span>
+<span class="fc" id="L353">				: new BigDecimal(horizontalError).divide(TEN));</span>
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">		event.setVerticalError(&quot;&quot;.equals(verticalError) ? null</span>
+<span class="fc" id="L355">				: new BigDecimal(verticalError).divide(TEN));</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">		event.setAzimuthalGap(&quot;&quot;.equals(azimuthalGap) ? null : new BigDecimal(</span>
+<span class="fc" id="L357">				azimuthalGap).divide(PERCENT_OF_CIRCLE, MathContext.DECIMAL128)</span>
+<span class="fc" id="L358">				.stripTrailingZeros());</span>
+<span class="pc bpc" id="L359" title="1 of 2 branches missed.">		event.setMagnitudeType(&quot;&quot;.equals(magnitudeType) ? null : magnitudeType);</span>
+<span class="pc bpc" id="L360" title="1 of 2 branches missed.">		event.setNumMagnitudeStations(&quot;&quot;.equals(numMagnitudeStations) ? null</span>
+<span class="fc" id="L361">				: new BigInteger(numMagnitudeStations));</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">		event.setMagnitudeError(&quot;&quot;.equals(magnitudeError) ? null</span>
+<span class="fc" id="L363">				: new BigDecimal(magnitudeError).divide(TEN));</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">		event.setLocationMethod(&quot;&quot;.equals(locationMethod) ? null</span>
+<span class="fc" id="L365">				: locationMethod);</span>
+<span class="pc bpc" id="L366" title="1 of 2 branches missed.">		event.setChecksum(&quot;&quot;.equals(checksum) ? null : checksum);</span>
+
+<span class="fc bfc" id="L368" title="All 2 branches covered.">		if (!&quot;&quot;.equals(locationMethod)</span>
+<span class="pc bpc" id="L369" title="1 of 2 branches missed.">				&amp;&amp; Character.isLowerCase(locationMethod.charAt(0))) {</span>
+			// reviewed if location method and location method is lower case
+<span class="fc" id="L371">			event.setReviewed(true);</span>
+		} else {
+<span class="fc" id="L373">			event.setReviewed(false);</span>
+		}
+
+<span class="fc" id="L376">		event.setInternal(locationMethod</span>
+<span class="fc" id="L377">				.equalsIgnoreCase(INTERNAL_LOCATION_METHOD));</span>
+<span class="fc" id="L378">		event.setQuarry(locationMethod.equalsIgnoreCase(QUARRY_LOCATION_METHOD));</span>
+
+<span class="fc" id="L380">		return event;</span>
+	}
+
+	public boolean isValid() {
+<span class="nc bnc" id="L384" title="All 10 branches missed.">		return (</span>
+		// id is required
+		source != null
+				&amp;&amp; code != null
+				&amp;&amp; version != null
+				// time is required
+				&amp;&amp; year != null
+				// month between 1 and 12
+				&amp;&amp; month != null
+<span class="nc bnc" id="L393" title="All 2 branches missed.">				&amp;&amp; month &gt;= 1</span>
+<span class="nc bnc" id="L394" title="All 4 branches missed.">				&amp;&amp; month &lt;= 12</span>
+				// day between 1 and 31
+				&amp;&amp; day != null
+<span class="nc bnc" id="L397" title="All 2 branches missed.">				&amp;&amp; day &gt;= 1</span>
+<span class="nc bnc" id="L398" title="All 4 branches missed.">				&amp;&amp; day &lt;= 31</span>
+				// hour between 0 and 23
+				&amp;&amp; hour != null
+<span class="nc bnc" id="L401" title="All 2 branches missed.">				&amp;&amp; hour &gt;= 0</span>
+<span class="nc bnc" id="L402" title="All 4 branches missed.">				&amp;&amp; hour &lt;= 23</span>
+				// minute between 0 and 59
+				&amp;&amp; minute != null
+<span class="nc bnc" id="L405" title="All 2 branches missed.">				&amp;&amp; minute &gt;= 0</span>
+<span class="nc bnc" id="L406" title="All 4 branches missed.">				&amp;&amp; minute &lt;= 59</span>
+				// second between 0 and 59.9
+				&amp;&amp; second != null
+<span class="nc bnc" id="L409" title="All 2 branches missed.">				&amp;&amp; second.compareTo(BigDecimal.ZERO) &gt;= 0</span>
+<span class="nc bnc" id="L410" title="All 4 branches missed.">				&amp;&amp; second.compareTo(new BigDecimal(&quot;59.9&quot;)) &lt;= 0</span>
+				// location is required
+				// latitude between -90 and 90
+				&amp;&amp; latitude != null
+<span class="nc bnc" id="L414" title="All 2 branches missed.">				&amp;&amp; latitude.compareTo(new BigDecimal(&quot;-90.0&quot;)) &gt;= 0</span>
+<span class="nc bnc" id="L415" title="All 4 branches missed.">				&amp;&amp; latitude.compareTo(new BigDecimal(&quot;90.0&quot;)) &lt;= 0</span>
+				// longitude between -180 and 180
+				&amp;&amp; longitude != null
+<span class="nc bnc" id="L418" title="All 2 branches missed.">				&amp;&amp; longitude.compareTo(new BigDecimal(&quot;-180.0&quot;)) &gt;= 0</span>
+<span class="nc bnc" id="L419" title="All 4 branches missed.">				&amp;&amp; longitude.compareTo(new BigDecimal(&quot;180.0&quot;)) &lt;= 0</span>
+				// magnitude is required
+				&amp;&amp; magnitude != null
+<span class="nc bnc" id="L422" title="All 2 branches missed.">				&amp;&amp; magnitude.compareTo(new BigDecimal(&quot;-1.0&quot;)) &gt;= 0</span>
+<span class="nc bnc" id="L423" title="All 6 branches missed.">				&amp;&amp; magnitude.compareTo(new BigDecimal(&quot;11.0&quot;)) &lt;= 0</span>
+				// magnitude type and location method are required
+				&amp;&amp; magnitudeType != null &amp;&amp; locationMethod != null
+		);
+	}
+
+	/**
+	 * Convert date parameters to java.util.Date object.
+	 * 
+	 * This method uses the year, month, day, hour, minute, and second fields.
+	 * 
+	 * @return when this event occured.
+	 */
+	public Date getTime() {
+		// utc date
+<span class="fc" id="L438">		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(&quot;GMT&quot;));</span>
+<span class="fc" id="L439">		calendar.clear();</span>
+
+		// set seconds to zero, add milliseconds later
+		// month is 0-based
+<span class="fc" id="L443">		calendar.set(year, month - 1, day, hour, minute, 0);</span>
+
+		// compute seconds as milliseconds to add to above calendar value
+		// *10 shift on big decimal to preserve tenths,
+		// then do additional *100 as an int
+<span class="fc" id="L448">		int milliseconds = second.multiply(BigDecimal.TEN).toBigInteger()</span>
+<span class="fc" id="L449">				.intValue() * 100;</span>
+
+<span class="fc" id="L451">		return new Date(calendar.getTimeInMillis() + milliseconds);</span>
+	}
+
+	/**
+	 * Set cube date parameters using a java.util.Date object.
+	 * 
+	 * Calling this method will set year, month, day, hour, minute, and second
+	 * fields.
+	 * 
+	 * @param date
+	 *            when this event occured.
+	 */
+	public void setTime(final Date date) {
+<span class="fc" id="L464">		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(&quot;GMT&quot;));</span>
+<span class="fc" id="L465">		calendar.clear();</span>
+
+<span class="fc" id="L467">		calendar.setTime(date);</span>
+
+<span class="fc" id="L469">		year = calendar.get(Calendar.YEAR);</span>
+<span class="fc" id="L470">		month = calendar.get(Calendar.MONTH) + 1;</span>
+<span class="fc" id="L471">		day = calendar.get(Calendar.DAY_OF_MONTH);</span>
+<span class="fc" id="L472">		hour = calendar.get(Calendar.HOUR_OF_DAY);</span>
+<span class="fc" id="L473">		minute = calendar.get(Calendar.MINUTE);</span>
+
+		// used to convert between seconds and milliseconds
+<span class="fc" id="L476">		BigDecimal THOUSAND = new BigDecimal(&quot;1000&quot;);</span>
+
+		// calculate number of milliseconds after minute
+<span class="fc" id="L479">		BigDecimal milliseconds = new BigDecimal(calendar.get(Calendar.SECOND))</span>
+<span class="fc" id="L480">				.multiply(THOUSAND);</span>
+<span class="fc" id="L481">		milliseconds = milliseconds.add(new BigDecimal(calendar</span>
+<span class="fc" id="L482">				.get(Calendar.MILLISECOND)));</span>
+		// now convert milliseconds to seconds
+<span class="fc" id="L484">		second = milliseconds.divide(THOUSAND);</span>
+<span class="fc" id="L485">	}</span>
+
+	public Integer getYear() {
+<span class="nc" id="L488">		return year;</span>
+	}
+
+	public void setYear(Integer year) {
+<span class="fc" id="L492">		this.year = year;</span>
+<span class="fc" id="L493">	}</span>
+
+	public Integer getMonth() {
+<span class="nc" id="L496">		return month;</span>
+	}
+
+	public void setMonth(Integer month) {
+<span class="fc" id="L500">		this.month = month;</span>
+<span class="fc" id="L501">	}</span>
+
+	public Integer getDay() {
+<span class="nc" id="L504">		return day;</span>
+	}
+
+	public void setDay(Integer day) {
+<span class="fc" id="L508">		this.day = day;</span>
+<span class="fc" id="L509">	}</span>
+
+	public Integer getHour() {
+<span class="nc" id="L512">		return hour;</span>
+	}
+
+	public void setHour(Integer hour) {
+<span class="fc" id="L516">		this.hour = hour;</span>
+<span class="fc" id="L517">	}</span>
+
+	public Integer getMinute() {
+<span class="nc" id="L520">		return minute;</span>
+	}
+
+	public void setMinute(Integer minute) {
+<span class="fc" id="L524">		this.minute = minute;</span>
+<span class="fc" id="L525">	}</span>
+
+	public BigDecimal getSecond() {
+<span class="nc" id="L528">		return second;</span>
+	}
+
+	public void setSecond(BigDecimal second) {
+<span class="fc" id="L532">		this.second = second;</span>
+<span class="fc" id="L533">	}</span>
+
+	public BigDecimal getLatitude() {
+<span class="fc" id="L536">		return latitude;</span>
+	}
+
+	public void setLatitude(BigDecimal latitude) {
+<span class="fc" id="L540">		this.latitude = latitude;</span>
+<span class="fc" id="L541">	}</span>
+
+	public BigDecimal getLongitude() {
+<span class="fc" id="L544">		return longitude;</span>
+	}
+
+	public void setLongitude(BigDecimal longitude) {
+<span class="fc" id="L548">		this.longitude = longitude;</span>
+<span class="fc" id="L549">	}</span>
+
+	public BigDecimal getDepth() {
+<span class="fc" id="L552">		return depth;</span>
+	}
+
+	public void setDepth(BigDecimal depth) {
+<span class="fc" id="L556">		this.depth = depth;</span>
+<span class="fc" id="L557">	}</span>
+
+	public BigDecimal getMagnitude() {
+<span class="fc" id="L560">		return magnitude;</span>
+	}
+
+	public void setMagnitude(BigDecimal magnitude) {
+<span class="fc" id="L564">		this.magnitude = magnitude;</span>
+<span class="fc" id="L565">	}</span>
+
+	public BigInteger getNumLocationStations() {
+<span class="fc" id="L568">		return numLocationStations;</span>
+	}
+
+	public void setNumLocationStations(BigInteger numLocationStations) {
+<span class="fc" id="L572">		this.numLocationStations = numLocationStations;</span>
+<span class="fc" id="L573">	}</span>
+
+	public BigInteger getNumLocationPhases() {
+<span class="fc" id="L576">		return numLocationPhases;</span>
+	}
+
+	public void setNumLocationPhases(BigInteger numLocationPhases) {
+<span class="fc" id="L580">		this.numLocationPhases = numLocationPhases;</span>
+<span class="fc" id="L581">	}</span>
+
+	public BigDecimal getMinStationDistance() {
+<span class="nc" id="L584">		return minStationDistance;</span>
+	}
+
+	public void setMinStationDistance(BigDecimal minStationDistance) {
+<span class="fc" id="L588">		this.minStationDistance = minStationDistance;</span>
+<span class="fc" id="L589">	}</span>
+
+	/**
+	 * Get min station distance in degrees (instead of km).
+	 * 
+	 * @return min station distance in degrees.
+	 */
+	public BigDecimal getMinStationDistanceDegrees() {
+<span class="fc bfc" id="L597" title="All 2 branches covered.">		if (minStationDistance == null) {</span>
+<span class="fc" id="L598">			return null;</span>
+		} else {
+<span class="fc" id="L600">			return minStationDistance.divide(KILOMETERS_PER_DEGREE,</span>
+					MathContext.DECIMAL32);
+		}
+	}
+
+	/**
+	 * Set min station distance in degrees (instead of km).
+	 * 
+	 * @param degrees
+	 */
+	public void setMinStationDistanceDegrees(final BigDecimal degrees) {
+<span class="fc bfc" id="L611" title="All 2 branches covered.">		if (degrees == null) {</span>
+<span class="fc" id="L612">			minStationDistance = null;</span>
+		} else {
+<span class="fc" id="L614">			minStationDistance = degrees.multiply(KILOMETERS_PER_DEGREE,</span>
+					MathContext.DECIMAL32);
+		}
+<span class="fc" id="L617">	}</span>
+
+	public BigDecimal getRmsTimeError() {
+<span class="fc" id="L620">		return rmsTimeError;</span>
+	}
+
+	public void setRmsTimeError(BigDecimal rmsTimeError) {
+<span class="fc" id="L624">		this.rmsTimeError = rmsTimeError;</span>
+<span class="fc" id="L625">	}</span>
+
+	public BigDecimal getHorizontalError() {
+<span class="fc" id="L628">		return horizontalError;</span>
+	}
+
+	public void setHorizontalError(BigDecimal horizontalError) {
+<span class="fc" id="L632">		this.horizontalError = horizontalError;</span>
+<span class="fc" id="L633">	}</span>
+
+	public BigDecimal getVerticalError() {
+<span class="fc" id="L636">		return verticalError;</span>
+	}
+
+	public void setVerticalError(BigDecimal verticalError) {
+<span class="fc" id="L640">		this.verticalError = verticalError;</span>
+<span class="fc" id="L641">	}</span>
+
+	public BigDecimal getAzimuthalGap() {
+<span class="fc" id="L644">		return azimuthalGap;</span>
+	}
+
+	public void setAzimuthalGap(BigDecimal azimuthalGap) {
+<span class="fc" id="L648">		this.azimuthalGap = azimuthalGap;</span>
+<span class="fc" id="L649">	}</span>
+
+	public String getMagnitudeType() {
+<span class="fc" id="L652">		return magnitudeType;</span>
+	}
+
+	public void setMagnitudeType(String magnitudeType) {
+<span class="fc" id="L656">		this.magnitudeType = magnitudeType;</span>
+<span class="fc" id="L657">	}</span>
+
+	public BigInteger getNumMagnitudeStations() {
+<span class="fc" id="L660">		return numMagnitudeStations;</span>
+	}
+
+	public void setNumMagnitudeStations(BigInteger numMagnitudeStations) {
+<span class="fc" id="L664">		this.numMagnitudeStations = numMagnitudeStations;</span>
+<span class="fc" id="L665">	}</span>
+
+	public BigDecimal getMagnitudeError() {
+<span class="fc" id="L668">		return magnitudeError;</span>
+	}
+
+	public void setMagnitudeError(BigDecimal magnitudeError) {
+<span class="fc" id="L672">		this.magnitudeError = magnitudeError;</span>
+<span class="fc" id="L673">	}</span>
+
+	public String getLocationMethod() {
+<span class="fc" id="L676">		return locationMethod;</span>
+	}
+
+	public void setLocationMethod(String locationMethod) {
+<span class="fc" id="L680">		this.locationMethod = locationMethod;</span>
+<span class="fc" id="L681">	}</span>
+
+	public String getChecksum() {
+<span class="nc" id="L684">		return checksum;</span>
+	}
+
+	public void setChecksum(String checksum) {
+<span class="fc" id="L688">		this.checksum = checksum;</span>
+<span class="fc" id="L689">	}</span>
+
+	public boolean isReviewed() {
+<span class="fc" id="L692">		return reviewed;</span>
+	}
+
+	public void setReviewed(boolean reviewed) {
+<span class="fc" id="L696">		this.reviewed = reviewed;</span>
+<span class="fc" id="L697">	}</span>
+
+	public boolean isInternal() {
+<span class="fc" id="L700">		return internal;</span>
+	}
+
+	public void setInternal(boolean internal) {
+<span class="fc" id="L704">		this.internal = internal;</span>
+<span class="fc" id="L705">	}</span>
+
+	public boolean isQuarry() {
+<span class="fc" id="L708">		return quarry;</span>
+	}
+
+	public void setQuarry(boolean quarry) {
+<span class="fc" id="L712">		this.quarry = quarry;</span>
+<span class="fc" id="L713">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CubeAddon.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.cube</a> &gt; <span class="el_source">CubeAddon.java</span></div><h1>CubeAddon.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.cube;
+
+/**
+ * CUBE addon message.
+ * 
+ * &lt;pre&gt;
+ * LI - Link to Addon
+ *     The LI format is used to issue a link to additional information (addons) about an event that are available on some accessible web site. Addons can be updated by using higher version numbers. The file name gives the data source, the eventid, the version number, the addon type, and is followed by .add or .del (if it is a delete addon message). The format is:
+ *     TpEidnumbrScVV message........ must be on one line.
+ *     123456789012345678901234567890
+ *              1         2         3
+ * 
+ *     a2 * Tp =  Message type = &quot;LI&quot; text message
+ *     a8 * Eid = Event identification number of event to delete
+ *     a2 * Sc  = Data Source
+ *     a2 * VV  = Version # of the addon comment.
+ *     a    ... = message contains three strings separated by spaces:
+ *                1. a string that defines the type of addon, this string should be unique amoung
+ *                   the addons being used.  See the recenteqs system for more information.
+ *                2. the url where the addon information is available
+ *                3. the text that will be used to describe what is available at the url.
+ *                   This third string only may contain spaces.  If the text is &quot;delete&quot; the
+ *                   addon is deleted.
+ * 
+ *     Example:
+ *     LI 006729 NC01 fm http://whatever/whoknows This is a test
+ * 
+ *     Example as stored in eqaddons/nc006729.01.fm.add:
+ *     ::::::::::::::
+ *     event addon type fm version 01 issued at 1999/03/31_20:51:41:
+ *     &quot;http://whatever/whoknows&quot;&quot;This is a test&quot;
+ * 
+ *     Example:
+ *     LI 006729 NC01 fm http://whatever/whoknows delete:
+ * 
+ *     Example as stored in eqaddons/nc006729.01.fm.del:
+ *     event addon type fm version 01 issued at 1999/03/31_21:00:17:
+ *     &quot;http://whatever/whoknows&quot;&quot;delete&quot;
+ * &lt;/pre&gt;
+ * 
+ * @author jmfee
+ */
+<span class="fc" id="L43">public class CubeAddon extends CubeMessage {</span>
+	public static final String EXAMPLE = &quot;LI 006729 NC01 fm http://whatever/whoknows This is a test&quot;;
+
+	public static final String TYPE = &quot;LI&quot;;
+	public static final String DELETE_TEXT = &quot;delete&quot;;
+
+	private String addonType;
+	private String addonUrl;
+	private String addonText;
+
+
+	@Override
+	public String getType() {
+<span class="fc" id="L56">		return TYPE;</span>
+	}
+
+	@Override
+	public String toCUBE() {
+<span class="fc" id="L61">		StringBuffer buf = new StringBuffer();</span>
+<span class="fc" id="L62">		buf.append(this.getType() + leftPad(code, 8) + leftPad(source, 2)</span>
+<span class="fc" id="L63">				+ leftPad(version, 2, '0'));</span>
+
+<span class="fc" id="L65">		buf.append(&quot; &quot;).append(addonType);</span>
+<span class="fc" id="L66">		buf.append(&quot; &quot;).append(addonUrl);</span>
+<span class="fc" id="L67">		buf.append(&quot; &quot;).append(addonText);</span>
+
+<span class="fc" id="L69">		return buf.toString();</span>
+	}
+
+	public static CubeMessage parseCUBE(String line) {
+<span class="fc" id="L73">		String type = line.substring(0, 2);</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">		if (!TYPE.equals(type)) {</span>
+			// not a cube delete
+<span class="nc" id="L76">			throw new IllegalArgumentException(</span>
+					&quot;Unexpected CUBE type, expected '&quot; + TYPE + &quot;', got '&quot;
+							+ type + &quot;'&quot;);
+		}
+
+<span class="fc" id="L81">		String code = line.substring(2, 10).trim().toLowerCase();</span>
+<span class="fc" id="L82">		String source = line.substring(10, 12).trim().toLowerCase();</span>
+<span class="fc" id="L83">		String version = line.substring(12, 14).trim();</span>
+
+<span class="fc" id="L85">		String message = line.substring(14).trim();</span>
+<span class="fc" id="L86">		String[] parts = message.split(&quot; &quot;, 3);</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">		if (parts.length != 3) {</span>
+<span class="nc" id="L88">			throw new IllegalArgumentException(</span>
+					&quot;Unexpected cube addon format: '&quot; + line + &quot;'&quot;);
+		}
+
+<span class="fc" id="L92">		String addonType = parts[0];</span>
+<span class="fc" id="L93">		String addonUrl = parts[1];</span>
+<span class="fc" id="L94">		String addonText = parts[2].trim();</span>
+		// type isn't empty because the string is trimmed before split
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">		if (&quot;&quot;.equals(addonUrl)) {</span>
+<span class="nc" id="L97">			throw new IllegalArgumentException(</span>
+					&quot;Unexpected cube addon format: '&quot; + line +
+					&quot;', there should be only one space between type, url, and text&quot;);
+		}
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">		if (&quot;&quot;.equals(addonText)) {</span>
+<span class="nc" id="L102">			throw new IllegalArgumentException(</span>
+					&quot;Unexpected cube addon format: '&quot; + line + &quot;', text is required&quot;);
+		}
+
+<span class="fc" id="L106">		CubeAddon addon = new CubeAddon();</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		addon.setCode(&quot;&quot;.equals(code) ? null : code);</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">		addon.setSource(&quot;&quot;.equals(source) ? null : source);</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">		addon.setVersion(&quot;&quot;.equals(version) ? null : version);</span>
+<span class="fc" id="L110">		addon.setAddonType(addonType);</span>
+<span class="fc" id="L111">		addon.setAddonUrl(addonUrl);</span>
+<span class="fc" id="L112">		addon.setAddonText(addonText);</span>
+
+<span class="fc" id="L114">		return addon;</span>
+	}
+
+	public String getAddonType() {
+<span class="fc" id="L118">		return addonType;</span>
+	}
+
+	public void setAddonType(String addonType) {
+<span class="fc" id="L122">		this.addonType = addonType;</span>
+<span class="fc" id="L123">	}</span>
+
+	public String getAddonUrl() {
+<span class="fc" id="L126">		return addonUrl;</span>
+	}
+
+	public void setAddonUrl(String addonUrl) {
+<span class="fc" id="L130">		this.addonUrl = addonUrl;</span>
+<span class="fc" id="L131">	}</span>
+
+	public String getAddonText() {
+<span class="fc" id="L134">		return addonText;</span>
+	}
+
+	public void setAddonText(String addonText) {
+<span class="fc" id="L138">		this.addonText = addonText;</span>
+<span class="fc" id="L139">	}</span>
+
+	public boolean isDeleted() {
+<span class="fc" id="L142">		return this.addonText.equals(DELETE_TEXT);</span>
+	}
+
+	public void setDeleted() {
+<span class="nc" id="L146">		this.addonText = DELETE_TEXT;</span>
+<span class="nc" id="L147">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

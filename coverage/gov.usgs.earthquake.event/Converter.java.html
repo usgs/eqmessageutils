@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Converter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.event</a> &gt; <span class="el_source">Converter.java</span></div><h1>Converter.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.event;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.bind.JAXBException;
+
+import gov.usgs.ansseqmsg.EQMessage;
+import gov.usgs.earthquake.cube.CubeMessage;
+import gov.usgs.earthquake.eqxml.EQMessageParser;
+import gov.usgs.earthquake.quakeml.Quakeml_1_2_Parser;
+import gov.usgs.earthquake.util.IOUtil;
+
+import org.quakeml_1_2.Quakeml;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+
+/**
+ * Factory for parsing and converting between formats.
+ * 
+ * Methods on this object will either throw an exception(potentially unchecked)
+ * or return null if problems occur. This may be because there is no valid
+ * conversion, or because something is wrong with the object being converted.
+ * 
+ * @author jmfee
+ */
+<span class="fc" id="L30">public class Converter {</span>
+
+
+<span class="fc" id="L33">	public static String USAGE = &quot;Usage: Converter --inputFormat=FORMAT --outputFormat=FORMAT [--validate]\n\n&quot;</span>
+			+ &quot;Where FORMAT is one of 'cube', 'eqxml', or 'quakeml' (without quotes).\n\n&quot;
+			+ &quot;Converts between one message format and another, reading inputFormat from &quot;
+			+ &quot;standard input, converting, then writing outputFormat to standard output\n&quot;;
+
+<span class="fc" id="L38">	public static String INFORMAT_ARGUMENT = &quot;--inputFormat=&quot;;</span>
+<span class="fc" id="L39">	public static String OUTFORMAT_ARGUMENT = &quot;--outputFormat=&quot;;</span>
+<span class="fc" id="L40">	public static String VALIDATE_ARGUMENT = &quot;--validate&quot;;</span>
+
+	/**
+	 * Jaxb logging is noisy without this
+	 */
+	static {
+<span class="fc" id="L46">		Logger.getLogger(&quot;com.sun.xml.bind&quot;).setLevel(Level.INFO);</span>
+<span class="fc" id="L47">	}</span>
+
+
+	/**
+	 * Convert a Quakeml input stream to a Quakeml object, without validation.
+	 * 
+	 * @param quakeml
+	 *            InputStream containing Quakeml.
+	 * @return parsed Quakeml object, or null if unable to parse.
+	 * @throws SAXException
+	 *             when validation errors occur.
+	 * @throws JAXBException
+	 *             when unable to create unmarshaller.
+	 * @throws IOException
+	 */
+	public Quakeml getQuakeml(final InputStream quakeml) throws IOException,
+			JAXBException, SAXException {
+<span class="fc" id="L64">		return getQuakeml(quakeml, false);</span>
+	}
+
+	/**
+	 * Convert a Quakeml input stream to a Quakeml object.
+	 * 
+	 * @param quakeml
+	 *            InputStream containing Quakeml.
+	 * @param validate
+	 *            whether to validate while parsing.
+	 * @return parsed Quakeml object, or null if unable to parse.
+	 * @throws SAXException
+	 *             when validation errors occur.
+	 * @throws JAXBException
+	 *             when unable to create unmarshaller.
+	 * @throws IOException
+	 */
+	public Quakeml getQuakeml(final InputStream quakeml, final boolean validate)
+			throws IOException, JAXBException, SAXException {
+<span class="fc" id="L83">		return Quakeml_1_2_Parser.parse(quakeml, validate);</span>
+	}
+
+	/**
+	 * Convert a Quakeml XML string to a Quakeml, without validation.
+	 * 
+	 * @param quakeml
+	 *            String containing Quakeml.
+	 * @return parsed Quakeml object, or null if unable to parse.
+	 * @throws SAXException
+	 *             when validation errors occur.
+	 * @throws JAXBException
+	 *             when unable to create unmarshaller.
+	 * @throws IOException
+	 */
+	public Quakeml getQuakeml(final String quakeml) throws IOException,
+			JAXBException, SAXException {
+<span class="nc" id="L100">		return getQuakeml(quakeml, false);</span>
+	}
+
+	/**
+	 * Convert a Quakeml XML string to a Quakeml.
+	 * 
+	 * @param quakeml
+	 *            String containing Quakeml.
+	 * @param validate
+	 *            whether to validate while parsing.
+	 * @return parsed Quakeml object, or null if unable to parse.
+	 * @throws SAXException
+	 *             when validation errors occur.
+	 * @throws JAXBException
+	 *             when unable to create unmarshaller.
+	 * @throws IOException
+	 */
+	public Quakeml getQuakeml(final String quakeml, final boolean validate)
+			throws IOException, JAXBException, SAXException {
+<span class="nc" id="L119">		return Quakeml_1_2_Parser.parse(quakeml, validate);</span>
+	}
+
+	/**
+	 * Convert a CubeMessage to a Quakeml.
+	 * 
+	 * @param message
+	 *            CubeMessge to convert.
+	 * @return Quakeml object, or null if unable to convert.
+	 * @throws Exception
+	 */
+	public Quakeml getQuakeml(final CubeMessage message) throws Exception {
+<span class="fc" id="L131">		return new CubeToQuakemlConverter().convertCubeMessage(message);</span>
+	}
+
+	/**
+	 * Convert an EQMessage to Quakeml.
+	 * 
+	 * Converts EQMessage to CubeMessage, then CubeMessage to Quakeml.
+	 * 
+	 * @param message
+	 *            EQMessage to convert.
+	 * @return Quakeml object, or null if unable to convert.
+	 * @throws Exception
+	 */
+	public Quakeml getQuakeml(final EQMessage message) throws Exception {
+<span class="fc" id="L145">		CubeMessage cube = new EQMessageToCubeConverter()</span>
+<span class="fc" id="L146">				.convertEQMessage(message);</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">		if (cube == null) {</span>
+<span class="nc" id="L148">			return null;</span>
+		}
+<span class="fc" id="L150">		return getQuakeml(cube);</span>
+	}
+
+	/**
+	 * Parse an EQXML input stream to a EQMessage object, without validation.
+	 * 
+	 * @param eqxml
+	 *            InputStream containing EQXML.
+	 * @return parsed EQMessage object, or null if unable to parse.
+	 * @throws SAXException
+	 *             when validation errors occur.
+	 * @throws JAXBException
+	 *             if unable to create unmarshaller.
+	 * @throws IOException
+	 */
+	public EQMessage getEQMessage(final InputStream eqxml) throws IOException,
+			JAXBException, SAXException {
+<span class="fc" id="L167">		return getEQMessage(eqxml, false);</span>
+	}
+
+	/**
+	 * Parse an EQXML input stream to a EQMessage object.
+	 * 
+	 * @param eqxml
+	 *            InputStream containing EQXML.
+	 * @param validate
+	 *            whether to validate while parsing.
+	 * @return parsed EQMessage object, or null if unable to parse.
+	 * @throws SAXException
+	 *             when validation errors occur.
+	 * @throws JAXBException
+	 *             if unable to create unmarshaller.
+	 * @throws IOException
+	 */
+	public EQMessage getEQMessage(final InputStream eqxml,
+			final boolean validate) throws IOException, JAXBException,
+			SAXException {
+<span class="fc" id="L187">		return EQMessageParser.parse(eqxml, validate);</span>
+	}
+
+	/**
+	 * Convert an XML string to an EQMessage, without validation.
+	 * 
+	 * @param eqxml
+	 *            String containing EQXML.
+	 * @return parsed EQMessage object, or null if unable to parse.
+	 * @throws SAXException
+	 *             when validation errors occur.
+	 * @throws JAXBException
+	 *             if unable to create unmarshaller.
+	 * @throws IOException
+	 */
+	public EQMessage getEQMessage(final String eqxml) throws IOException,
+			JAXBException, SAXException {
+<span class="nc" id="L204">		return getEQMessage(eqxml, false);</span>
+	}
+
+	/**
+	 * Parse an EQXML String to a EQMessage object.
+	 * 
+	 * @param eqxml
+	 *            String containing EQXML.
+	 * @param validate
+	 *            whether to validate while parsing.
+	 * @return parsed EQMessage object, or null if unable to parse.
+	 * @throws SAXException
+	 *             when validation errors occur.
+	 * @throws JAXBException
+	 *             if unable to create unmarshaller.
+	 * @throws IOException
+	 */
+	public EQMessage getEQMessage(final String eqxml, final boolean validate)
+			throws IOException, JAXBException, SAXException {
+<span class="nc" id="L223">		return EQMessageParser.parse(eqxml, validate);</span>
+	}
+
+	/**
+	 * Convert a CubeMessage to an EQMessage.
+	 * 
+	 * @param message
+	 *            CubeMessage to convert.
+	 * @return EQMessage corresponding to CubeMessage.
+	 */
+	public EQMessage getEQMessage(final CubeMessage message) {
+<span class="fc" id="L234">		return new CubeToEQMessageConverter().convertCubeMessage(message);</span>
+	}
+
+	/**
+	 * Convert a Quakeml to an EQMessage.
+	 * 
+	 * Converts Quakeml to CubeMessage, then CubeMessage to EQMessage.
+	 * 
+	 * @param message
+	 *            Quakeml to convert.
+	 * @return EQMessage corresponding to Quakeml.
+	 * @throws Exception
+	 */
+	public EQMessage getEQMessage(final Quakeml message) throws Exception {
+<span class="nc" id="L248">		CubeMessage cube = getCubeMessage(message);</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">		if (cube == null) {</span>
+<span class="nc" id="L250">			return null;</span>
+		}
+<span class="nc" id="L252">		return getEQMessage(cube);</span>
+	}
+
+	/**
+	 * Convert a CUBE string to a CubeMessage.
+	 * 
+	 * @param cube
+	 *            String format of CubeMessage.
+	 * @return CubeMessage parsed from string
+	 */
+	public CubeMessage getCubeMessage(final String cube) {
+<span class="fc" id="L263">		return CubeMessage.parse(cube);</span>
+	}
+
+	/**
+	 * Convert an EQMessage to a CubeMessage.
+	 * 
+	 * @param message
+	 *            EQMessage to convert.
+	 * @return CubeMessage corresponding to EQMessage.
+	 */
+	public CubeMessage getCubeMessage(final EQMessage message) {
+<span class="fc" id="L274">		return new EQMessageToCubeConverter().convertEQMessage(message);</span>
+	}
+
+	/**
+	 * Convert a Quakeml to a CubeMessage.
+	 * 
+	 * @param message
+	 *            Quakeml to convert.
+	 * @return CubeMessage corresponding to Quakeml.
+	 * @throws Exception
+	 */
+	public CubeMessage getCubeMessage(Quakeml message) throws Exception {
+<span class="fc" id="L286">		return new QuakemlToCubeConverter().convertQuakeml(message);</span>
+	}
+
+	/**
+	 * Convert a CubeMessage to a CUBE string.
+	 * 
+	 * @param message
+	 *            CubeMessage to convert.
+	 * @return String format of CubeMessage.
+	 */
+	public String getString(final CubeMessage message) {
+<span class="fc" id="L297">		return message.toCUBE();</span>
+	}
+
+	/**
+	 * Convert an EQMessage to an XML string, without validation.
+	 * 
+	 * @param message
+	 *            EQMessage to convert.
+	 * @return String format of EQMessage.
+	 * @throws JAXBException
+	 *             if unable to create marshaller.
+	 * @throws SAXException
+	 *             if validation errors occur.
+	 */
+	public String getString(final EQMessage message) throws JAXBException,
+			SAXException {
+<span class="fc" id="L313">		return getString(message, false);</span>
+	}
+
+	/**
+	 * Convert an EQMessage to an XML string.
+	 * 
+	 * @param message
+	 *            EQMessage to convert.
+	 * @param validate
+	 *            whether to validate EQMessage.
+	 * @return String format of EQMessage.
+	 * @throws JAXBException
+	 *             if unable to create marshaller.
+	 * @throws SAXException
+	 *             if validation errors occur.
+	 */
+	public String getString(final EQMessage message, final boolean validate)
+			throws JAXBException, SAXException {
+<span class="fc" id="L331">		ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L332">		EQMessageParser.serialize(message, baos);</span>
+<span class="fc" id="L333">		return baos.toString();</span>
+	}
+
+	/**
+	 * Convert a Quakeml to an XML string, without validation.
+	 * 
+	 * @param message
+	 *            Quakeml to convert.
+	 * @return String format of Quakeml.
+	 * @throws JAXBException
+	 * @throws SAXException
+	 */
+	public String getString(final Quakeml message) throws JAXBException,
+			SAXException {
+<span class="fc" id="L347">		return getString(message, false);</span>
+	}
+
+	/**
+	 * Convert a Quakeml to an XML string.
+	 * 
+	 * @param message
+	 *            Quakeml to convert.
+	 * @param validate
+	 *            whether to perform validation (true) or not (false).
+	 * @return String format of Quakeml.
+	 * @throws JAXBException
+	 * @throws SAXException
+	 */
+	public String getString(final Quakeml message, final boolean validate)
+			throws JAXBException, SAXException {
+<span class="fc" id="L363">		ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L364">		Quakeml_1_2_Parser.serialize(message, baos, validate);</span>
+<span class="fc" id="L365">		return baos.toString();</span>
+	}
+
+	/**
+	 * Main method for conversion using command line.
+	 * 
+	 * @param args
+	 * @throws JAXBException
+	 * @throws Exception
+	 */
+	public static void main(final String[] args) throws JAXBException,
+			Exception {
+<span class="nc" id="L377">		String informat = null;</span>
+<span class="nc" id="L378">		String outformat = null;</span>
+<span class="nc" id="L379">		boolean validate = false;</span>
+<span class="nc" id="L380">		boolean unknownArguments = false;</span>
+
+<span class="nc bnc" id="L382" title="All 2 branches missed.">		for (String arg : args) {</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">			if (arg.startsWith(INFORMAT_ARGUMENT)) {</span>
+<span class="nc" id="L384">				informat = arg.replace(INFORMAT_ARGUMENT, &quot;&quot;);</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">			} else if (arg.startsWith(OUTFORMAT_ARGUMENT)) {</span>
+<span class="nc" id="L386">				outformat = arg.replace(OUTFORMAT_ARGUMENT, &quot;&quot;);</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">			} else if (arg.equals(VALIDATE_ARGUMENT)) {</span>
+<span class="nc" id="L388">				validate = true;</span>
+			} else {
+<span class="nc" id="L390">				System.err.println(&quot;Unknown argument '&quot; + arg + &quot;'&quot;);</span>
+<span class="nc" id="L391">				unknownArguments = true;</span>
+			}
+		}
+
+<span class="nc bnc" id="L395" title="All 6 branches missed.">		if (informat == null || outformat == null || unknownArguments) {</span>
+<span class="nc" id="L396">			printUsage();</span>
+		}
+
+<span class="nc" id="L399">		Converter converter = new Converter();</span>
+
+<span class="nc" id="L401">		String input = new String(IOUtil.readStream(System.in));</span>
+		try {
+<span class="nc bnc" id="L403" title="All 2 branches missed.">			if (&quot;cube&quot;.equals(informat)) {</span>
+<span class="nc" id="L404">				CubeMessage in = converter.getCubeMessage(input);</span>
+<span class="nc bnc" id="L405" title="All 2 branches missed.">				if (&quot;cube&quot;.equals(outformat)) {</span>
+<span class="nc" id="L406">					System.out.println(converter.getString(in));</span>
+<span class="nc bnc" id="L407" title="All 2 branches missed.">				} else if (&quot;quakeml&quot;.equals(outformat)) {</span>
+<span class="nc" id="L408">					System.out.println(converter.getString(</span>
+<span class="nc" id="L409">							converter.getQuakeml(in), validate));</span>
+<span class="nc bnc" id="L410" title="All 2 branches missed.">				} else if (&quot;eqxml&quot;.equals(outformat)) {</span>
+<span class="nc" id="L411">					System.out.println(converter.getString(</span>
+<span class="nc" id="L412">							converter.getEQMessage(in), validate));</span>
+				} else {
+<span class="nc" id="L414">					printUsage();</span>
+				}
+<span class="nc bnc" id="L416" title="All 2 branches missed.">			} else if (&quot;eqxml&quot;.equals(informat)) {</span>
+<span class="nc" id="L417">				EQMessage in = converter.getEQMessage(input, validate);</span>
+<span class="nc bnc" id="L418" title="All 2 branches missed.">				if (&quot;cube&quot;.equals(outformat)) {</span>
+<span class="nc" id="L419">					System.out.println(converter.getString(converter</span>
+<span class="nc" id="L420">							.getCubeMessage(in)));</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">				} else if (&quot;quakeml&quot;.equals(outformat)) {</span>
+<span class="nc" id="L422">					System.out.println(converter.getString(</span>
+<span class="nc" id="L423">							converter.getQuakeml(in), validate));</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">				} else if (&quot;eqxml&quot;.equals(outformat)) {</span>
+<span class="nc" id="L425">					System.out.println(converter.getString(in));</span>
+				} else {
+<span class="nc" id="L427">					printUsage();</span>
+				}
+<span class="nc bnc" id="L429" title="All 2 branches missed.">			} else if (&quot;quakeml&quot;.equals(informat)) {</span>
+<span class="nc" id="L430">				Quakeml in = converter.getQuakeml(input, validate);</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">				if (&quot;cube&quot;.equals(outformat)) {</span>
+<span class="nc" id="L432">					System.out.println(converter.getString(converter</span>
+<span class="nc" id="L433">							.getCubeMessage(in)));</span>
+<span class="nc bnc" id="L434" title="All 2 branches missed.">				} else if (&quot;quakeml&quot;.equals(outformat)) {</span>
+<span class="nc" id="L435">					System.out.println(converter.getString(in, validate));</span>
+<span class="nc bnc" id="L436" title="All 2 branches missed.">				} else if (&quot;eqxml&quot;.equals(outformat)) {</span>
+<span class="nc" id="L437">					System.out.println(converter.getString(</span>
+<span class="nc" id="L438">							converter.getEQMessage(in), validate));</span>
+				} else {
+<span class="nc" id="L440">					printUsage();</span>
+				}
+			}
+<span class="nc" id="L443">		} catch (JAXBException je) {</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">			if (je.getLinkedException() instanceof SAXParseException) {</span>
+<span class="nc" id="L445">				SAXParseException spe = (SAXParseException) je</span>
+<span class="nc" id="L446">						.getLinkedException();</span>
+<span class="nc" id="L447">				System.err.println(spe.getMessage() + &quot;, line &quot;</span>
+<span class="nc" id="L448">						+ spe.getLineNumber() + &quot;, column &quot;</span>
+<span class="nc" id="L449">						+ spe.getColumnNumber());</span>
+<span class="nc" id="L450">				System.exit(1);</span>
+<span class="nc" id="L451">			} else {</span>
+<span class="nc" id="L452">				throw je;</span>
+			}
+<span class="nc" id="L454">		}</span>
+<span class="nc" id="L455">	}</span>
+
+	/**
+	 * Print the usage and exit.
+	 */
+	public static void printUsage() {
+<span class="nc" id="L461">		System.err.println(USAGE);</span>
+<span class="nc" id="L462">		System.exit(1);</span>
+<span class="nc" id="L463">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

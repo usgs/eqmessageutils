@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CubeMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.cube</a> &gt; <span class="el_source">CubeMessage.java</span></div><h1>CubeMessage.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.cube;
+
+import gov.usgs.earthquake.event.MagnitudeType;
+
+import java.util.Date;
+
+/**
+ * Base class for CubeMessages.
+ *
+ * @author jmfee
+ */
+<span class="fc" id="L12">public abstract class CubeMessage {</span>
+
+	/** When this message was sent, sometimes this is unknown. */
+	protected Date sent;
+
+	/** Who sent the message, 2 character max. */
+	protected String source;
+	/** Event message is about, 8 character max. */
+	protected String code;
+	/** ASCII version, 1 character max. */
+	protected String version;
+
+	/**
+	 * Each CUBEMessage has a two character type, &quot;E &quot;, &quot;DE&quot;, &quot;TR&quot;, etc.
+	 *
+	 * @return message type prefix.
+	 */
+	public abstract String getType();
+
+	public String toCUBE() {
+<span class="fc" id="L32">		return this.getType() + leftPad(code, 8) + leftPad(source, 2)</span>
+<span class="fc" id="L33">				+ leftPad(version, 1);</span>
+	}
+
+	/**
+	 * When this message was sent.
+	 *
+	 * CUBE doesn't represent this in the message, but it is useful when
+	 * converting between formats that do.
+	 *
+	 * @return sent time.
+	 */
+	public Date getSent() {
+<span class="fc" id="L45">		return sent;</span>
+	}
+
+	public void setSent(Date sent) {
+<span class="fc" id="L49">		this.sent = sent;</span>
+<span class="fc" id="L50">	}</span>
+
+	public String getSource() {
+<span class="fc" id="L53">		return source;</span>
+	}
+
+	public void setSource(String source) {
+<span class="fc" id="L57">		this.source = source;</span>
+<span class="fc" id="L58">	}</span>
+
+	public String getCode() {
+<span class="fc" id="L61">		return code;</span>
+	}
+
+	public void setCode(String code) {
+<span class="fc" id="L65">		this.code = code;</span>
+<span class="fc" id="L66">	}</span>
+
+	public String getVersion() {
+<span class="fc" id="L69">		return version;</span>
+	}
+
+	public void setVersion(String version) {
+<span class="fc" id="L73">		this.version = version;</span>
+<span class="fc" id="L74">	}</span>
+
+	/**
+	 * Parse a cube message based on the first two characters.
+	 *
+	 * @param line
+	 *            line to parse
+	 * @return parsed message, or null if unable to parse.
+	 */
+	public static CubeMessage parse(final String line) {
+<span class="fc" id="L84">		String type = line.substring(0, 2);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">		if (type.equals(CubeEvent.TYPE)) {</span>
+<span class="fc" id="L86">			return CubeEvent.parseCUBE(line);</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">		} else if (type.equals(CubeDelete.TYPE)) {</span>
+<span class="fc" id="L88">			return CubeDelete.parseCUBE(line);</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">		} else if (type.equals(CubeTrump.TYPE)) {</span>
+<span class="nc" id="L90">			return CubeTrump.parseCUBE(line);</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">		} else if (type.equals(CubeAddon.TYPE)) {</span>
+<span class="fc" id="L92">			return CubeAddon.parseCUBE(line);</span>
+		}
+<span class="nc" id="L94">		return null;</span>
+	}
+
+	/**
+	 * Left pad a string using spaces.
+	 *
+	 * See also {@link #leftPad(String, int, char)}.
+	 */
+	public static String leftPad(final String value, final int length) {
+<span class="fc" id="L103">		return leftPad(value, length, ' ');</span>
+	}
+
+	/**
+	 * Left pad a string.
+	 *
+	 * Cube is a fixed width record format, so this helps with layout.
+	 *
+	 * @param value
+	 *            value being padded.
+	 * @param length
+	 *            total desired length.
+	 * @param padChar
+	 *            character to prepend to value to reach length.
+	 * @return a String that is length characters long. NOTE: if value length is
+	 *         longer than length, value is truncated.
+	 */
+	public static String leftPad(final String value, final int length,
+			final char padChar) {
+<span class="fc" id="L122">		String padded = &quot;&quot;;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">		if (value != null) {</span>
+<span class="fc" id="L124">			padded = value;</span>
+		}
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		while (padded.length() &lt; length) {</span>
+<span class="fc" id="L128">			padded = padChar + padded;</span>
+		}
+
+		// original value may have been too long
+<span class="fc bfc" id="L132" title="All 2 branches covered.">		if (padded.length() &gt; length) {</span>
+<span class="fc" id="L133">			return padded.substring(0, length);</span>
+		}
+<span class="fc" id="L135">		return padded;</span>
+	}
+
+	/**
+	 * Translate from Cube magnitude type code to MagnitudeType.
+	 *
+	 * @param cubeCode
+	 *            cube code to translate.
+	 * @return magnitude type corresponding to cube code.
+	 */
+	public static MagnitudeType getMagnitudeType(final String cubeCode) {
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">		if (cubeCode == null) {</span>
+<span class="nc" id="L147">			return null;</span>
+		}
+
+<span class="pc bpc" id="L150" title="10 of 15 branches missed.">		switch (cubeCode.charAt(0)) {</span>
+		case 'B':
+<span class="fc" id="L152">			return MagnitudeType.MB;</span>
+		case 'P':
+<span class="nc" id="L154">			return MagnitudeType.MP;</span>
+		case 'N':
+<span class="nc" id="L156">			return MagnitudeType.MBLG;</span>
+		case 'C':
+<span class="fc" id="L158">			return MagnitudeType.MC;</span>
+		case 'D':
+<span class="fc" id="L160">			return MagnitudeType.MD;</span>
+		case 'E':
+<span class="nc" id="L162">			return MagnitudeType.ME;</span>
+		case 'H':
+<span class="nc" id="L164">			return MagnitudeType.MH;</span>
+		case 'I':
+<span class="fc" id="L166">			return MagnitudeType.MI;</span>
+		case 'G':
+<span class="nc" id="L168">			return MagnitudeType.MGN;</span>
+		case 'L':
+<span class="fc" id="L170">			return MagnitudeType.ML;</span>
+		case 'S':
+<span class="nc" id="L172">			return MagnitudeType.MS;</span>
+		case 'T':
+<span class="nc" id="L174">			return MagnitudeType.MT;</span>
+		case 'O':
+<span class="nc" id="L176">			return MagnitudeType.MW;</span>
+		case 'W':
+<span class="nc" id="L178">			return MagnitudeType.MWR;</span>
+		default:
+<span class="nc" id="L180">			return null;</span>
+		}
+	}
+
+	/**
+	 * Translate from MagnitudeType to Cube magnitude type.
+	 *
+	 * @param magnitudeType
+	 *            magnitude type to translate.
+	 * @return magnitude type corresponding to cube code.
+	 */
+	public static String getCubeCode(final MagnitudeType magnitudeType) {
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">		if (magnitudeType == null) {</span>
+<span class="nc" id="L193">			return null;</span>
+		}
+
+<span class="pc bpc" id="L196" title="14 of 15 branches missed.">		switch (magnitudeType) {</span>
+		case MB:
+<span class="nc" id="L198">			return &quot;B&quot;;</span>
+		case MP:
+<span class="nc" id="L200">			return &quot;P&quot;;</span>
+		case MBLG:
+<span class="nc" id="L202">			return &quot;N&quot;;</span>
+		case MC:
+<span class="nc" id="L204">			return &quot;C&quot;;</span>
+		case MD:
+<span class="nc" id="L206">			return &quot;D&quot;;</span>
+		case ME:
+<span class="nc" id="L208">			return &quot;E&quot;;</span>
+		case MH:
+<span class="nc" id="L210">			return &quot;H&quot;;</span>
+		case MI:
+<span class="nc" id="L212">			return &quot;I&quot;;</span>
+		case MGN:
+<span class="nc" id="L214">			return &quot;G&quot;;</span>
+		case ML:
+<span class="fc" id="L216">			return &quot;L&quot;;</span>
+		case MS:
+<span class="nc" id="L218">			return &quot;S&quot;;</span>
+		case MT:
+<span class="nc" id="L220">			return &quot;T&quot;;</span>
+		case MW:
+		case MWP:
+		case MWW:
+<span class="nc" id="L224">			return &quot;O&quot;;</span>
+		case MWR:
+<span class="nc" id="L226">			return &quot;W&quot;;</span>
+		default:
+<span class="nc" id="L228">			return null;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

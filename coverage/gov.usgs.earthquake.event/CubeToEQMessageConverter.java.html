@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CubeToEQMessageConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.event</a> &gt; <span class="el_source">CubeToEQMessageConverter.java</span></div><h1>CubeToEQMessageConverter.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.event;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+import gov.usgs.ansseqmsg.Action;
+import gov.usgs.ansseqmsg.Comment;
+import gov.usgs.ansseqmsg.EQMessage;
+import gov.usgs.ansseqmsg.Event;
+import gov.usgs.ansseqmsg.EventAction;
+import gov.usgs.ansseqmsg.EventScope;
+import gov.usgs.ansseqmsg.EventType;
+import gov.usgs.ansseqmsg.EventUsage;
+import gov.usgs.ansseqmsg.Magnitude;
+import gov.usgs.ansseqmsg.Method;
+import gov.usgs.ansseqmsg.Origin;
+import gov.usgs.ansseqmsg.OriginStatus;
+import gov.usgs.ansseqmsg.ProductLink;
+import gov.usgs.earthquake.cube.CubeAddon;
+import gov.usgs.earthquake.cube.CubeDelete;
+import gov.usgs.earthquake.cube.CubeEvent;
+import gov.usgs.earthquake.cube.CubeMessage;
+
+/**
+ * Convert from CubeMessage to EQMessage.
+ * 
+ * Converter provides simpler interfaces to this class.
+ * 
+ * @see Converter
+ * @author jmfee
+ */
+<span class="fc" id="L32">public class CubeToEQMessageConverter {</span>
+
+	public static final String DELETE_MESSAGE_COMMENT_TYPEKEY = &quot;Info&quot;;
+	public static final String CUBE_CODE_TYPEKEY = &quot;CUBE_Code&quot;;
+	public static final String CUBE_CODE_PREFIX = &quot;CUBE_Code &quot;;
+
+	public static final String DEPTH_METHOD_FIXED = &quot;Fixed&quot;;
+	public static final String LOCATION_METHOD_UNKNOWN = &quot;Unknown&quot;;
+
+	public static final String PRODUCT_LINK_TYPEKEY = &quot;LinkURL&quot;;
+
+	/**
+	 * Convert either a CubeEvent or CubeDelete object to an EQMessage.
+	 * 
+	 * @param message
+	 * @return EQMessage corresponding to CubeMessage.
+	 */
+	public EQMessage convertCubeMessage(final CubeMessage message) {
+<span class="fc bfc" id="L50" title="All 2 branches covered.">		if (message instanceof CubeEvent) {</span>
+<span class="fc" id="L51">			return convertCubeEvent((CubeEvent) message);</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">		} else if (message instanceof CubeDelete) {</span>
+<span class="fc" id="L53">			return convertCubeDelete((CubeDelete) message);</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		} else if (message instanceof CubeAddon) {</span>
+<span class="fc" id="L55">			return convertCubeAddon((CubeAddon) message);</span>
+		} else {
+<span class="nc" id="L57">			return null;</span>
+		}
+	}
+
+	/**
+	 * Convert a CubeDelete to an EQMessage.
+	 * 
+	 * @param message
+	 * @return EQMessage corresponding to Cube Delete.
+	 */
+	public EQMessage convertCubeAddon(CubeAddon message) {
+<span class="fc" id="L68">		EQMessage eqMessage = new EQMessage();</span>
+
+		// if message already has sent time, use that
+<span class="fc" id="L71">		Date created = message.getSent();</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">		if (created == null) {</span>
+<span class="fc" id="L73">			created = new Date();</span>
+		}
+
+<span class="fc" id="L76">		eqMessage.setSent(created);</span>
+<span class="fc" id="L77">		eqMessage.setSource(message.getSource().toLowerCase());</span>
+
+<span class="fc" id="L79">		Event event = new Event();</span>
+<span class="fc" id="L80">		event.setDataSource(message.getSource().toLowerCase());</span>
+<span class="fc" id="L81">		event.setEventID(message.getCode().toLowerCase());</span>
+<span class="fc" id="L82">		eqMessage.getEvent().add(event);</span>
+
+<span class="fc" id="L84">		ProductLink productLink = new ProductLink();</span>
+<span class="fc" id="L85">		productLink.setTypeKey(PRODUCT_LINK_TYPEKEY);</span>
+<span class="fc" id="L86">		productLink.setSourceKey(message.getSource().toLowerCase());</span>
+<span class="fc" id="L87">		productLink.setCode(message.getAddonType());</span>
+<span class="fc" id="L88">		productLink.setLink(message.getAddonUrl());</span>
+<span class="fc" id="L89">		productLink.setVersion(message.getVersion());</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		if (message.isDeleted()) {</span>
+<span class="nc" id="L91">			productLink.setAction(Action.DELETE);</span>
+		} else {
+<span class="fc" id="L93">			productLink.setAction(Action.UPDATE);</span>
+<span class="fc" id="L94">			productLink.setNote(message.getAddonText());</span>
+		}
+<span class="fc" id="L96">		event.getProductLink().add(productLink);</span>
+
+<span class="fc" id="L98">		return eqMessage;</span>
+	}
+
+	/**
+	 * Convert a CubeDelete to an EQMessage.
+	 * 
+	 * @param message
+	 * @return EQMessage corresponding to Cube Delete.
+	 */
+	public EQMessage convertCubeDelete(CubeDelete message) {
+<span class="fc" id="L108">		EQMessage eqMessage = new EQMessage();</span>
+
+		// if message already has sent time, use that
+<span class="fc" id="L111">		Date created = message.getSent();</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">		if (created == null) {</span>
+<span class="fc" id="L113">			created = new Date();</span>
+		}
+
+<span class="fc" id="L116">		eqMessage.setSent(created);</span>
+<span class="fc" id="L117">		eqMessage.setSource(message.getSource().toLowerCase());</span>
+
+<span class="fc" id="L119">		Event event = new Event();</span>
+<span class="fc" id="L120">		event.setAction(EventAction.DELETE);</span>
+<span class="fc" id="L121">		event.setDataSource(message.getSource().toLowerCase());</span>
+<span class="fc" id="L122">		event.setEventID(message.getCode().toLowerCase());</span>
+<span class="fc" id="L123">		event.setVersion(message.getVersion());</span>
+<span class="fc" id="L124">		eqMessage.getEvent().add(event);</span>
+
+<span class="fc" id="L126">		String deleteMessage = message.getMessage();</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">		if (deleteMessage != null) {</span>
+<span class="fc" id="L128">			Comment comment = new Comment();</span>
+<span class="fc" id="L129">			comment.setTypeKey(DELETE_MESSAGE_COMMENT_TYPEKEY);</span>
+<span class="fc" id="L130">			comment.setText(deleteMessage);</span>
+<span class="fc" id="L131">			event.getComment().add(comment);</span>
+		}
+
+<span class="fc" id="L134">		return eqMessage;</span>
+	}
+
+	/**
+	 * Convert a CubeEvent to an EQMessage.
+	 * 
+	 * @param message
+	 * @return EQMessage corresponding to CubeEvent.
+	 */
+	public EQMessage convertCubeEvent(CubeEvent message) {
+<span class="fc" id="L144">		EQMessage eqMessage = new EQMessage();</span>
+
+		// if message already has sent time, use that
+<span class="fc" id="L147">		Date created = message.getSent();</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">		if (created == null) {</span>
+<span class="fc" id="L149">			created = new Date();</span>
+		}
+
+<span class="fc" id="L152">		eqMessage.setSent(created);</span>
+<span class="fc" id="L153">		eqMessage.setSource(message.getSource());</span>
+
+<span class="fc" id="L155">		Event event = new Event();</span>
+<span class="fc" id="L156">		event.setAction(EventAction.UPDATE);</span>
+<span class="fc" id="L157">		event.setDataSource(message.getSource().toLowerCase());</span>
+<span class="fc" id="L158">		event.setEventID(message.getCode().toLowerCase());</span>
+<span class="fc" id="L159">		event.setVersion(message.getVersion());</span>
+<span class="fc" id="L160">		eqMessage.getEvent().add(event);</span>
+
+		// all cube messages are actual events (no scenarios)
+<span class="fc" id="L163">		event.setUsage(EventUsage.ACTUAL);</span>
+
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">		if (message.isQuarry()) {</span>
+<span class="nc" id="L166">			event.setType(EventType.QUARRY);</span>
+		} else {
+<span class="fc" id="L168">			event.setType(EventType.EARTHQUAKE);</span>
+		}
+
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">		if (message.isInternal()) {</span>
+<span class="nc" id="L172">			event.setScope(EventScope.INTERNAL);</span>
+		} else {
+<span class="fc" id="L174">			event.setScope(EventScope.PUBLIC);</span>
+		}
+
+<span class="fc" id="L177">		Origin origin = new Origin();</span>
+<span class="fc" id="L178">		origin.setTime(message.getTime());</span>
+<span class="fc" id="L179">		origin.setLatitude(message.getLatitude());</span>
+<span class="fc" id="L180">		origin.setLongitude(message.getLongitude());</span>
+<span class="fc" id="L181">		origin.setDepth(message.getDepth());</span>
+<span class="fc" id="L182">		origin.setStdError(message.getRmsTimeError());</span>
+<span class="fc" id="L183">		origin.setAzimGap(message.getAzimuthalGap());</span>
+<span class="fc" id="L184">		origin.setMinDist(message.getMinStationDistanceDegrees());</span>
+<span class="fc" id="L185">		origin.setErrh(message.getHorizontalError());</span>
+
+<span class="fc" id="L187">		BigDecimal verticalError = message.getVerticalError();</span>
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">		if (verticalError != null) {</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">			if (verticalError.equals(BigDecimal.ZERO)) {</span>
+<span class="fc" id="L190">				origin.setDepthMethod(DEPTH_METHOD_FIXED);</span>
+			}
+<span class="fc" id="L192">			origin.setErrz(verticalError);</span>
+		}
+
+<span class="fc" id="L195">		origin.setNumPhaUsed(message.getNumLocationPhases());</span>
+<span class="fc" id="L196">		origin.setNumStaUsed(message.getNumLocationStations());</span>
+
+<span class="fc bfc" id="L198" title="All 2 branches covered.">		if (message.isReviewed()) {</span>
+<span class="fc" id="L199">			origin.setStatus(OriginStatus.REVIEWED);</span>
+		} else {
+<span class="fc" id="L201">			origin.setStatus(OriginStatus.AUTOMATIC);</span>
+		}
+
+<span class="fc" id="L204">		origin.setPreferredFlag(true);</span>
+<span class="fc" id="L205">		event.getOrigin().add(origin);</span>
+
+<span class="fc" id="L207">		Magnitude magnitude = new Magnitude();</span>
+<span class="fc" id="L208">		magnitude.setValue(message.getMagnitude());</span>
+<span class="fc" id="L209">		magnitude.setError(message.getMagnitudeError());</span>
+<span class="fc" id="L210">		magnitude.setNumStations(message.getNumMagnitudeStations());</span>
+<span class="fc" id="L211">		magnitude.setPreferredFlag(true);</span>
+<span class="fc" id="L212">		origin.getMagnitude().add(magnitude);</span>
+
+<span class="fc" id="L214">		MagnitudeType magnitudeType = CubeMessage.getMagnitudeType(message</span>
+<span class="fc" id="L215">				.getMagnitudeType());</span>
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">		if (magnitudeType != null) {</span>
+<span class="fc" id="L217">			magnitude.setTypeKey(magnitudeType.getAbbreviation());</span>
+
+<span class="fc" id="L219">			Comment magnitudeTypeComment = getCubeCodeComment(message</span>
+<span class="fc" id="L220">					.getMagnitudeType());</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">			if (magnitudeTypeComment != null) {</span>
+<span class="fc" id="L222">				magnitude.getComment().add(magnitudeTypeComment);</span>
+			} else {
+				// maybe return null?
+			}
+		}
+
+<span class="fc" id="L228">		Method locationMethod = new Method();</span>
+<span class="fc" id="L229">		Comment comment = getCubeCodeComment(message.getLocationMethod());</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">		if (comment != null) {</span>
+<span class="fc" id="L231">			locationMethod.setClazz(CUBE_CODE_TYPEKEY);</span>
+<span class="fc" id="L232">			locationMethod.setAlgorithm(message.getLocationMethod());</span>
+<span class="fc" id="L233">			locationMethod.getComment().add(comment);</span>
+<span class="fc" id="L234">			origin.getMethod().add(locationMethod);</span>
+		} else {
+			// maybe return null?
+		}
+
+<span class="fc" id="L239">		return eqMessage;</span>
+	}
+
+	/**
+	 * Create an EQMessage &quot;CUBE_Code&quot; comment.
+	 * 
+	 * Introduced by ISTI as a way to preserve the original Cube location method
+	 * and magnitude type characters, which did not uniformly map to EQXML
+	 * equivalents.
+	 * 
+	 * &lt;pre&gt;
+	 * &amp;lt;Comment&amp;gt;
+	 * &amp;lt;TypeKey&amp;gt;CUBE_Code&amp;lt;/TypeKey&amp;gt;
+	 * &amp;lt;Text&amp;gt;CUBE_Code X&amp;lt;/Text&amp;gt;
+	 * &amp;lt;/Comment&amp;gt;
+	 * &lt;/pre&gt;
+	 * 
+	 * where &quot;X&quot; is the cube character.
+	 * 
+	 * 
+	 * @param cubecode
+	 * @return Comment EQXML fragment that represents cube code.
+	 */
+	public Comment getCubeCodeComment(final String cubecode) {
+<span class="fc bfc" id="L263" title="All 2 branches covered.">		if (cubecode == null) {</span>
+<span class="fc" id="L264">			return null;</span>
+		}
+<span class="fc" id="L266">		Comment comment = new Comment();</span>
+<span class="fc" id="L267">		comment.setTypeKey(CUBE_CODE_TYPEKEY);</span>
+<span class="fc" id="L268">		comment.setText(CUBE_CODE_PREFIX + cubecode);</span>
+<span class="fc" id="L269">		return comment;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

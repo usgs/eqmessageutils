@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CubeDelete.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.cube</a> &gt; <span class="el_source">CubeDelete.java</span></div><h1>CubeDelete.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.cube;
+
+/**
+ * CUBE delete message.
+ * 
+ * &lt;pre&gt;
+ * DE - Delete Earthquake
+ *     The DE format is used to delete an earthquake. A delete message deletes the same, and all lower, versions of an earthquake. The format is:
+ * 
+ *     TpEidnumbrScV message........ to 80 characters
+ *     123456789012345678901234567890
+ *              1         2         3
+ * 
+ *     a2 * Tp  = Message type = &quot;DE&quot; = delete seismic event
+ *     a8 * Eid = Event identification number of event to delete
+ *     a2 * Sc  = Data Source
+ *     a1 * V   = Version, if version is blank all current versions are deleted.
+ *     a    ... = Optional text message
+ * 
+ *     Event identification and data source must be the same as
+ *     specified for &quot;E &quot; message (format 2, above).  The
+ *     identified event will be deleted by the receiver.
+ * 
+ *     Example:
+ *     DE09081845CI2 EVENT CANCELLED:  (LKH)
+ * 
+ *     Note: when stored in the catalog directory a 20 column time stamp is put at the
+ *     beginning of the line.
+ * &lt;/pre&gt;
+ * 
+ * @author jmfee
+ */
+public class CubeDelete extends CubeMessage {
+	public static final String EXAMPLE = &quot;DE09081845CI2 EVENT CANCELLED:  (LKH)&quot;;
+
+	public static final String TYPE = &quot;DE&quot;;
+
+	private String message;
+
+<span class="fc" id="L40">	public CubeDelete() {</span>
+<span class="fc" id="L41">	}</span>
+
+	/**
+	 * Construct a CUBEDelete from a CUBEEvent.
+	 * 
+	 * @param e
+	 *            event to delete
+	 * @param message
+	 *            terse message describing delete
+	 */
+<span class="nc" id="L51">	public CubeDelete(CubeEvent e, final String message) {</span>
+<span class="nc" id="L52">		this.setCode(e.getCode());</span>
+<span class="nc" id="L53">		this.setSource(e.getSource());</span>
+<span class="nc" id="L54">		this.setVersion(e.getVersion());</span>
+<span class="nc" id="L55">		this.setMessage(message);</span>
+<span class="nc" id="L56">	}</span>
+
+	@Override
+	public String getType() {
+<span class="fc" id="L60">		return TYPE;</span>
+	}
+
+	@Override
+	public String toCUBE() {
+<span class="fc" id="L65">		StringBuffer buf = new StringBuffer();</span>
+<span class="fc" id="L66">		buf.append(super.toCUBE());</span>
+
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">		if (message != null) {</span>
+<span class="fc" id="L69">			buf.append(&quot; &quot;).append(message);</span>
+		}
+
+<span class="fc" id="L72">		return buf.toString();</span>
+	}
+
+	public static CubeMessage parseCUBE(String line) {
+<span class="fc" id="L76">		String type = line.substring(0, 2);</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">		if (!TYPE.equals(type)) {</span>
+			// not a cube delete
+<span class="nc" id="L79">			throw new IllegalArgumentException(</span>
+					&quot;Unexpected CUBE type, expected '&quot; + TYPE + &quot;', got '&quot;
+							+ type + &quot;'&quot;);
+		}
+
+<span class="fc" id="L84">		String code = line.substring(2, 10).trim().toLowerCase();</span>
+<span class="fc" id="L85">		String source = line.substring(10, 12).trim().toLowerCase();</span>
+<span class="fc" id="L86">		String version = line.substring(12, 13).trim();</span>
+<span class="fc" id="L87">		String message = line.substring(13).trim();</span>
+
+<span class="fc" id="L89">		CubeDelete delete = new CubeDelete();</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		delete.setCode(&quot;&quot;.equals(code) ? null : code);</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">		delete.setSource(&quot;&quot;.equals(source) ? null : source);</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">		delete.setVersion(&quot;&quot;.equals(version) ? null : version);</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		delete.setMessage(&quot;&quot;.equals(message) ? null : message);</span>
+<span class="fc" id="L94">		return delete;</span>
+	}
+
+	public void setMessage(String message) {
+<span class="fc" id="L98">		this.message = message;</span>
+<span class="fc" id="L99">	}</span>
+
+	public String getMessage() {
+<span class="fc" id="L102">		return message;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

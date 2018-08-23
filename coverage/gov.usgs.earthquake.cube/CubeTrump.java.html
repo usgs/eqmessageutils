@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CubeTrump.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.cube</a> &gt; <span class="el_source">CubeTrump.java</span></div><h1>CubeTrump.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.cube;
+
+/**
+ * CUBE trump message.
+ * 
+ * NOTE: trump messages are ONLY used by QDM. The indexer no longer supports
+ * these messages, and provides finer-grained, trump-like functionality using
+ * &quot;trump&quot; type products send from an admin page.
+ * 
+ * &lt;pre&gt;
+ * TR - Trump Record
+ * The TR format allows a network operator to declare that the event with this event ID has priority over (or &quot;trumps&quot;) any other event which might be considered a duplicate, even if the latter would otherwise be authoritative. This is used when, for example, an automatic, authoritative event is submitted by one network but another network has a reviewed solution that is better. The format is:
+ * 
+ * TpEidnumbrScV message........ to 80 characters
+ * 123456789012345678901234567890
+ *          1         2         3
+ * 
+ * a2 * Tp  = Message type = &quot;TR&quot; = trump corresponding events
+ * a8 * Eid = Event identification number of event to become a &quot;trump&quot; event.
+ * a2 * Sc  = Data Source
+ * a1 * V   = Version; if blank, any version trumps all corresponding 
+ *            events from other networks, past present and future.
+ * a    ... = Optional text message
+ * 
+ * Event identification and data source must be the same as
+ * specified for &quot;E &quot; message (format 2, above).
+ * 
+ * Example:
+ * TR09081845US2 NEIC is trumping all solutions (DHO)
+ * 
+ * Note: when stored in the catalog directory a 20 column time stamp is put at the
+ * beginning of the line.
+ * &lt;/pre&gt;
+ * 
+ * @author jmfee
+ */
+public class CubeTrump extends CubeMessage {
+
+	public static final String TYPE = &quot;TR&quot;;
+
+	private String message;
+
+<span class="nc" id="L43">	public CubeTrump() {</span>
+<span class="nc" id="L44">	}</span>
+
+	/**
+	 * Construct a CUBETrump from a CUBEEvent.
+	 * 
+	 * @param e
+	 *            event that is adding trump flag
+	 * @param message
+	 *            terse message describing trump
+	 */
+<span class="nc" id="L54">	public CubeTrump(CubeEvent e, final String message) {</span>
+<span class="nc" id="L55">		this.setCode(e.getCode());</span>
+<span class="nc" id="L56">		this.setSource(e.getSource());</span>
+<span class="nc" id="L57">		this.setVersion(e.getVersion());</span>
+<span class="nc" id="L58">		this.setMessage(message);</span>
+<span class="nc" id="L59">	}</span>
+
+	@Override
+	public String getType() {
+<span class="nc" id="L63">		return TYPE;</span>
+	}
+
+	@Override
+	public String toCUBE() {
+<span class="nc" id="L68">		StringBuffer buf = new StringBuffer();</span>
+<span class="nc" id="L69">		buf.append(super.toCUBE());</span>
+
+<span class="nc bnc" id="L71" title="All 2 branches missed.">		if (message != null) {</span>
+<span class="nc" id="L72">			buf.append(&quot; &quot;).append(message);</span>
+		}
+
+<span class="nc" id="L75">		return buf.toString();</span>
+	}
+
+	public static CubeMessage parseCUBE(String line) {
+<span class="nc" id="L79">		String type = line.substring(0, 2);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">		if (TYPE.equals(type)) {</span>
+			// not a cube delete
+<span class="nc" id="L82">			throw new IllegalArgumentException(</span>
+					&quot;Unexpected CUBE type, expected '&quot; + TYPE + &quot;', got '&quot;
+							+ type + &quot;'&quot;);
+		}
+
+<span class="nc" id="L87">		String code = line.substring(2, 10).trim();</span>
+<span class="nc" id="L88">		String source = line.substring(10, 12).trim();</span>
+<span class="nc" id="L89">		String version = line.substring(12, 13).trim();</span>
+<span class="nc" id="L90">		String message = line.substring(13).trim();</span>
+
+<span class="nc" id="L92">		CubeTrump trump = new CubeTrump();</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		trump.setCode(&quot;&quot;.equals(code) ? null : code);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">		trump.setSource(&quot;&quot;.equals(source) ? null : source);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		trump.setVersion(&quot;&quot;.equals(version) ? null : version);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		trump.setMessage(&quot;&quot;.equals(message) ? null : message);</span>
+<span class="nc" id="L97">		return trump;</span>
+	}
+
+	public void setMessage(String message) {
+<span class="nc" id="L101">		this.message = message;</span>
+<span class="nc" id="L102">	}</span>
+
+	public String getMessage() {
+<span class="nc" id="L105">		return message;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

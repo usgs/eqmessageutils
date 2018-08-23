@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileToQuakeml.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.quakeml</a> &gt; <span class="el_source">FileToQuakeml.java</span></div><h1>FileToQuakeml.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.quakeml;
+
+import java.io.File;
+
+import org.quakeml_1_2.Quakeml;
+
+/**
+ * Command line utility to run the FileToQuakemlConverter interface.
+ * 
+ * Run for usage: &lt;code&gt;
+ * java -cp MessageUtils.jar gov.usgs.earthquake.quakeml.FileToQuakeml
+ * &lt;/code&gt;
+ * 
+ * @author jmfee
+ */
+<span class="nc" id="L16">public class FileToQuakeml {</span>
+
+	public static final String USAGE = &quot;Usage:  FileToQuakeml --parser=PARSER --file=FILE\n\n&quot;
+			+ &quot;\tPARSER - fully qualified class name that implements the interface\n&quot;
+			+ &quot;\t\t\tgov.usgs.earthquake.quakeml.FileToQuakemlConverter\n&quot;
+			+ &quot;\tFILE - path to file or directory (depending on what PARSER expects)\n&quot;;
+
+	public static final String FILE_ARGUMENT = &quot;--file=&quot;;
+	public static final String PARSER_ARGUMENT = &quot;--parser=&quot;;
+
+	public static void main(final String[] args) throws Exception {
+<span class="nc" id="L27">		File file = null;</span>
+<span class="nc" id="L28">		FileToQuakemlConverter parser = null;</span>
+
+<span class="nc bnc" id="L30" title="All 2 branches missed.">		for (String arg : args) {</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">			if (arg.startsWith(FILE_ARGUMENT)) {</span>
+<span class="nc" id="L32">				file = new File(arg.replace(FILE_ARGUMENT, &quot;&quot;));</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">			} else if (arg.startsWith(PARSER_ARGUMENT)) {</span>
+<span class="nc" id="L34">				String parserClass = arg.replace(PARSER_ARGUMENT, &quot;&quot;);</span>
+<span class="nc" id="L35">				parser = (FileToQuakemlConverter) Class.forName(parserClass)</span>
+<span class="nc" id="L36">						.getConstructor().newInstance();</span>
+			}
+		}
+
+<span class="nc bnc" id="L40" title="All 4 branches missed.">		if (file == null || parser == null) {</span>
+<span class="nc" id="L41">			System.err.println(USAGE);</span>
+<span class="nc" id="L42">			System.exit(1);</span>
+		}
+
+<span class="nc" id="L45">		Quakeml quakeml = parser.parseFile(file);</span>
+<span class="nc" id="L46">		Quakeml_1_2_Parser.serialize(quakeml, System.out);</span>
+<span class="nc" id="L47">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

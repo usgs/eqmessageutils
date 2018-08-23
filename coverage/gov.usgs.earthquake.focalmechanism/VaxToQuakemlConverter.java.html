@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VaxToQuakemlConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.focalmechanism</a> &gt; <span class="el_source">VaxToQuakemlConverter.java</span></div><h1>VaxToQuakemlConverter.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.focalmechanism;
+import gov.usgs.earthquake.quakeml.FileToQuakemlConverter;
+
+
+
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.ArrayList;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import org.quakeml_1_2.Quakeml;
+
+public class VaxToQuakemlConverter extends RawMechanismConverter implements FileToQuakemlConverter {
+    
+        
+<span class="fc" id="L25">    public VaxToQuakemlConverter(){</span>
+<span class="fc" id="L26">        eventMagnitudes = new ArrayList&lt;BigDecimal&gt;(1);</span>
+<span class="fc" id="L27">    }</span>
+    public Quakeml parseFile(final File file) throws Exception{
+<span class="fc" id="L29">        String fname = file.getName();</span>
+<span class="fc" id="L30">        String parts[] = fname.split(&quot;\\.&quot;);</span>
+<span class="fc" id="L31">        eventID = parts[0];</span>
+        try{
+<span class="fc" id="L33">            FileReader fr = new FileReader(file);</span>
+<span class="fc" id="L34">            BufferedReader br = new BufferedReader(fr);</span>
+<span class="fc" id="L35">            parseInputFormat(br);</span>
+        }
+<span class="nc" id="L37">        catch(IOException e){</span>
+<span class="nc" id="L38">            throw(e);</span>
+<span class="fc" id="L39">        }</span>
+<span class="fc" id="L40">        return convertToQuakeml();</span>
+    }
+
+    public void parseInputFormat(BufferedReader br) throws IOException{
+<span class="fc" id="L44">        debug = true;</span>
+        try{
+            //Read in the date and time from the first line
+<span class="fc" id="L47">            String firstline = br.readLine();</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">            if (debug){</span>
+<span class="fc" id="L49">                System.out.println(&quot;Line 1&quot;);</span>
+            }
+            //Note this will give wrong date for events before 2000
+<span class="fc" id="L52">            eventTime = this.readTime(firstline);</span>
+            
+            //second line is blank
+<span class="fc" id="L55">            br.readLine();</span>
+            
+            //third line has lat/lon
+            String[] parts;
+<span class="fc" id="L59">            String thirdline = br.readLine();</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            if (debug){</span>
+<span class="fc" id="L61">                System.out.println(&quot;Line 3&quot;);</span>
+            }
+<span class="fc" id="L63">            parts = thirdline.split(&quot;:&quot;);</span>
+<span class="fc" id="L64">            String epistr = parts[1].trim();</span>
+<span class="fc" id="L65">            parts = epistr.split(&quot;\\s+&quot;);</span>
+<span class="fc" id="L66">            eventLatitude = new BigDecimal((parts[0]));</span>
+<span class="fc" id="L67">            eventLongitude = new BigDecimal((parts[1]));</span>
+            
+            //fourth line has the magnitude
+<span class="fc" id="L70">            String fourthline = br.readLine();</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">            if (debug){</span>
+<span class="fc" id="L72">                System.out.println(&quot;Line 4&quot;);</span>
+            }
+<span class="fc" id="L74">            parts = fourthline.split(&quot;\\s+&quot;);</span>
+<span class="fc" id="L75">            BigDecimal mag1 = new BigDecimal(parts[1].trim());</span>
+<span class="fc" id="L76">            eventMagnitudes.add(mag1);</span>
+
+            //fifth line is blank
+<span class="fc" id="L79">            br.readLine();</span>
+            
+            //sixth line has the source
+<span class="fc" id="L82">            String sixthline = br.readLine();</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">            if (debug){</span>
+<span class="fc" id="L84">                System.out.println(&quot;Line 6&quot;);</span>
+            }
+<span class="fc" id="L86">            eventSource = &quot;us&quot;;</span>
+<span class="fc" id="L87">            mechanismSource = eventSource;</span>
+<span class="fc" id="L88">            String mtType = new String(sixthline.substring(sixthline.indexOf('/'))); // trim().replace(&quot;/&quot;, &quot; &quot;));</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            if (mtType.contains(&quot;WPHASE&quot;))</span>
+            {
+<span class="fc" id="L91">            	this.momentTensorType=&quot;Mww&quot;;</span>
+<span class="fc" id="L92">            	parseWCMT(br);</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">            } else if (mtType.contains(&quot;REGIONAL&quot;))</span>
+            {
+<span class="fc" id="L95">            	this.momentTensorType=&quot;Mwr&quot;;</span>
+<span class="fc" id="L96">            	parseRMT(br);</span>
+            } else
+<span class="nc" id="L98">            	this.momentTensorType = &quot;Unknown&quot;;          </span>
+            
+        }
+<span class="nc" id="L101">        catch (IOException e){</span>
+<span class="nc" id="L102">            throw(e);</span>
+<span class="fc" id="L103">        } </span>
+<span class="fc" id="L104">    }</span>
+    
+    protected void parseRMT(BufferedReader br) throws IOException{
+    	//7th line has the derived depth and number of stations for RMT
+<span class="fc" id="L108">        String seventhline = br.readLine();</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L110">            System.out.println(&quot;Line 7&quot;);</span>
+        }
+<span class="fc" id="L112">        parseDepthNumStationsLine(seventhline);</span>
+<span class="fc" id="L113">        parseMomentTensor(br);</span>
+<span class="fc" id="L114">        parsePrincipalAxes(br);</span>
+        
+        //next line is blank
+<span class="fc" id="L117">        br.readLine();</span>
+        
+<span class="fc" id="L119">        parseDoubleCouple(br);</span>
+        
+        //need to add that evaluation Mode is Manual and Status is Reviewed by default
+        // gavin will add in data in file to be able to say it is prelim or final status
+        
+        //RMT does not provide a derived position or time, but it does provide depth,
+        //so we want to be able to put that into the QuakeML.  To do this, we need to
+        //have derived lat/lon/time values set.  Because they are not inverted for, we
+        //will set them to the input values.
+<span class="fc" id="L128">        derivedEventLatitude = eventLatitude;</span>
+<span class="fc" id="L129">        derivedEventLongitude = eventLongitude;</span>
+<span class="fc" id="L130">        derivedEventTime = eventTime;</span>
+        
+        //set the derived origin booleans
+<span class="fc" id="L133">        derivedTimeFixed = true;</span>
+<span class="fc" id="L134">        derivedEpicenterFixed = true;</span>
+<span class="fc" id="L135">    }</span>
+    
+    protected void parseWCMT(BufferedReader br) throws IOException{
+        
+    	//seventh line has the derived centroid time in WCMT
+<span class="fc" id="L140">        String seventhline = br.readLine();</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L142">            System.out.println(&quot;Line 7&quot;);</span>
+        }
+        // in WCMT has line 7 is  time, in RMT line 7 is depth
+<span class="fc" id="L145">        derivedEventTime = this.readTime(seventhline);</span>
+        
+      //eighth line has the derived epicenter for WCMT
+<span class="fc" id="L148">        String eighthline = br.readLine();</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L150">            System.out.println(&quot;Line 8&quot;);</span>
+        }
+<span class="fc" id="L152">        parseDerivedLatLon(eighthline);</span>
+        
+       //ninth line has the derived depth and number of stations for WCMT
+<span class="fc" id="L155">        String ninthline = br.readLine();</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L157">            System.out.println(&quot;Line 9&quot;);</span>
+        }
+<span class="fc" id="L159">        parseDepthNumStationsLine(ninthline);</span>
+        
+        //lines 10 thru 13
+<span class="fc" id="L162">        parseMomentTensor(br);</span>
+        
+        //lines 14 - 17
+<span class="fc" id="L165">        parsePrincipalAxes(br);</span>
+        
+        //next line is blank (line 18)
+<span class="fc" id="L168">        br.readLine();</span>
+        
+<span class="fc" id="L170">        parseDoubleCouple(br);</span>
+        
+        //set the derived origin booleans
+<span class="fc" id="L173">        derivedTimeFixed = false;</span>
+<span class="fc" id="L174">        derivedEpicenterFixed = false;</span>
+<span class="fc" id="L175">    }</span>
+
+    private BigDecimal[] parseAxis(String input){
+<span class="fc" id="L178">        String line = input;</span>
+<span class="fc" id="L179">        line = line.trim().substring(1); //strip off leading axis character</span>
+<span class="fc" id="L180">        line = line.replaceAll(&quot;[a-zA-Z]*=&quot;,&quot;&quot;).trim();</span>
+        String[] parts;
+<span class="fc" id="L182">        parts = line.split(&quot;\\s+&quot;);</span>
+        BigDecimal[] values;
+<span class="fc" id="L184">        values = new BigDecimal[3];</span>
+<span class="fc" id="L185">        values[0] = new BigDecimal(parts[0].trim());</span>
+<span class="fc" id="L186">        values[1] = new BigDecimal(parts[1].trim());</span>
+<span class="fc" id="L187">        values[2] = new BigDecimal(parts[2].trim());</span>
+<span class="fc" id="L188">        return(values);</span>
+    }
+
+    private BigDecimal[] parsePlane(String line){
+        String parts[];
+<span class="fc" id="L193">        parts = line.split(&quot;:&quot;);</span>
+<span class="fc" id="L194">        String astr = parts[1].trim();</span>
+<span class="fc" id="L195">        astr = astr.replaceAll(&quot;[a-zA-Z]*=&quot;,&quot;&quot;);</span>
+<span class="fc" id="L196">        astr = astr.trim();</span>
+<span class="fc" id="L197">        parts = astr.split(&quot;\\s+&quot;);</span>
+        BigDecimal[] values;
+<span class="fc" id="L199">        values = new BigDecimal[3];</span>
+<span class="fc" id="L200">        values[0] = new BigDecimal(parts[0].trim());</span>
+<span class="fc" id="L201">        values[1] = new BigDecimal(parts[1].trim());</span>
+<span class="fc" id="L202">        values[2] = new BigDecimal(parts[2].trim());</span>
+<span class="fc" id="L203">        return(values);</span>
+    }
+
+    private BigDecimal[] parseComponents(String input,int exponent){
+<span class="fc" id="L207">        String line = input;</span>
+<span class="fc" id="L208">        line = line.replaceAll(&quot;[a-zA-Z]{3}=&quot;,&quot;&quot;).trim(); //get rid of Mrr=</span>
+        String parts[];
+<span class="fc" id="L210">        parts = line.split(&quot;\\s+&quot;);</span>
+        BigDecimal[] values;
+<span class="fc" id="L212">        values = new BigDecimal[2];</span>
+        //one would need to Add 7 to exponent to get to Dynes-cm units (from Newton-meters)
+        //Data is in Newton meters, we want newton meters in quakeml
+<span class="fc" id="L215">        values[0] = new BigDecimal(parts[0].trim()).movePointRight(exponent);</span>
+<span class="fc" id="L216">        values[1] = new BigDecimal(parts[1].trim()).movePointRight(exponent);</span>
+<span class="fc" id="L217">        return(values);</span>
+    }
+
+    private Date readTime(String line){
+<span class="fc" id="L221">        int year = Integer.parseInt(line.substring(0,2))+2000; </span>
+<span class="fc" id="L222">        int month = Integer.parseInt(line.substring(3,5).trim())-1; //Calendar months start at 0</span>
+<span class="fc" id="L223">        int day = Integer.parseInt(line.substring(6,8).trim());</span>
+<span class="fc" id="L224">        int hour = Integer.parseInt(line.substring(9,11).trim());</span>
+<span class="fc" id="L225">        int minute = Integer.parseInt(line.substring(12,14).trim());</span>
+<span class="fc" id="L226">        int endLine = line.length();</span>
+        //some have decimal seconds some do not
+<span class="fc" id="L228">        String secstr = line.substring(15,endLine);</span>
+<span class="fc" id="L229">        double dd = Double.parseDouble(secstr)*1000.0;</span>
+<span class="fc" id="L230">        int milliseconds = Double.valueOf(dd).intValue();</span>
+<span class="fc" id="L231">        GregorianCalendar c = new GregorianCalendar(TimeZone.getTimeZone(&quot;GMT&quot;),Locale.US);</span>
+<span class="fc" id="L232">        c.set(year,month,day,hour,minute,0);</span>
+<span class="fc" id="L233">        Date eventTime = c.getTime();</span>
+<span class="fc" id="L234">        eventTime.setTime(eventTime.getTime()+milliseconds);</span>
+<span class="fc" id="L235">        return(eventTime);</span>
+    }
+    
+    protected void parseDoubleCouple(BufferedReader br) throws IOException
+    {
+    	BigDecimal values[];
+    	
+    	//nineteenth line has the moment
+<span class="fc" id="L243">        String nineteenthline = br.readLine().trim();</span>
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L245">            System.out.format(&quot;Line 19: '%s'\n&quot;,nineteenthline);</span>
+        }
+<span class="fc" id="L247">        Matcher m = Pattern.compile(&quot;Mo=&quot;).matcher(nineteenthline);</span>
+<span class="fc" id="L248">        Matcher a = Pattern.compile(&quot;\\*&quot;).matcher(nineteenthline);</span>
+<span class="fc" id="L249">        m.find();</span>
+<span class="fc" id="L250">        a.find();</span>
+<span class="fc" id="L251">        String manstr = nineteenthline.substring(m.start()+3,a.start());</span>
+<span class="fc" id="L252">        double mantissa = Double.parseDouble(manstr);</span>
+<span class="fc" id="L253">        int linelen = nineteenthline.length();</span>
+<span class="fc" id="L254">        double expo = Double.parseDouble(nineteenthline.substring(linelen-2));</span>
+        //scalarMoment = new BigDecimal(mantissa*Math.pow(10.0,expo)*Math.pow(10.0,7.0));
+<span class="fc" id="L256">        scalarMoment = new BigDecimal(mantissa*Math.pow(10.0,expo)); //N m</span>
+        
+        //twentieth line has the NP1 values
+<span class="fc" id="L259">        String twentiethline = br.readLine().trim();</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L261">            System.out.format(&quot;Line 20:'%s'\n&quot;,twentiethline);</span>
+        }
+<span class="fc" id="L263">        values = parsePlane(twentiethline);</span>
+<span class="fc" id="L264">        nodalPlane1Strike = values[0];</span>
+<span class="fc" id="L265">        nodalPlane1Dip = values[1];</span>
+<span class="fc" id="L266">        nodalPlane1Slip = values[2];</span>
+
+        //twentyfirst line has the NP1 values
+<span class="fc" id="L269">        String twentyfirstline = br.readLine().trim();</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L271">            System.out.format(&quot;Line 21:'%s'\n&quot;, twentyfirstline);</span>
+        }
+<span class="fc" id="L273">        values = parsePlane(twentyfirstline);</span>
+<span class="fc" id="L274">        nodalPlane2Strike = values[0];</span>
+<span class="fc" id="L275">        nodalPlane2Dip = values[1];</span>
+<span class="fc" id="L276">        nodalPlane2Slip = values[2];</span>
+    
+<span class="fc" id="L278">    }</span>
+
+    protected void parseDepthNumStationsLine (String line) throws IOException
+    {
+    	String[] parts;
+<span class="fc" id="L283">        int i0=0;</span>
+<span class="fc" id="L284">        int i1=0;</span>
+
+    	try {
+    	
+<span class="fc" id="L288">    	Matcher mdepth = Pattern.compile(&quot;Depth\\s+[0-9]*&quot;).matcher(line);</span>
+       
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">        if (mdepth.find()){</span>
+<span class="fc" id="L291">            i0 = mdepth.start()+5;</span>
+<span class="fc" id="L292">            i1 = mdepth.end();</span>
+<span class="fc" id="L293">            derivedEventDepth = new BigDecimal((line.substring(i0,i1).trim()));</span>
+            //quakeml depths are in meters, not km
+<span class="fc" id="L295">            derivedEventDepth = derivedEventDepth.multiply(new BigDecimal(1000));</span>
+<span class="fc" id="L296">            String stastr = line.substring(i1+1);</span>
+<span class="fc" id="L297">            parts = stastr.split(&quot;:&quot;);</span>
+<span class="fc" id="L298">            numStations = new BigInteger(parts[1].trim()); //number of long period body wave stations</span>
+        }
+        // else{
+        // derivedDepth = 0;
+        // }
+<span class="nc" id="L303">    	} catch (Exception e) {</span>
+<span class="nc" id="L304">    		throw new IOException(e.getMessage());</span>
+<span class="fc" id="L305">    	}</span>
+<span class="fc" id="L306">    }</span>
+    
+    protected void parseDerivedLatLon( String line)
+    {
+    	String[] parts;
+    	String epistr;
+    	
+<span class="fc" id="L313">    	parts = line.split(&quot;:&quot;);</span>
+<span class="fc" id="L314">        epistr = parts[1].trim();</span>
+<span class="fc" id="L315">        parts = epistr.split(&quot;\\s+&quot;);</span>
+<span class="fc" id="L316">        derivedEventLatitude = new BigDecimal((parts[0]));</span>
+<span class="fc" id="L317">        derivedEventLongitude = new BigDecimal((parts[1]));</span>
+<span class="fc" id="L318">    }</span>
+    
+    protected void parseMomentTensor(BufferedReader br) throws IOException
+    {
+    	String[] parts;
+<span class="fc" id="L323">    	String lineA = br.readLine();</span>
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L325">            System.out.format(&quot;Line mt 1: '%s'\n&quot;,lineA);</span>
+        }
+        
+    	//tenth line has moment tensor scale
+<span class="fc" id="L329">        parts = lineA.split(&quot;;&quot;);</span>
+<span class="fc" id="L330">        int idx = parts[1].indexOf(&quot;Nm&quot;);</span>
+<span class="fc" id="L331">        String expstr = parts[1].substring(idx-3,idx-1);</span>
+<span class="fc" id="L332">        int exponent = Integer.parseInt(expstr);</span>
+        
+      // line has Mrr and Mtt
+<span class="fc" id="L335">        String lineB = br.readLine().trim();</span>
+<span class="pc bpc" id="L336" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L337">            System.out.println(&quot;Line 11&quot;);</span>
+        }
+        BigDecimal[] compvalues;
+<span class="fc" id="L340">        compvalues = parseComponents(lineB,exponent);</span>
+<span class="fc" id="L341">        tensorMrr = compvalues[0];</span>
+<span class="fc" id="L342">        tensorMtt = compvalues[1];</span>
+
+        // line has Mpp and Mrt
+<span class="fc" id="L345">        String lineC = br.readLine();</span>
+<span class="pc bpc" id="L346" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L347">            System.out.println(&quot;Line c&quot;);</span>
+        }
+<span class="fc" id="L349">        compvalues = parseComponents(lineC,exponent);</span>
+<span class="fc" id="L350">        tensorMpp = compvalues[0];</span>
+<span class="fc" id="L351">        tensorMrt = compvalues[1];</span>
+        
+        //thirteenth line has Mrp and Mtp
+<span class="fc" id="L354">        String lineD = br.readLine();</span>
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L356">            System.out.println(&quot;Line D&quot;);</span>
+        }
+<span class="fc" id="L358">        compvalues = parseComponents(lineD,exponent);</span>
+<span class="fc" id="L359">        tensorMrp = compvalues[0];</span>
+<span class="fc" id="L360">        tensorMtp = compvalues[1];</span>
+<span class="fc" id="L361">    }</span>
+    
+    protected void parsePrincipalAxes(BufferedReader br) throws IOException
+    {
+    	//fourteenth line has text we can skip
+<span class="fc" id="L366">        br.readLine();</span>
+        
+        //fifteenth line has the T axis values
+<span class="fc" id="L369">        String fifteenthline = br.readLine().trim();</span>
+<span class="pc bpc" id="L370" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L371">            System.out.println(&quot;Line 15&quot;);</span>
+        }
+        BigDecimal values[];
+<span class="fc" id="L374">        values = parseAxis(fifteenthline);</span>
+<span class="fc" id="L375">        eigenVectorValues[0] = values[0];</span>
+<span class="fc" id="L376">        eigenVectorPlunges[0] = values[1];</span>
+<span class="fc" id="L377">        eigenVectorAzimuths[0] = values[2];</span>
+
+        //sixteenth line has the N axis values
+<span class="fc" id="L380">        String sixteenthline = br.readLine().trim();</span>
+<span class="pc bpc" id="L381" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L382">            System.out.println(&quot;Line 16&quot;);</span>
+        }
+<span class="fc" id="L384">        values = parseAxis(sixteenthline);</span>
+<span class="fc" id="L385">        eigenVectorValues[1] = values[0];</span>
+<span class="fc" id="L386">        eigenVectorPlunges[1] = values[1];</span>
+<span class="fc" id="L387">        eigenVectorAzimuths[1] = values[2];</span>
+
+        //seventeenth line has the P axis values
+<span class="fc" id="L390">        String seventeenthline = br.readLine().trim();</span>
+<span class="pc bpc" id="L391" title="1 of 2 branches missed.">        if (debug){</span>
+<span class="fc" id="L392">            System.out.println(&quot;Line 17&quot;);</span>
+        }
+<span class="fc" id="L394">        values = parseAxis(seventeenthline);</span>
+<span class="fc" id="L395">        eigenVectorValues[2] = values[0];</span>
+<span class="fc" id="L396">        eigenVectorPlunges[2] = values[1];</span>
+<span class="fc" id="L397">        eigenVectorAzimuths[2] = values[2];</span>
+<span class="fc" id="L398">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuakemlDateParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.quakeml</a> &gt; <span class="el_source">QuakemlDateParser.java</span></div><h1>QuakemlDateParser.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.quakeml;
+
+import gov.usgs.earthquake.util.ISO8601;
+
+import java.util.Date;
+
+/**
+ * Quakeml datetime parser/formatter.
+ * 
+ * Quakeml defines dates without a timezone to be UTC; while xml schema defines
+ * dates without a timezone to be system time.
+ * 
+ * @author jmfee
+ */
+<span class="nc" id="L15">public class QuakemlDateParser {</span>
+
+	/**
+	 * Parse a date string as UTC if it doesn't specify an offset, otherwise use
+	 * the specified offset.
+	 * 
+	 * @param toParse
+	 *            the xml date time string to parse.
+	 * @return the parsed Date object.
+	 */
+	public static Date getDate(final String toParse) {
+<span class="fc" id="L26">		Date date = null;</span>
+
+		// time separator
+<span class="fc" id="L29">		int tIndex = toParse.indexOf(&quot;T&quot;);</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">		if (toParse.indexOf(&quot;Z&quot;, tIndex) &gt; -1</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">				|| toParse.indexOf(&quot;+&quot;, tIndex) &gt; -1</span>
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">				|| toParse.indexOf(&quot;-&quot;, toParse.indexOf(&quot;T&quot;)) &gt; -1) {</span>
+			// has timezone offset, can parse as ISO8601
+<span class="fc" id="L34">			date = ISO8601.parse(toParse);</span>
+		} else {
+			// no timezone offset specified, force UTC
+<span class="fc" id="L37">			date = ISO8601.parse(toParse + &quot;Z&quot;);</span>
+		}
+<span class="fc" id="L39">		return date;</span>
+	}
+
+	/**
+	 * Format a date as UTC.
+	 * 
+	 * @param toFormat
+	 *            date to format
+	 * @return ISO 8601 formatted date.
+	 */
+	public static String formatDate(final Date toFormat) {
+<span class="fc" id="L50">		return ISO8601.format(toFormat);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

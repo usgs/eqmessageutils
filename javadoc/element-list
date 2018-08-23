@@ -1,0 +1,10 @@
+gov.usgs.ansseqmsg
+gov.usgs.earthquake.cube
+gov.usgs.earthquake.eqxml
+gov.usgs.earthquake.event
+gov.usgs.earthquake.focalmechanism
+gov.usgs.earthquake.quakeml
+gov.usgs.earthquake.util
+org.quakeml_1_1
+org.quakeml_1_2
+org.quakeml_rt_1_2

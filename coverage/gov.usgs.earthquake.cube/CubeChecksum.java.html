@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CubeChecksum.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.cube</a> &gt; <span class="el_source">CubeChecksum.java</span></div><h1>CubeChecksum.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.cube;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+/**
+ * CUBE checksum utility.
+ * 
+ * This is originally from QDMUtils, and kept separate for simplicity.
+ */
+<span class="nc" id="L11">public class CubeChecksum {</span>
+
+	/**
+	 * Method to compute checksum to characterize a character string. Adapted
+	 * from Andy Michael's cksum.c.
+	 * 
+	 * @param s
+	 *            String of characters to compute cksum of
+	 * @return check sum integer
+	 */
+	public static int checksum(String s) {
+		int c;
+<span class="fc" id="L23">		int sum = 0;</span>
+
+<span class="fc" id="L25">		byte bs[] = s.getBytes();</span>
+<span class="fc" id="L26">		int len = bs.length;</span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">		for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">			if ((sum &amp; 1) != 0) {</span>
+<span class="fc" id="L29">				sum = (sum &gt;&gt; 1) + 0x8000;</span>
+			} else {
+<span class="fc" id="L31">				sum &gt;&gt;= 1;</span>
+			}
+<span class="fc" id="L33">			c = bs[i];</span>
+<span class="fc" id="L34">			sum += c;</span>
+<span class="fc" id="L35">			sum &amp;= 0xFFFF;</span>
+		}
+
+<span class="fc" id="L38">		return 36 + sum % 91;</span>
+	}
+
+	/**
+	 * Same as checksum, but return a string.
+	 * 
+	 * @param s
+	 *            String to compute checksum of.
+	 * @return computed checksum as string.
+	 */
+	public static String strChecksum(String s) {
+<span class="fc" id="L49">		return Character.valueOf((char) checksum(s)).toString();</span>
+	}
+
+	/**
+	 * Read cube messages from stdin.
+	 * 
+	 * Checksums are computed based on the first 79 characters of the input
+	 * line, and the line with computed checksum is then output.
+	 * 
+	 * @param args
+	 *            no arguments used.
+	 * @throws Exception
+	 */
+	public static void main(final String[] args) throws Exception {
+<span class="nc" id="L63">		BufferedReader reader = new BufferedReader(new InputStreamReader(</span>
+				System.in));
+
+		String line;
+<span class="nc bnc" id="L67" title="All 2 branches missed.">		while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L68">			line = line.substring(0, 79);</span>
+<span class="nc" id="L69">			System.out.println(line + strChecksum(line));</span>
+		}
+<span class="nc" id="L71">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

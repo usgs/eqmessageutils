@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CubeToQuakemlConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.event</a> &gt; <span class="el_source">CubeToQuakemlConverter.java</span></div><h1>CubeToQuakemlConverter.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.event;
+
+import gov.usgs.earthquake.cube.CubeDelete;
+import gov.usgs.earthquake.cube.CubeEvent;
+import gov.usgs.earthquake.cube.CubeMessage;
+import gov.usgs.earthquake.quakeml.QuakemlPublicId;
+
+import java.math.BigDecimal;
+
+import java.util.Date;
+
+import org.quakeml_1_2.Comment;
+import org.quakeml_1_2.CreationInfo;
+import org.quakeml_1_2.EvaluationMode;
+import org.quakeml_1_2.Event;
+import org.quakeml_1_2.EventParameters;
+import org.quakeml_1_2.EventType;
+import org.quakeml_1_2.InternalEvent;
+import org.quakeml_1_2.Magnitude;
+import org.quakeml_1_2.OriginDepthType;
+import org.quakeml_1_2.OriginQuality;
+import org.quakeml_1_2.OriginUncertainty;
+import org.quakeml_1_2.OriginUncertaintyDescription;
+import org.quakeml_1_2.Quakeml;
+import org.quakeml_1_2.Origin;
+import org.quakeml_1_2.RealQuantity;
+import org.quakeml_1_2.TimeQuantity;
+
+/**
+ * Convert from CubeMessage to Quakeml.
+ * 
+ * @author jmfee
+ */
+<span class="fc" id="L34">public class CubeToQuakemlConverter {</span>
+
+	// quakeml uses meters, cube uses kilometers
+<span class="fc" id="L37">	public static final BigDecimal METERS_PER_KILOMETER = new BigDecimal(&quot;1000&quot;);</span>
+	public static final String CUBE_COMMENT_TYPE = &quot;cube&quot;;
+
+	public static final String CUBE_LOCATION_METHOD_PUBLICID_PREFIX = &quot;quakeml:anss.org/cube/locationMethod/&quot;;
+	public static final String CUBE_MAGNITUDE_TYPE_PUBLICID_PREFIX = &quot;quakeml:anss.org/cube/magnitudeType/&quot;;
+
+	/**
+	 * Convert a CubeMessage object to a Quakeml object.
+	 * 
+	 * @param message
+	 * @return Quakeml object corresponding to CubeMessage, or null if no
+	 *         Quakeml representation.
+	 * @throws Exception
+	 */
+	public Quakeml convertCubeMessage(final CubeMessage message)
+			throws Exception {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">		if (message instanceof CubeEvent) {</span>
+<span class="fc" id="L54">			return convertCubeEvent((CubeEvent) message);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">		} else if (message instanceof CubeDelete) {</span>
+<span class="fc" id="L56">			return convertCubeDelete((CubeDelete) message);</span>
+		} else {
+<span class="nc" id="L58">			return null;</span>
+		}
+	}
+
+	/**
+	 * Convert a CubeDelete object to a Quakeml object.
+	 * 
+	 * @param message
+	 * @return Quakeml object corresponding to CubeDelete.
+	 * @throws Exception
+	 */
+	private Quakeml convertCubeDelete(CubeDelete message) throws Exception {
+<span class="fc" id="L70">		Quakeml quakeml = new Quakeml();</span>
+
+		// if message already has sent time, use that
+<span class="fc" id="L73">		Date created = message.getSent();</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">		if (created == null) {</span>
+<span class="fc" id="L75">			created = new Date();</span>
+		}
+
+		// event parameters id is unique to this message
+<span class="fc" id="L79">		EventParameters eventParameters = new EventParameters();</span>
+<span class="fc" id="L80">		eventParameters.setPublicID(getQuakemlId(message.getSource(),</span>
+<span class="fc" id="L81">				message.getCode(), &quot;eventParamters&quot;,</span>
+<span class="fc" id="L82">				Long.toString(created.getTime())));</span>
+<span class="fc" id="L83">		quakeml.setEventParameters(eventParameters);</span>
+
+<span class="fc" id="L85">		Event event = new Event();</span>
+<span class="fc" id="L86">		event.setPublicID(getQuakemlId(message.getSource(), message.getCode(),</span>
+				&quot;event&quot;, null));
+<span class="fc" id="L88">		event.setType(EventType.NOT_EXISTING);</span>
+
+		// set catalog info
+<span class="fc" id="L91">		event.setDatasource(message.getSource());</span>
+<span class="fc" id="L92">		event.setEventsource(message.getSource());</span>
+<span class="fc" id="L93">		event.setEventid(message.getCode());</span>
+
+<span class="fc" id="L95">		eventParameters.getEvents().add(event);</span>
+
+		// who and when was this message sent
+<span class="fc" id="L98">		CreationInfo creationInfo = new CreationInfo();</span>
+<span class="fc" id="L99">		creationInfo.setAgencyID(message.getSource());</span>
+<span class="fc" id="L100">		creationInfo.setVersion(message.getVersion());</span>
+<span class="fc" id="L101">		creationInfo.setCreationTime(created);</span>
+<span class="fc" id="L102">		event.setCreationInfo(creationInfo);</span>
+
+		// update time comes from event parameters
+<span class="fc" id="L105">		creationInfo = new CreationInfo();</span>
+<span class="fc" id="L106">		creationInfo.setCreationTime(created);</span>
+<span class="fc" id="L107">		eventParameters.setCreationInfo(creationInfo);</span>
+
+<span class="fc" id="L109">		String deleteMessage = message.getMessage();</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">		if (deleteMessage != null) {</span>
+<span class="fc" id="L111">			Comment deleteComment = new Comment();</span>
+<span class="fc" id="L112">			deleteComment.setText(deleteMessage);</span>
+<span class="fc" id="L113">			event.getComments().add(deleteComment);</span>
+		}
+
+<span class="fc" id="L116">		return quakeml;</span>
+	}
+
+	/**
+	 * Convert a CubeEvent object to a Quakeml object.
+	 * 
+	 * @param message
+	 * @return Quakeml object corresponding to CubeEvent.
+	 * @throws Exception
+	 */
+	public Quakeml convertCubeEvent(CubeEvent message) throws Exception {
+<span class="fc" id="L127">		Quakeml quakeml = new Quakeml();</span>
+
+		// if message already has sent time, use that
+<span class="fc" id="L130">		Date created = message.getSent();</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">		if (created == null) {</span>
+<span class="fc" id="L132">			created = new Date();</span>
+		}
+
+		// event parameters id is unique to this message
+<span class="fc" id="L136">		EventParameters eventParameters = new EventParameters();</span>
+<span class="fc" id="L137">		eventParameters.setPublicID(getQuakemlId(message.getSource(),</span>
+<span class="fc" id="L138">				message.getCode(), &quot;eventParameters&quot;,</span>
+<span class="fc" id="L139">				Long.toString(created.getTime())));</span>
+<span class="fc" id="L140">		quakeml.setEventParameters(eventParameters);</span>
+
+		// event container
+<span class="fc" id="L143">		Event event = null;</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">		if (message.isInternal()) {</span>
+			// add InternalEvent in anss namespace
+<span class="fc" id="L146">			event = new InternalEvent();</span>
+<span class="fc" id="L147">			eventParameters.getAnies().add(event);</span>
+		} else {
+			// add Event in quakeml namespace
+<span class="fc" id="L150">			event = new Event();</span>
+<span class="fc" id="L151">			eventParameters.getEvents().add(event);</span>
+		}
+<span class="fc" id="L153">		event.setPublicID(getQuakemlId(message.getSource(), message.getCode(),</span>
+				&quot;event&quot;, null));
+
+		// set catalog info
+<span class="fc" id="L157">		event.setDatasource(message.getSource());</span>
+<span class="fc" id="L158">		event.setEventsource(message.getSource());</span>
+<span class="fc" id="L159">		event.setEventid(message.getCode());</span>
+
+		// version and sent timestamp in event creation info
+<span class="fc" id="L162">		CreationInfo creationInfo = new CreationInfo();</span>
+<span class="fc" id="L163">		creationInfo.setAgencyID(message.getSource());</span>
+<span class="fc" id="L164">		creationInfo.setVersion(message.getVersion());</span>
+<span class="fc" id="L165">		creationInfo.setCreationTime(created);</span>
+<span class="fc" id="L166">		event.setCreationInfo(creationInfo);</span>
+
+		// update time comes from event parameters
+<span class="fc" id="L169">		creationInfo = new CreationInfo();</span>
+<span class="fc" id="L170">		creationInfo.setCreationTime(created);</span>
+<span class="fc" id="L171">		eventParameters.setCreationInfo(creationInfo);</span>
+
+		// mark quarry events
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">		if (message.isQuarry()) {</span>
+<span class="nc" id="L175">			event.setType(EventType.QUARRY_BLAST);</span>
+		} else {
+<span class="fc" id="L177">			event.setType(EventType.EARTHQUAKE);</span>
+		}
+
+		// origin container
+<span class="fc" id="L181">		Origin origin = new Origin();</span>
+<span class="fc" id="L182">		event.getOrigins().add(origin);</span>
+
+<span class="fc" id="L184">		origin.setPublicID(getQuakemlId(message.getSource(), message.getCode(),</span>
+				&quot;origin&quot;, null));
+
+		// preferred signals this is an &quot;origin&quot; type message instead of, for
+		// example, a moment-tensor derived origin
+<span class="fc" id="L189">		event.setPreferredOriginID(origin.getPublicID());</span>
+
+		// location method
+<span class="fc" id="L192">		origin.setMethodID(getQuakemlLocationMethod(message.getLocationMethod()));</span>
+
+		// origin time
+<span class="fc" id="L195">		TimeQuantity time = new TimeQuantity();</span>
+<span class="fc" id="L196">		time.setValue(message.getTime());</span>
+<span class="fc" id="L197">		origin.setTime(time);</span>
+
+		// origin latitude
+<span class="fc" id="L200">		RealQuantity latitude = new RealQuantity();</span>
+<span class="fc" id="L201">		latitude.setValue(message.getLatitude());</span>
+<span class="fc" id="L202">		origin.setLatitude(latitude);</span>
+
+		// origin longitude
+<span class="fc" id="L205">		RealQuantity longitude = new RealQuantity();</span>
+<span class="fc" id="L206">		longitude.setValue(message.getLongitude());</span>
+<span class="fc" id="L207">		origin.setLongitude(longitude);</span>
+
+		// origin depth
+<span class="fc" id="L210">		RealQuantity depth = new RealQuantity();</span>
+<span class="fc" id="L211">		depth.setValue(kilometersToMeters(message.getDepth()));</span>
+<span class="fc" id="L212">		origin.setDepth(depth);</span>
+
+		// vertical error
+<span class="fc" id="L215">		BigDecimal verticalError = message.getVerticalError();</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">		if (verticalError != null) {</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">			if (verticalError.compareTo(BigDecimal.ZERO) == 0) {</span>
+				// if vertical error 0, depth was fixed
+<span class="fc" id="L219">				origin.setDepthType(OriginDepthType.OPERATOR_ASSIGNED);</span>
+			} else {
+<span class="fc" id="L221">				depth.setUncertainty(kilometersToMeters(verticalError));</span>
+			}
+		}
+
+		// horizontal error
+<span class="fc" id="L226">		BigDecimal horizontalError = message.getHorizontalError();</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">		if (horizontalError != null) {</span>
+<span class="fc" id="L228">			OriginUncertainty originUncertainty = new OriginUncertainty();</span>
+<span class="fc" id="L229">			originUncertainty</span>
+<span class="fc" id="L230">					.setPreferredDescription(OriginUncertaintyDescription.HORIZONTAL_UNCERTAINTY);</span>
+<span class="fc" id="L231">			originUncertainty</span>
+<span class="fc" id="L232">					.setHorizontalUncertainty(kilometersToMeters(horizontalError));</span>
+<span class="fc" id="L233">			origin.setOriginUncertainty(originUncertainty);</span>
+		}
+
+<span class="fc" id="L236">		OriginQuality originQuality = new OriginQuality();</span>
+<span class="fc" id="L237">		origin.setQuality(originQuality);</span>
+
+		// num stations for location
+<span class="fc" id="L240">		originQuality.setUsedStationCount(message.getNumLocationStations());</span>
+
+		// num phases for location
+<span class="fc" id="L243">		originQuality.setUsedPhaseCount(message.getNumLocationPhases());</span>
+
+		// azimuthal gap
+<span class="fc" id="L246">		originQuality.setAzimuthalGap(message.getAzimuthalGap());</span>
+
+		// distance to first station
+<span class="fc" id="L249">		originQuality</span>
+<span class="fc" id="L250">				.setMinimumDistance(message.getMinStationDistanceDegrees());</span>
+
+		// rms time error (standard error)
+<span class="fc" id="L253">		originQuality.setStandardError(message.getRmsTimeError());</span>
+
+		// only add magnitude if message has magnitude
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">		if (message.getMagnitudeType() != null</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">				|| message.getMagnitude() != null</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">				|| message.getMagnitudeError() != null</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">				|| message.getNumMagnitudeStations() != null) {</span>
+<span class="fc" id="L260">			Magnitude magnitude = new Magnitude();</span>
+<span class="fc" id="L261">			event.getMagnitudes().add(magnitude);</span>
+
+			// append magnitude type on extended id, in case agency generates
+			// multiple types
+<span class="fc" id="L265">			String magnitudeExtendedId = null;</span>
+<span class="fc" id="L266">			MagnitudeType magnitudeType = CubeMessage.getMagnitudeType(message</span>
+<span class="fc" id="L267">					.getMagnitudeType());</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">			if (magnitudeType != null) {</span>
+<span class="fc" id="L269">				magnitudeExtendedId = magnitudeType.getAbbreviation();</span>
+				// also set plain text type
+<span class="fc" id="L271">				magnitude.setType(magnitudeType.getAbbreviation());</span>
+			}
+<span class="fc" id="L273">			magnitude.setPublicID(getQuakemlId(message.getSource(),</span>
+<span class="fc" id="L274">					message.getCode(), &quot;magnitude&quot;, magnitudeExtendedId));</span>
+
+			// tie to the origin
+<span class="fc" id="L277">			magnitude.setOriginID(origin.getPublicID());</span>
+
+			// num stations for magnitude
+<span class="fc" id="L280">			magnitude.setStationCount(message.getNumMagnitudeStations());</span>
+
+			// magnitude type
+<span class="fc" id="L283">			magnitude.setMethodID(getQuakemlMagnitudeType(message</span>
+<span class="fc" id="L284">					.getMagnitudeType()));</span>
+
+			// preferred signals this is the magnitude to use for the &quot;origin&quot;
+			// type
+			// message instead of, for example, a moment-tensor derived
+			// magnitude
+<span class="fc" id="L290">			event.setPreferredMagnitudeID(magnitude.getPublicID());</span>
+
+			// magnitude value
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">			if (message.getMagnitude() != null</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">					|| message.getMagnitudeError() != null) {</span>
+<span class="fc" id="L295">				RealQuantity mag = new RealQuantity();</span>
+<span class="fc" id="L296">				mag.setValue(message.getMagnitude());</span>
+
+				// magnitude error
+<span class="fc" id="L299">				mag.setUncertainty(message.getMagnitudeError());</span>
+<span class="fc" id="L300">				magnitude.setMag(mag);</span>
+			}
+		}
+
+		// review status
+<span class="fc bfc" id="L305" title="All 2 branches covered.">		if (message.isReviewed()) {</span>
+<span class="fc" id="L306">			origin.setEvaluationMode(EvaluationMode.MANUAL);</span>
+		} else {
+<span class="fc" id="L308">			origin.setEvaluationMode(EvaluationMode.AUTOMATIC);</span>
+		}
+
+<span class="fc" id="L311">		return quakeml;</span>
+	}
+
+	/**
+	 * Get a Quakeml LocationMethod string from a Cube Location Method.
+	 * 
+	 * @param locationMethod
+	 * @return locationMethod as a quakeml public id.
+	 */
+	private String getQuakemlLocationMethod(String locationMethod) {
+<span class="pc bpc" id="L321" title="1 of 4 branches missed.">		if (locationMethod == null || locationMethod.trim().equals(&quot;&quot;)) {</span>
+<span class="fc" id="L322">			return null;</span>
+		}
+<span class="fc" id="L324">		return CUBE_LOCATION_METHOD_PUBLICID_PREFIX + locationMethod;</span>
+	}
+
+	/**
+	 * Get a Quakeml MagnitudeType string from a Cube Magnitude Type.
+	 * 
+	 * @param magnitudeType
+	 * @return magnitude type as a quakeml public id.
+	 */
+	private String getQuakemlMagnitudeType(String magnitudeType) {
+<span class="pc bpc" id="L334" title="2 of 4 branches missed.">		if (magnitudeType == null || magnitudeType.trim().equals(&quot;&quot;)) {</span>
+<span class="nc" id="L335">			return null;</span>
+		}
+<span class="fc" id="L337">		return CUBE_MAGNITUDE_TYPE_PUBLICID_PREFIX + magnitudeType;</span>
+	}
+
+	/**
+	 * Get a QuakeML publicID attribute.
+	 * 
+	 * @param dataSource
+	 * @param eventId
+	 * @param type
+	 * @param other
+	 * @return quakeml public id containing parameters.
+	 * @throws Exception
+	 */
+	private String getQuakemlId(final String dataSource, final String eventId,
+			final String type, final String other) throws Exception {
+<span class="fc" id="L352">		return new QuakemlPublicId(dataSource.toLowerCase(), type,</span>
+<span class="fc" id="L353">				eventId.toLowerCase(), other).getPublicId();</span>
+	}
+
+	/**
+	 * Convert kilometers to meters by multiplying by 1000.
+	 * 
+	 * @param kilometers
+	 * @return null if kilometers is null, or a meters equivalent of kilometers.
+	 */
+	private BigDecimal kilometersToMeters(final BigDecimal kilometers) {
+<span class="pc bpc" id="L363" title="1 of 2 branches missed.">		if (kilometers == null) {</span>
+<span class="nc" id="L364">			return null;</span>
+		}
+<span class="fc" id="L366">		BigDecimal meters = kilometers.multiply(new BigDecimal(&quot;1000&quot;));</span>
+		// cube format doesn't offer this precision, so don't imply it...
+<span class="fc" id="L368">		return meters.stripTrailingZeros();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuakemlToCubeConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.event</a> &gt; <span class="el_source">QuakemlToCubeConverter.java</span></div><h1>QuakemlToCubeConverter.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.event;
+
+import gov.usgs.earthquake.cube.CubeDelete;
+import gov.usgs.earthquake.cube.CubeEvent;
+import gov.usgs.earthquake.cube.CubeMessage;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+
+import org.quakeml_1_2.Comment;
+import org.quakeml_1_2.CreationInfo;
+import org.quakeml_1_2.EvaluationMode;
+import org.quakeml_1_2.Event;
+import org.quakeml_1_2.EventType;
+import org.quakeml_1_2.InternalEvent;
+import org.quakeml_1_2.Magnitude;
+import org.quakeml_1_2.Origin;
+import org.quakeml_1_2.OriginDepthType;
+import org.quakeml_1_2.OriginQuality;
+import org.quakeml_1_2.OriginUncertainty;
+import org.quakeml_1_2.Quakeml;
+import org.quakeml_1_2.EventParameters;
+import org.quakeml_1_2.RealQuantity;
+import org.quakeml_1_2.TimeQuantity;
+
+import java.util.logging.Logger;
+
+/**
+ * Convert from Quakeml to CubeMessage
+ * 
+ * @author jmfee
+ */
+<span class="fc" id="L37">public class QuakemlToCubeConverter {</span>
+
+	/** Logging object. */
+<span class="fc" id="L40">	private static final Logger LOGGER = Logger</span>
+<span class="fc" id="L41">			.getLogger(QuakemlToCubeConverter.class.getName());</span>
+
+	/**
+	 * Convert a Quakeml object to a CubeMessage object.
+	 * 
+	 * @param message
+	 *            the quakeml message.
+	 * @return CubeMessage representation of Quakeml.
+	 * @throws Exception
+	 */
+	public CubeMessage convertQuakeml(final Quakeml message) throws Exception {
+<span class="fc" id="L52">		EventParameters eventParameters = message.getEventParameters();</span>
+
+<span class="fc" id="L54">		List&lt;Event&gt; events = eventParameters.getEvents();</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">		if (events.size() == 0) {</span>
+<span class="nc" id="L56">			events = new ArrayList&lt;Event&gt;();</span>
+
+			// no events found, check for internalEvents
+<span class="nc" id="L59">			List&lt;Object&gt; anies = eventParameters.getAnies();</span>
+<span class="nc" id="L60">			Iterator&lt;Object&gt; anyIter = anies.iterator();</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">			while (anyIter.hasNext()) {</span>
+<span class="nc" id="L62">				Object object = anyIter.next();</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">				if (object instanceof InternalEvent) {</span>
+					// found internal event
+<span class="nc" id="L65">					events.add((InternalEvent) object);</span>
+					// done
+<span class="nc" id="L67">					break;</span>
+				}
+<span class="nc" id="L69">			}</span>
+		}
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">		if (events.size() &gt; 0) {</span>
+<span class="fc" id="L73">			Event event = events.get(0);</span>
+<span class="fc" id="L74">			EventType eventType = event.getType();</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">			if (eventType == EventType.NOT_EXISTING) {</span>
+<span class="fc" id="L76">				return convertQuakemlDeleteMessage(message, event, eventParameters);</span>
+			} else {
+<span class="fc" id="L78">				CubeEvent cubeEvent = convertQuakemlEventMessage(message, event, eventParameters);</span>
+<span class="pc bpc" id="L79" title="2 of 4 branches missed.">				if (cubeEvent != null &amp;&amp; event instanceof InternalEvent) {</span>
+<span class="nc" id="L80">					cubeEvent.setInternal(true);</span>
+				}
+<span class="fc" id="L82">				return cubeEvent;</span>
+			}
+		}
+		// no events to convert
+<span class="nc" id="L86">		return null;</span>
+	}
+
+	/**
+	 * Convert a quakeml event with EventType.NOT_EXISTING to a CubeDelete.
+	 * 
+	 * @param message
+	 *            the quakeml message
+	 * @param event
+	 *            the event to convert.
+	 * @return CubeDelete representation of Quakeml event.
+	 * @throws Exception
+	 */
+	public CubeDelete convertQuakemlDeleteMessage(Quakeml message, Event event,
+			EventParameters eventParameters) throws Exception {
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">		if (event.getType() != EventType.NOT_EXISTING) {</span>
+			// not a delete message
+<span class="nc" id="L103">			return null;</span>
+		}
+
+		// read catalog info
+<span class="pc bpc" id="L107" title="2 of 4 branches missed.">		if (event.getEventsource() == null || event.getEventid() == null) {</span>
+			// without an eventid, it cannot be represented as cube
+<span class="nc" id="L109">			return null;</span>
+		}
+
+<span class="fc" id="L112">		CubeDelete cubeDelete = new CubeDelete();</span>
+<span class="fc" id="L113">		cubeDelete.setSource(event.getEventsource());</span>
+<span class="fc" id="L114">		cubeDelete.setCode(event.getEventid());</span>
+
+		// read version and sent timestamp from event creation info
+<span class="fc" id="L117">		CreationInfo creationInfo = event.getCreationInfo();</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">		if (creationInfo != null) {</span>
+<span class="fc" id="L119">			cubeDelete.setVersion(creationInfo.getVersion());</span>
+		}
+
+<span class="fc" id="L122">		creationInfo = eventParameters.getCreationInfo();</span>
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">		if (creationInfo != null) {</span>
+<span class="fc" id="L124">			cubeDelete.setSent(creationInfo.getCreationTime());</span>
+		}
+
+		try {
+<span class="fc" id="L128">			Comment deleteComment = event.getComments().get(0);</span>
+<span class="fc" id="L129">			cubeDelete.setMessage(deleteComment.getText());</span>
+<span class="nc" id="L130">		} catch (Exception e) {</span>
+			// ignore
+<span class="fc" id="L132">		}</span>
+
+<span class="fc" id="L134">		return cubeDelete;</span>
+	}
+
+	/**
+	 * Convert a Quakeml event to a CubeEvent.
+	 * 
+	 * @param message
+	 *            the quakeml message.
+	 * @param event
+	 *            the event to convert.
+	 * @return CubeEvent representation of Quakeml event.
+	 * @throws Exception
+	 */
+	public CubeEvent convertQuakemlEventMessage(Quakeml message, Event event,
+			EventParameters eventParameters) throws Exception {
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">		if (event.getType() == EventType.NOT_EXISTING) {</span>
+			// not a event
+<span class="nc" id="L151">			return null;</span>
+		}
+
+		// read catalog info
+<span class="pc bpc" id="L155" title="2 of 4 branches missed.">		if (event.getEventsource() == null || event.getEventid() == null) {</span>
+			// without an eventid, it cannot be represented as cube
+<span class="nc" id="L157">			return null;</span>
+		}
+
+<span class="fc" id="L160">		CubeEvent cubeEvent = new CubeEvent();</span>
+<span class="fc" id="L161">		cubeEvent.setSource(event.getEventsource());</span>
+<span class="fc" id="L162">		cubeEvent.setCode(event.getEventid());</span>
+
+		// mark quarry blast events
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">		if (event.getType() == EventType.QUARRY_BLAST) {</span>
+<span class="nc" id="L166">			cubeEvent.setQuarry(true);</span>
+		}
+
+		// read version and sent timestamp from event creation info
+<span class="fc" id="L170">		CreationInfo creationInfo = event.getCreationInfo();</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">		if (creationInfo != null) {</span>
+<span class="fc" id="L172">			cubeEvent.setVersion(creationInfo.getVersion());</span>
+		}
+
+<span class="fc" id="L175">		creationInfo = eventParameters.getCreationInfo();</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">		if (creationInfo != null) {</span>
+<span class="fc" id="L177">			cubeEvent.setSent(creationInfo.getCreationTime());</span>
+		}
+
+<span class="fc" id="L180">		String preferredOriginID = event.getPreferredOriginID();</span>
+<span class="fc" id="L181">		String preferredMagnitudeID = event.getPreferredMagnitudeID();</span>
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">		if (preferredOriginID == null) {</span>
+			// &quot;origin&quot; type messages include a preferred origin id, this
+			// message doesn't have a cube equivalent
+<span class="nc" id="L185">			return null;</span>
+		}
+
+<span class="fc" id="L188">		Origin origin = findOrigin(event.getOrigins(), preferredOriginID);</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">		if (origin == null) {</span>
+			// the preferred information is not in this message, cannot
+			// translate
+<span class="nc" id="L192">			return null;</span>
+		}
+
+		// time
+<span class="fc" id="L196">		TimeQuantity time = origin.getTime();</span>
+<span class="fc" id="L197">		cubeEvent.setTime(time.getValue());</span>
+
+		// latitude
+<span class="fc" id="L200">		RealQuantity latitude = origin.getLatitude();</span>
+<span class="fc" id="L201">		cubeEvent.setLatitude(latitude.getValue());</span>
+
+		// longitude
+<span class="fc" id="L204">		RealQuantity longitude = origin.getLongitude();</span>
+<span class="fc" id="L205">		cubeEvent.setLongitude(longitude.getValue());</span>
+
+		// depth
+<span class="fc" id="L208">		RealQuantity depth = origin.getDepth();</span>
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">		if (depth != null) {</span>
+<span class="fc" id="L210">			cubeEvent.setDepth(depth.getValue().divide(</span>
+					CubeToQuakemlConverter.METERS_PER_KILOMETER));
+			// vertical uncertainty
+<span class="fc" id="L213">			BigDecimal verticalError = depth.getUncertainty();</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">			if (verticalError != null) {</span>
+<span class="fc" id="L215">				cubeEvent.setVerticalError(verticalError</span>
+<span class="fc" id="L216">						.divide(CubeToQuakemlConverter.METERS_PER_KILOMETER));</span>
+			}
+		}
+
+<span class="fc bfc" id="L220" title="All 2 branches covered.">		if (origin.getDepthType() == OriginDepthType.OPERATOR_ASSIGNED) {</span>
+			// operator might assign uncertainty?
+<span class="fc" id="L222">			cubeEvent.setVerticalError(BigDecimal.ZERO);</span>
+		}
+
+		// horizontal uncertainty
+<span class="fc" id="L226">		OriginUncertainty originUncertainty = origin.getOriginUncertainty();</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">		if (originUncertainty != null &amp;&amp;</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">				originUncertainty.getHorizontalUncertainty() != null) {</span>
+<span class="fc" id="L229">			cubeEvent.setHorizontalError(originUncertainty</span>
+<span class="fc" id="L230">					.getHorizontalUncertainty().divide(</span>
+							CubeToQuakemlConverter.METERS_PER_KILOMETER));
+		}
+
+<span class="fc" id="L234">		OriginQuality originQuality = origin.getQuality();</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">		if (originQuality != null) {</span>
+			// num stations used
+<span class="fc" id="L237">			BigInteger usedStations = originQuality.getUsedStationCount();</span>
+<span class="fc" id="L238">			cubeEvent.setNumLocationStations(usedStations);</span>
+
+			// num phases used
+<span class="fc" id="L241">			BigInteger usedPhases = originQuality.getUsedPhaseCount();</span>
+<span class="fc" id="L242">			cubeEvent.setNumLocationPhases(usedPhases);</span>
+
+			// azimuthal gap
+<span class="fc" id="L245">			cubeEvent.setAzimuthalGap(originQuality.getAzimuthalGap());</span>
+
+			// min station distance
+<span class="fc" id="L248">			cubeEvent.setMinStationDistanceDegrees(originQuality</span>
+<span class="fc" id="L249">					.getMinimumDistance());</span>
+
+			// rms time error (standard error)
+<span class="fc" id="L252">			cubeEvent.setRmsTimeError(originQuality.getStandardError());</span>
+		}
+
+		// location method
+<span class="fc" id="L256">		String locationMethod = getCubeLocationMethod(origin.getMethodID());</span>
+<span class="fc" id="L257">		cubeEvent.setLocationMethod(locationMethod);</span>
+
+		// determine review status
+<span class="fc" id="L260">		EvaluationMode originEvaluationMode = origin.getEvaluationMode();</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">		if (originEvaluationMode == EvaluationMode.MANUAL) {</span>
+<span class="fc" id="L262">			cubeEvent.setReviewed(true);</span>
+		} else {
+<span class="fc" id="L264">			cubeEvent.setReviewed(false);</span>
+		}
+
+<span class="fc" id="L267">		Magnitude magnitude = findMagnitude(event.getMagnitudes(),</span>
+				preferredMagnitudeID);
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">		if (magnitude != null) {</span>
+			// magnitude type
+<span class="fc" id="L271">			String magnitudeType = getCubeMagnitudeType(magnitude.getMethodID());</span>
+<span class="pc bpc" id="L272" title="2 of 4 branches missed.">			if (magnitudeType != null &amp;&amp; magnitudeType.length() == 1) {</span>
+<span class="fc" id="L273">				cubeEvent.setMagnitudeType(magnitudeType);</span>
+			} else {
+				// check this first?
+<span class="nc" id="L276">				magnitudeType = getCubeMagnitudeType(magnitude.getType());</span>
+<span class="nc bnc" id="L277" title="All 4 branches missed.">				if (magnitudeType != null &amp;&amp; magnitudeType.length() == 1) {</span>
+<span class="nc" id="L278">					cubeEvent.setMagnitudeType(magnitudeType);</span>
+				}
+			}
+
+<span class="fc" id="L282">			RealQuantity mag = magnitude.getMag();</span>
+<span class="pc bpc" id="L283" title="1 of 2 branches missed.">			if (mag != null) {</span>
+				// magnitude
+<span class="fc" id="L285">				cubeEvent.setMagnitude(mag.getValue());</span>
+
+				// magnitude error
+<span class="fc" id="L288">				cubeEvent.setMagnitudeError(mag.getUncertainty());</span>
+			}
+
+			// magnitude num stations
+<span class="fc" id="L292">			cubeEvent.setNumMagnitudeStations(magnitude.getStationCount());</span>
+		}
+
+<span class="fc" id="L295">		return cubeEvent;</span>
+	}
+
+	/**
+	 * Search a list of origins for a specific origin.
+	 * 
+	 * @param origins
+	 * @param publicID
+	 * @return origin with matching public ID, or null if not found.
+	 */
+	public static Origin findOrigin(final List&lt;Origin&gt; origins,
+			final String publicID) {
+<span class="fc" id="L307">		Iterator&lt;Origin&gt; iter = origins.iterator();</span>
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">		while (iter.hasNext()) {</span>
+<span class="fc" id="L309">			Origin origin = iter.next();</span>
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">			if (origin.getPublicID().equals(publicID)) {</span>
+<span class="fc" id="L311">				return origin;</span>
+			}
+<span class="nc" id="L313">		}</span>
+<span class="nc" id="L314">		return null;</span>
+	}
+
+	/**
+	 * Search a list of magnitudes for a specific magnitude.
+	 * 
+	 * @param magnitudes
+	 * @param publicID
+	 * @return magnitude with matching public ID, or null if not found.
+	 */
+	public static Magnitude findMagnitude(final List&lt;Magnitude&gt; magnitudes,
+			final String publicID) {
+<span class="fc" id="L326">		Iterator&lt;Magnitude&gt; iter = magnitudes.iterator();</span>
+<span class="pc bpc" id="L327" title="1 of 2 branches missed.">		while (iter.hasNext()) {</span>
+<span class="fc" id="L328">			Magnitude magnitude = iter.next();</span>
+<span class="pc bpc" id="L329" title="1 of 2 branches missed.">			if (magnitude.getPublicID().equals(publicID)) {</span>
+<span class="fc" id="L330">				return magnitude;</span>
+			}
+<span class="nc" id="L332">		}</span>
+<span class="nc" id="L333">		return null;</span>
+	}
+
+	/**
+	 * Get a Cube LocationMethod string from a Quakeml Location Method.
+	 * 
+	 * @param locationMethod
+	 * @return locationMethod, currently same as input.
+	 */
+	private String getCubeLocationMethod(String locationMethod) {
+<span class="pc bpc" id="L343" title="1 of 4 branches missed.">		if (locationMethod == null || locationMethod.trim().equals(&quot;&quot;)) {</span>
+<span class="fc" id="L344">			return null;</span>
+<span class="fc" id="L345">		} else if (locationMethod</span>
+<span class="pc bpc" id="L346" title="1 of 2 branches missed.">				.startsWith(CubeToQuakemlConverter.CUBE_LOCATION_METHOD_PUBLICID_PREFIX)) {</span>
+<span class="fc" id="L347">			return locationMethod</span>
+<span class="fc" id="L348">					.replace(</span>
+							CubeToQuakemlConverter.CUBE_LOCATION_METHOD_PUBLICID_PREFIX,
+							&quot;&quot;);
+		}
+
+		// unknown
+<span class="nc" id="L354">		return locationMethod;</span>
+	}
+
+	/**
+	 * Get a Cube MagnitudeType string from a Quakeml Magnitude Type.
+	 * 
+	 * @param magnitudeType
+	 * @return magnitude type abbreviation.
+	 */
+	private String getCubeMagnitudeType(String magnitudeType) {
+<span class="pc bpc" id="L364" title="2 of 4 branches missed.">		if (magnitudeType == null || magnitudeType.trim().equals(&quot;&quot;)) {</span>
+<span class="nc" id="L365">			return null;</span>
+<span class="fc" id="L366">		} else if (magnitudeType</span>
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">				.startsWith(CubeToQuakemlConverter.CUBE_MAGNITUDE_TYPE_PUBLICID_PREFIX)) {</span>
+<span class="fc" id="L368">			return magnitudeType.replace(</span>
+					CubeToQuakemlConverter.CUBE_MAGNITUDE_TYPE_PUBLICID_PREFIX,
+					&quot;&quot;);
+		}
+
+		// try to interpret as magnitude abbreviation
+		try {
+<span class="nc" id="L375">			MagnitudeType type = MagnitudeType.valueOf(magnitudeType</span>
+<span class="nc" id="L376">					.toUpperCase());</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">			if (type != null) {</span>
+<span class="nc" id="L378">				return CubeMessage.getCubeCode(type);</span>
+			}
+<span class="nc" id="L380">		} catch (Exception e) {</span>
+<span class="nc" id="L381">			LOGGER.log(Level.WARNING, &quot;unexpected magnitude type '&quot;</span>
+					+ magnitudeType + &quot;'&quot;, e);
+<span class="nc" id="L383">		}</span>
+
+		// unknown
+<span class="nc" id="L386">		return magnitudeType;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

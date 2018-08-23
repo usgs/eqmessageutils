@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RawMechanismConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.focalmechanism</a> &gt; <span class="el_source">RawMechanismConverter.java</span></div><h1>RawMechanismConverter.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.focalmechanism;
+
+import java.util.Date;
+
+import java.util.ArrayList;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import gov.usgs.earthquake.quakeml.*;
+
+import org.quakeml_1_2.CreationInfo;
+import org.quakeml_1_2.Event;
+import org.quakeml_1_2.EventParameters;
+import org.quakeml_1_2.EventType;
+import org.quakeml_1_2.FocalMechanism;
+import org.quakeml_1_2.MomentTensor;
+import org.quakeml_1_2.NodalPlane;
+import org.quakeml_1_2.NodalPlanes;
+import org.quakeml_1_2.Origin;
+import org.quakeml_1_2.OriginQuality;
+import org.quakeml_1_2.Magnitude;
+import org.quakeml_1_2.Tensor;
+import org.quakeml_1_2.Quakeml;
+import org.quakeml_1_2.DataUsed;
+import org.quakeml_1_2.DataUsedWaveType;
+import org.quakeml_1_2.PrincipalAxes;
+import org.quakeml_1_2.Axis;
+import org.quakeml_1_2.RealQuantity;
+import org.quakeml_1_2.TimeQuantity;
+import org.quakeml_1_2.SourceTimeFunction;
+import org.quakeml_1_2.SourceTimeFunctionType;
+
+<span class="fc" id="L35">public abstract class RawMechanismConverter{</span>
+<span class="fc" id="L36">	protected Boolean debug = false;</span>
+	protected Date eventTime;
+<span class="fc" id="L38">	protected BigDecimal eventLatitude = null;</span>
+<span class="fc" id="L39">	protected BigDecimal eventLongitude = null;</span>
+<span class="fc" id="L40">	protected ArrayList&lt;BigDecimal&gt; eventMagnitudes = null;</span>
+<span class="fc" id="L41">	protected String eventLocation = null;</span>
+<span class="fc" id="L42">	protected BigDecimal eventDepth = null;</span>
+<span class="fc" id="L43">	protected String eventSource = null;</span>
+<span class="fc" id="L44">	protected String mechanismSource = null;</span>
+<span class="fc" id="L45">	protected String eventID = null;</span>
+<span class="fc" id="L46">	protected String momentTensorType = null;</span>
+<span class="fc" id="L47">	protected BigInteger numStations = null;</span>
+<span class="fc" id="L48">	protected BigDecimal shortestPeriodUsed = null;</span>
+<span class="fc" id="L49">	protected BigInteger numComponents = null;</span>
+	
+<span class="fc" id="L51">	protected Boolean derivedEpicenterFixed = false;</span>
+<span class="fc" id="L52">	protected Boolean derivedTimeFixed = false;</span>
+
+<span class="fc" id="L54">	protected BigInteger BodyWaveStations = null;</span>
+<span class="fc" id="L55">	protected BigInteger BodyWaveComponents = null;</span>
+<span class="fc" id="L56">	protected BigDecimal BodyWaveShortestPeriod = null;</span>
+
+<span class="fc" id="L58">	protected BigInteger SurfaceWaveStations = null;</span>
+<span class="fc" id="L59">	protected BigInteger SurfaceWaveComponents = null;</span>
+<span class="fc" id="L60">	protected BigDecimal SurfaceWaveShortestPeriod = null;</span>
+
+<span class="fc" id="L62">	protected BigInteger MantleWaveStations = null;</span>
+<span class="fc" id="L63">	protected BigInteger MantleWaveComponents = null;</span>
+<span class="fc" id="L64">	protected BigDecimal MantleWaveShortestPeriod = null;</span>
+
+<span class="fc" id="L66">	protected String sourceInversionType = null;</span>
+
+<span class="fc" id="L68">	protected String momentRateFunction = null;</span>
+<span class="fc" id="L69">	protected BigDecimal momentRateFunctionDuration = null;</span>
+	protected Date derivedEventTime;
+<span class="fc" id="L71">	protected BigDecimal derivedEventLatitude = null;</span>
+<span class="fc" id="L72">	protected BigDecimal derivedEventLongitude = null;</span>
+<span class="fc" id="L73">	protected BigDecimal derivedEventDepth = null;</span>
+<span class="fc" id="L74">	protected BigDecimal derivedEventTimeError = null; //seconds</span>
+<span class="fc" id="L75">	protected BigDecimal derivedEventLatitudeError = null;</span>
+<span class="fc" id="L76">	protected BigDecimal derivedEventLongitudeError = null;</span>
+<span class="fc" id="L77">	protected BigDecimal derivedEventDepthError = null;</span>
+<span class="fc" id="L78">	protected String derivedDepthType = null;</span>
+	//Calendar analysisTime = null;
+
+<span class="fc" id="L81">	protected BigDecimal tensorMrr = null;</span>
+<span class="fc" id="L82">	protected BigDecimal tensorMtt = null;</span>
+<span class="fc" id="L83">	protected BigDecimal tensorMpp = null;</span>
+<span class="fc" id="L84">	protected BigDecimal tensorMrt = null;</span>
+<span class="fc" id="L85">	protected BigDecimal tensorMrp = null;</span>
+<span class="fc" id="L86">	protected BigDecimal tensorMtp = null;</span>
+
+<span class="fc" id="L88">	protected BigDecimal tensorMrrError = null;</span>
+<span class="fc" id="L89">	protected BigDecimal tensorMttError = null;</span>
+<span class="fc" id="L90">	protected BigDecimal tensorMppError = null;</span>
+<span class="fc" id="L91">	protected BigDecimal tensorMrtError = null;</span>
+<span class="fc" id="L92">	protected BigDecimal tensorMrpError = null;</span>
+<span class="fc" id="L93">	protected BigDecimal tensorMtpError = null;</span>
+
+<span class="fc" id="L95">	protected BigDecimal eigenVectorValues[] = {null,null,null};</span>
+<span class="fc" id="L96">	protected BigDecimal eigenVectorPlunges[] = {null,null,null};</span>
+<span class="fc" id="L97">	protected BigDecimal eigenVectorAzimuths[] = {null,null,null};</span>
+
+<span class="fc" id="L99">	protected BigDecimal scalarMoment = null; //Newton-meters</span>
+
+<span class="fc" id="L101">	protected BigDecimal nodalPlane1Strike = null;</span>
+<span class="fc" id="L102">	protected BigDecimal nodalPlane1Dip = null;</span>
+<span class="fc" id="L103">	protected BigDecimal nodalPlane1Slip = null;</span>
+
+<span class="fc" id="L105">	protected BigDecimal nodalPlane2Strike = null;</span>
+<span class="fc" id="L106">	protected BigDecimal nodalPlane2Dip = null;</span>
+<span class="fc" id="L107">	protected BigDecimal nodalPlane2Slip = null;</span>
+
+<span class="fc" id="L109">	protected BigDecimal percentDoubleCouple = null;</span>
+
+<span class="fc" id="L111">	protected String programVersion = null;</span>
+
+
+	public static double calculateMomentMagnitude(double scalarMoment){
+		//N m constant is 9.1
+<span class="fc" id="L116">		double mw = (2.0/3.0)*(Math.log10(scalarMoment) - 9.1);</span>
+<span class="fc" id="L117">		return mw;</span>
+	}
+	public BigDecimal getMomentMagnitude(){
+<span class="fc" id="L120">		return (new BigDecimal(calculateMomentMagnitude(scalarMoment.doubleValue())));        </span>
+	}
+<span class="fc" id="L122">	public Date getEventTime(){return eventTime;}</span>
+<span class="fc" id="L123">	public BigDecimal getEventLatitude(){return eventLatitude;}</span>
+<span class="fc" id="L124">	public BigDecimal getEventLongitude(){return eventLongitude;}</span>
+<span class="fc" id="L125">	public BigDecimal getEventDepth(){return eventDepth;}</span>
+<span class="nc" id="L126">	public ArrayList&lt;BigDecimal&gt; getEventMagnitudes(){return eventMagnitudes;}</span>
+<span class="fc" id="L127">	public String getEventSource(){return eventSource;}</span>
+<span class="fc" id="L128">	public String getMechanismSource(){return mechanismSource;}</span>
+<span class="fc" id="L129">	public String getEventID(){return eventID;}</span>
+<span class="fc" id="L130">	public String getMomentTensorType(){return momentTensorType;}</span>
+<span class="fc" id="L131">	public BigInteger getNumStations(){return numStations;}</span>
+<span class="nc" id="L132">	public BigInteger getNumComponents(){return numComponents;}</span>
+<span class="nc" id="L133">	public BigDecimal getShortestPeriodUsed(){return shortestPeriodUsed;}</span>
+
+<span class="fc" id="L135">	public BigInteger getBodyWaveStations(){return BodyWaveStations;}</span>
+<span class="fc" id="L136">	public BigInteger getBodyWaveComponents(){return BodyWaveComponents;}</span>
+<span class="fc" id="L137">	public BigDecimal getBodyWaveShortestPeriod(){return BodyWaveShortestPeriod;}</span>
+
+<span class="fc" id="L139">	public BigInteger getSurfaceWaveStations(){return SurfaceWaveStations;}</span>
+<span class="fc" id="L140">	public BigInteger getSurfaceWaveComponents(){return SurfaceWaveComponents;}</span>
+<span class="fc" id="L141">	public BigDecimal getSurfaceWaveShortestPeriod(){return SurfaceWaveShortestPeriod;}</span>
+
+<span class="fc" id="L143">	public BigInteger getMantleWaveStations(){return MantleWaveStations;}</span>
+<span class="fc" id="L144">	public BigInteger getMantleWaveComponents(){return MantleWaveComponents;}</span>
+<span class="fc" id="L145">	public BigDecimal getMantleWaveShortestPeriod(){return MantleWaveShortestPeriod;}</span>
+
+<span class="fc" id="L147">	public String getMomentRateFunction(){return momentRateFunction;}</span>
+<span class="fc" id="L148">	public BigDecimal getMomentRateFunctionDuration(){return momentRateFunctionDuration;}</span>
+<span class="fc" id="L149">	public Date getDerivedEventTime(){return derivedEventTime;}</span>
+<span class="fc" id="L150">	public BigDecimal getDerivedEventLatitude(){return derivedEventLatitude;}</span>
+<span class="fc" id="L151">	public BigDecimal getDerivedEventLongitude(){return derivedEventLongitude;}</span>
+<span class="fc" id="L152">	public BigDecimal getDerivedEventDepth(){return derivedEventDepth;}</span>
+
+<span class="nc" id="L154">	public BigDecimal getDerivedEventTimeError(){return derivedEventTimeError;}</span>
+<span class="nc" id="L155">	public BigDecimal getDerivedEventLatitudeError(){return derivedEventLatitudeError;}</span>
+<span class="nc" id="L156">	public BigDecimal getDerivedEventLongitudeError(){return derivedEventLongitudeError;}</span>
+<span class="nc" id="L157">	public BigDecimal getDerivedEventDepthError(){return derivedEventDepthError;}</span>
+
+<span class="nc" id="L159">	public String getDerivedDepthType(){return derivedDepthType;}</span>
+
+<span class="fc" id="L161">	public Boolean getDerivedTimeFixed(){return derivedTimeFixed;}</span>
+<span class="fc" id="L162">	public Boolean getDerivedEpicenterFixed(){return derivedEpicenterFixed;}</span>
+
+<span class="fc" id="L164">	public BigDecimal getTensorMrr(){return tensorMrr;}</span>
+<span class="fc" id="L165">	public BigDecimal getTensorMtt(){return tensorMtt;}</span>
+<span class="fc" id="L166">	public BigDecimal getTensorMpp(){return tensorMpp;}</span>
+<span class="fc" id="L167">	public BigDecimal getTensorMrt(){return tensorMrt;}</span>
+<span class="fc" id="L168">	public BigDecimal getTensorMrp(){return tensorMrp;}</span>
+<span class="fc" id="L169">	public BigDecimal getTensorMtp(){return tensorMtp;}</span>
+
+<span class="fc" id="L171">	public BigDecimal getTensorMrrError(){return tensorMrrError;}</span>
+<span class="fc" id="L172">	public BigDecimal getTensorMttError(){return tensorMttError;}</span>
+<span class="fc" id="L173">	public BigDecimal getTensorMppError(){return tensorMppError;}</span>
+<span class="fc" id="L174">	public BigDecimal getTensorMrtError(){return tensorMrtError;}</span>
+<span class="fc" id="L175">	public BigDecimal getTensorMrpError(){return tensorMrpError;}</span>
+<span class="fc" id="L176">	public BigDecimal getTensorMtpError(){return tensorMtpError;}</span>
+
+<span class="fc" id="L178">	public BigDecimal[] getEigenVectorValues(){return eigenVectorValues;}</span>
+<span class="fc" id="L179">	public BigDecimal[] getEigenVectorPlunges(){return eigenVectorPlunges;}</span>
+<span class="fc" id="L180">	public BigDecimal[] getEigenVectorAzimuths(){return eigenVectorAzimuths;}</span>
+
+<span class="fc" id="L182">	public BigDecimal getScalarMoment(){return scalarMoment;}</span>
+
+<span class="fc" id="L184">	public BigDecimal getNodalPlane1Strike(){return nodalPlane1Strike;}</span>
+<span class="fc" id="L185">	public BigDecimal getNodalPlane1Dip(){return nodalPlane1Dip;}</span>
+<span class="fc" id="L186">	public BigDecimal getNodalPlane1Slip(){return nodalPlane1Slip;}</span>
+
+<span class="fc" id="L188">	public BigDecimal getNodalPlane2Strike(){return nodalPlane2Strike;}</span>
+<span class="fc" id="L189">	public BigDecimal getNodalPlane2Dip(){return nodalPlane2Dip;}</span>
+<span class="fc" id="L190">	public BigDecimal getNodalPlane2Slip(){return nodalPlane2Slip;}</span>
+
+<span class="nc" id="L192">	public BigDecimal getPercentDoubleCouple(){return percentDoubleCouple;}</span>
+<span class="fc" id="L193">	public String getProgramVersion(){return programVersion;}</span>
+
+	//this must be implemented by subclass
+	abstract public void parseInputFormat(BufferedReader br) throws IOException;
+
+	/**
+	 * Get a QuakeML publicID attribute.
+	 * this should become a utility method, copied from CubeToQuakeml
+	 * 
+	 * @param dataSource
+	 * @param eventId
+	 * @param type
+	 * @param other
+	 * @return same as getQuakemlID(dataSource, eventId, type, other, true)
+	 * @throws Exception
+	 */
+	private String getQuakemlId(final String dataSource, final String eventId,
+			final String type, final String other) throws Exception 
+			{	
+<span class="fc" id="L212">		return getQuakemlId(dataSource, eventId, type, other, true);</span>
+			}
+
+	private String getQuakemlId(final String dataSource, final String eventId,
+			final String type, final String other, boolean anssFlag) throws Exception 
+			{
+		String id;
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">		if(!anssFlag)</span>
+		{
+<span class="nc" id="L221">			id = &quot;quakeml:&quot; + dataSource.toLowerCase() + &quot;/&quot; + </span>
+<span class="nc" id="L222">					type + &quot;/&quot; + eventId.toLowerCase() + &quot;/&quot; + other;</span>
+		} else {
+			//QuakemlPublicId appends earthquake.usgs.gov to authority
+<span class="fc" id="L225">			id =  new QuakemlPublicId(dataSource.toLowerCase(), type,</span>
+<span class="fc" id="L226">					eventId.toLowerCase(), other).getPublicId();</span>
+		}
+<span class="fc" id="L228">		return id;</span>
+			}
+
+
+	public Quakeml convertToQuakeml()
+	{
+<span class="fc" id="L234">		Quakeml quakeml = new Quakeml();</span>
+
+		//the mechanism source may or may not be different from event source
+		String localMechSrc;
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">		if (getMechanismSource() == null)</span>
+		{
+<span class="nc" id="L240">			localMechSrc = getEventSource();</span>
+		} else {
+<span class="fc" id="L242">			localMechSrc = getMechanismSource();</span>
+		}
+
+		try {
+
+<span class="fc" id="L247">			Date created = new Date();</span>
+
+			// event parameters id is unique to this message
+<span class="fc" id="L250">			EventParameters eventParameters = new EventParameters();</span>
+<span class="fc" id="L251">			String source = getEventSource();</span>
+<span class="fc" id="L252">			String id = getEventID();</span>
+<span class="fc" id="L253">			String ctime = Long.toString(created.getTime());</span>
+<span class="fc" id="L254">			String quakeid = getQuakemlId(source,id,&quot;eventParameters&quot;,ctime);</span>
+<span class="fc" id="L255">			eventParameters.setPublicID(quakeid); </span>
+<span class="fc" id="L256">			quakeml.setEventParameters(eventParameters);</span>
+
+<span class="fc" id="L258">			Event event = new Event();</span>
+<span class="fc" id="L259">			event.setPublicID(getQuakemlId(getEventSource(), getEventID(),</span>
+					&quot;event&quot;, null));
+<span class="fc" id="L261">			event.setType(EventType.EARTHQUAKE);</span>
+<span class="fc" id="L262">			event.setDatasource(getEventSource().toLowerCase());</span>
+<span class="fc" id="L263">			event.setEventid(getEventID().toLowerCase());</span>
+<span class="fc" id="L264">			event.setEventsource(source);</span>
+<span class="fc" id="L265">			eventParameters.getEvents().add(event);</span>
+
+			// who and when was this message sent
+<span class="fc" id="L268">			CreationInfo creationInfo = new CreationInfo();</span>
+<span class="fc" id="L269">			String mechsource = getMechanismSource();</span>
+<span class="fc" id="L270">			creationInfo.setAgencyID(mechsource); //or other src??</span>
+<span class="fc" id="L271">			creationInfo.setVersion(getProgramVersion()); //or other version??</span>
+<span class="fc" id="L272">			creationInfo.setCreationTime(created);</span>
+<span class="fc" id="L273">			eventParameters.setCreationInfo(creationInfo);</span>
+			
+			//Input Origin
+<span class="fc" id="L276">			Origin origin = new Origin();</span>
+<span class="fc" id="L277">			event.getOrigins().add(origin);</span>
+<span class="fc" id="L278">			origin.setPublicID(getQuakemlId(getEventSource(), getEventID(),</span>
+					&quot;origin&quot;, null));
+
+			//input origin/event 
+<span class="pc bpc" id="L282" title="3 of 6 branches missed.">			if(eventTime != null &amp;&amp; eventLatitude != null &amp;&amp; eventLongitude != null)</span>
+			{
+				//origin time
+<span class="fc" id="L285">				TimeQuantity time = new TimeQuantity();</span>
+<span class="fc" id="L286">				time.setValue(getEventTime());</span>
+<span class="fc" id="L287">				origin.setTime(time);</span>
+
+				// origin latitude
+<span class="fc" id="L290">				RealQuantity latitude = new RealQuantity();</span>
+<span class="fc" id="L291">				latitude.setValue(getEventLatitude());</span>
+<span class="fc" id="L292">				origin.setLatitude(latitude);</span>
+
+				// origin longitude
+<span class="fc" id="L295">				RealQuantity longitude = new RealQuantity();</span>
+<span class="fc" id="L296">				longitude.setValue(getEventLongitude());</span>
+<span class="fc" id="L297">				origin.setLongitude(longitude);</span>
+
+				// origin depth
+<span class="fc bfc" id="L300" title="All 2 branches covered.">				if(eventDepth!= null)</span>
+				{
+<span class="fc" id="L302">					RealQuantity depth = new RealQuantity();</span>
+<span class="fc" id="L303">					depth.setValue(getEventDepth()); //km</span>
+<span class="fc" id="L304">					origin.setDepth(depth);</span>
+				} //end origin depth null check
+			} //end input origin/event null check
+
+
+			//Focal Mechanism
+<span class="fc" id="L310">			FocalMechanism fm = new FocalMechanism();</span>
+<span class="fc" id="L311">			fm.setTriggeringOriginID(origin.getPublicID());</span>
+<span class="fc" id="L312">			fm.setPublicID(getQuakemlId(localMechSrc, getEventID(),</span>
+<span class="fc" id="L313">					&quot;focalMechanism&quot;, getMomentTensorType(), true));</span>
+<span class="fc" id="L314">			event.getFocalMechanisms().add(fm);</span>
+<span class="fc" id="L315">			convertFocalMechanism(fm);</span>
+			
+			//Add creation info to focal mechanism
+<span class="fc" id="L318">			CreationInfo fmCreationInfo = new CreationInfo();</span>
+<span class="fc" id="L319">			fmCreationInfo.setAgencyID(getMechanismSource()); //or other src??</span>
+<span class="fc" id="L320">			fmCreationInfo.setVersion(getProgramVersion()); //or other version??</span>
+<span class="fc" id="L321">			fm.setCreationInfo(fmCreationInfo);</span>
+
+			//Moment Tensor
+<span class="fc" id="L324">			MomentTensor mt = new MomentTensor();</span>
+<span class="fc" id="L325">			fm.setMomentTensor(mt);</span>
+<span class="fc" id="L326">			convertMomentTensor(mt);</span>
+			
+			//Add a SourceTimeFunction to the moment tensor
+<span class="fc bfc" id="L329" title="All 2 branches covered.">			if (getMomentRateFunctionDuration() != null){</span>
+<span class="fc" id="L330">				SourceTimeFunction stf = new SourceTimeFunction();</span>
+<span class="fc" id="L331">				mt.setSourceTimeFunction(stf);</span>
+<span class="fc" id="L332">				stf.setDuration(getMomentRateFunctionDuration());</span>
+<span class="fc" id="L333">				String momentRateFunction = getMomentRateFunction();</span>
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">				if (&quot;TRIHD&quot;.equals(momentRateFunction)){</span>
+<span class="fc" id="L335">					stf.setType(SourceTimeFunctionType.TRIANGLE);</span>
+				}
+<span class="nc bnc" id="L337" title="All 2 branches missed.">				else if (&quot;BOXHD&quot;.equals(momentRateFunction)){</span>
+<span class="nc" id="L338">					stf.setType(SourceTimeFunctionType.BOX_CAR);</span>
+				}
+			}
+			
+
+			//Moment Magnitude
+<span class="fc" id="L344">			Magnitude mag = new Magnitude();</span>
+<span class="fc" id="L345">			mag.setPublicID(getQuakemlId(localMechSrc, getEventID(),</span>
+<span class="fc" id="L346">					&quot;magnitude&quot;, getMomentTensorType(), true));</span>
+<span class="fc" id="L347">			mt.setMomentMagnitudeID(mag.getPublicID());</span>
+<span class="fc" id="L348">			event.getMagnitudes().add(mag);</span>
+
+<span class="fc" id="L350">			RealQuantity magValue = new RealQuantity();</span>
+<span class="fc" id="L351">			magValue.setValue(getMomentMagnitude());</span>
+<span class="fc" id="L352">			mag.setMag(magValue);</span>
+<span class="fc" id="L353">			mag.setStationCount(getNumStations());</span>
+<span class="fc" id="L354">			mag.setType(getMomentTensorType());</span>
+<span class="fc" id="L355">			mag.setStationCount(getNumStations());</span>
+<span class="fc" id="L356">			mag.setOriginID(origin.getPublicID());</span>
+
+			//**************************************
+			//Derived Origin
+<span class="pc bpc" id="L360" title="3 of 6 branches missed.">			if(derivedEventTime != null &amp;&amp; derivedEventLatitude != null &amp;&amp; derivedEventLongitude != null)</span>
+			{
+<span class="fc" id="L362">			Origin originDerived = new Origin();</span>
+
+<span class="fc" id="L364">			originDerived.setPublicID(getQuakemlId(localMechSrc, getEventID(),</span>
+<span class="fc" id="L365">					&quot;origin&quot;, getMomentTensorType(), true));</span>
+
+<span class="fc" id="L367">			mt.setDerivedOriginID(originDerived.getPublicID());</span>
+
+			//origin time
+<span class="fc" id="L370">			TimeQuantity timeDerived = new TimeQuantity();</span>
+<span class="fc" id="L371">			timeDerived.setValue(getDerivedEventTime());</span>
+<span class="fc" id="L372">			originDerived.setTime(timeDerived);</span>
+
+			// origin latitude
+<span class="fc" id="L375">			RealQuantity latitudeDerived = new RealQuantity();</span>
+<span class="fc" id="L376">			latitudeDerived.setValue(getDerivedEventLatitude());</span>
+<span class="fc" id="L377">			originDerived.setLatitude(latitudeDerived);</span>
+
+			// origin longitude
+<span class="fc" id="L380">			RealQuantity longitudeDerived = new RealQuantity();</span>
+<span class="fc" id="L381">			longitudeDerived.setValue(getDerivedEventLongitude());</span>
+<span class="fc" id="L382">			originDerived.setLongitude(longitudeDerived);</span>
+
+			// origin depth
+<span class="fc" id="L385">			RealQuantity depthDerived = new RealQuantity();</span>
+<span class="fc" id="L386">			depthDerived.setValue(getDerivedEventDepth()); //km</span>
+<span class="fc" id="L387">			originDerived.setDepth(depthDerived);</span>
+			
+			//origin fixed values
+<span class="fc" id="L390">			originDerived.setEpicenterFixed(getDerivedEpicenterFixed());</span>
+<span class="fc" id="L391">			originDerived.setTimeFixed(getDerivedTimeFixed());</span>
+
+<span class="fc" id="L393">			OriginQuality originQualityDerived = new OriginQuality();</span>
+<span class="fc" id="L394">			originDerived.setQuality(originQualityDerived);</span>
+
+<span class="fc" id="L396">			mt.setPublicID(getQuakemlId(localMechSrc, getEventID(), &quot;momenttensor&quot;, getMomentTensorType(), true));</span>
+<span class="fc" id="L397">			event.getOrigins().add(originDerived);</span>
+			}
+
+
+<span class="nc" id="L401">		} catch (Exception e) {</span>
+<span class="nc" id="L402">			System.out.format(&quot;ERROR %s\n&quot;, e.getMessage());</span>
+<span class="fc" id="L403">		}</span>
+<span class="fc" id="L404">		return quakeml;</span>
+	}
+
+	void convertFocalMechanism(FocalMechanism fm)
+	{
+		//Focal Mechanism
+
+		//Nodal Planes
+		//Nodal Plane 1
+<span class="fc" id="L413">		NodalPlanes nps = new NodalPlanes();</span>
+<span class="pc bpc" id="L414" title="3 of 6 branches missed.">		if (nodalPlane1Dip != null &amp;&amp; nodalPlane1Slip != null &amp;&amp; nodalPlane1Strike != null)</span>
+		{
+
+<span class="fc" id="L417">			fm.setNodalPlanes(nps);</span>
+
+<span class="fc" id="L419">			NodalPlane np1 = new NodalPlane();</span>
+<span class="fc" id="L420">			RealQuantity dip = new RealQuantity();</span>
+<span class="fc" id="L421">			dip.setValue(getNodalPlane1Dip());</span>
+<span class="fc" id="L422">			np1.setDip(dip);</span>
+
+<span class="fc" id="L424">			RealQuantity slip = new RealQuantity();</span>
+<span class="fc" id="L425">			slip.setValue(getNodalPlane1Slip());</span>
+			//rake = the direction of the slip
+<span class="fc" id="L427">					np1.setRake(slip); </span>
+
+<span class="fc" id="L429">					RealQuantity strike = new RealQuantity();</span>
+<span class="fc" id="L430">					strike.setValue(getNodalPlane1Strike());</span>
+<span class="fc" id="L431">					np1.setStrike(strike);</span>
+
+<span class="fc" id="L433">					nps.setNodalPlane1(np1);  </span>
+		}
+
+		//Nodal Plane 2 
+<span class="pc bpc" id="L437" title="3 of 6 branches missed.">		if (nodalPlane2Dip != null &amp;&amp; nodalPlane2Slip != null &amp;&amp; nodalPlane2Strike != null)</span>
+		{
+<span class="fc" id="L439">			NodalPlane np2 = new NodalPlane();</span>
+<span class="fc" id="L440">			RealQuantity dip2 = new RealQuantity();</span>
+<span class="fc" id="L441">			dip2.setValue(getNodalPlane2Dip());</span>
+<span class="fc" id="L442">			np2.setDip(dip2);</span>
+
+<span class="fc" id="L444">			RealQuantity slip2 = new RealQuantity();</span>
+<span class="fc" id="L445">			slip2.setValue(getNodalPlane2Slip());</span>
+<span class="fc" id="L446">			np2.setRake(slip2); </span>
+
+<span class="fc" id="L448">			RealQuantity strike2 = new RealQuantity();</span>
+<span class="fc" id="L449">			strike2.setValue(getNodalPlane2Strike());</span>
+<span class="fc" id="L450">			np2.setStrike(strike2);</span>
+<span class="fc" id="L451">			nps.setNodalPlane2(np2);</span>
+		}
+
+		//Principal Axis
+<span class="pc bpc" id="L455" title="3 of 6 branches missed.">		if (eigenVectorAzimuths.length&gt;0 &amp;&amp; eigenVectorPlunges.length &gt; 0 &amp;&amp; eigenVectorValues.length &gt; 0)</span>
+		{
+
+<span class="fc" id="L458">			PrincipalAxes primaryAxis = new PrincipalAxes();</span>
+<span class="fc" id="L459">			fm.setPrincipalAxes(primaryAxis);</span>
+
+			//T
+<span class="fc" id="L462">			Axis tAxis = new Axis();</span>
+<span class="fc" id="L463">			RealQuantity azT = new RealQuantity();</span>
+<span class="fc" id="L464">			azT.setValue(getEigenVectorAzimuths()[0]);</span>
+<span class="fc" id="L465">			tAxis.setAzimuth(azT);</span>
+
+<span class="fc" id="L467">			RealQuantity lenT = new RealQuantity();</span>
+<span class="fc" id="L468">			lenT.setValue(getEigenVectorValues()[0]);</span>
+<span class="fc" id="L469">			tAxis.setLength(lenT);</span>
+
+<span class="fc" id="L471">			RealQuantity pluT = new RealQuantity();</span>
+<span class="fc" id="L472">			pluT.setValue(getEigenVectorPlunges()[0]);</span>
+<span class="fc" id="L473">			tAxis.setPlunge(pluT);</span>
+<span class="fc" id="L474">			primaryAxis.setTAxis(tAxis);</span>
+
+			//N
+<span class="fc" id="L477">			Axis nAxis = new Axis();</span>
+<span class="fc" id="L478">			RealQuantity azN = new RealQuantity();</span>
+<span class="fc" id="L479">			azN.setValue(getEigenVectorAzimuths()[1]);</span>
+<span class="fc" id="L480">			nAxis.setAzimuth(azN);</span>
+
+<span class="fc" id="L482">			RealQuantity lenN = new RealQuantity();</span>
+<span class="fc" id="L483">			lenN.setValue(getEigenVectorValues()[1]);</span>
+<span class="fc" id="L484">			nAxis.setLength(lenN);</span>
+
+<span class="fc" id="L486">			RealQuantity pluN = new RealQuantity();</span>
+<span class="fc" id="L487">			pluN.setValue(getEigenVectorPlunges()[1]);</span>
+<span class="fc" id="L488">			nAxis.setPlunge(pluN);</span>
+<span class="fc" id="L489">			primaryAxis.setNAxis(nAxis);</span>
+
+			//P
+<span class="fc" id="L492">			Axis pAxis = new Axis();</span>
+<span class="fc" id="L493">			RealQuantity azP = new RealQuantity();</span>
+<span class="fc" id="L494">			azP.setValue(getEigenVectorAzimuths()[2]);</span>
+<span class="fc" id="L495">			pAxis.setAzimuth(azP);</span>
+
+<span class="fc" id="L497">			RealQuantity lenP = new RealQuantity();</span>
+<span class="fc" id="L498">			lenP.setValue(getEigenVectorValues()[2]);</span>
+<span class="fc" id="L499">			pAxis.setLength(lenP);</span>
+
+<span class="fc" id="L501">			RealQuantity pluP = new RealQuantity();</span>
+<span class="fc" id="L502">			pluP.setValue(getEigenVectorPlunges()[2]);</span>
+<span class="fc" id="L503">			pAxis.setPlunge(pluP);</span>
+<span class="fc" id="L504">			primaryAxis.setPAxis(pAxis);</span>
+
+		}
+<span class="fc" id="L507">	}</span>
+
+	void convertMomentTensor(MomentTensor mt)
+	{
+<span class="pc bpc" id="L511" title="1 of 2 branches missed.">		if(scalarMoment != null)</span>
+		{
+<span class="fc" id="L513">			RealQuantity moment = new RealQuantity();</span>
+<span class="fc" id="L514">			moment.setValue(getScalarMoment());</span>
+<span class="fc" id="L515">			mt.setScalarMoment(moment);</span>
+		}
+
+		//this is used by PDL for product type for moment tensors
+<span class="fc" id="L519">		mt.setMethodID(getMomentTensorType());</span>
+
+<span class="fc" id="L521">		Tensor tensor = new Tensor();</span>
+<span class="fc" id="L522">		mt.setTensor(tensor);</span>
+
+<span class="pc bpc" id="L524" title="1 of 2 branches missed.">		if(tensorMrr != null)</span>
+		{
+<span class="fc" id="L526">			RealQuantity mrr = new RealQuantity();</span>
+<span class="fc" id="L527">			mrr.setValue(getTensorMrr());</span>
+			//i am uncertain if is this really uncertainty?
+<span class="fc" id="L529">			mrr.setUncertainty(getTensorMrrError()); </span>
+<span class="fc" id="L530">			tensor.setMrr(mrr);</span>
+		}
+
+<span class="pc bpc" id="L533" title="1 of 2 branches missed.">		if(tensorMrp != null)</span>
+		{
+<span class="fc" id="L535">			RealQuantity mrp = new RealQuantity();</span>
+<span class="fc" id="L536">			mrp.setValue(getTensorMrp());</span>
+<span class="fc" id="L537">			mrp.setUncertainty(getTensorMrpError());</span>
+<span class="fc" id="L538">			tensor.setMrp(mrp);</span>
+		}
+
+<span class="pc bpc" id="L541" title="1 of 2 branches missed.">		if(tensorMrt != null)</span>
+		{
+<span class="fc" id="L543">			RealQuantity mrt = new RealQuantity();</span>
+<span class="fc" id="L544">			mrt.setValue(getTensorMrt());</span>
+<span class="fc" id="L545">			mrt.setUncertainty(getTensorMrtError());</span>
+<span class="fc" id="L546">			tensor.setMrt(mrt);</span>
+		}
+
+<span class="pc bpc" id="L549" title="1 of 2 branches missed.">		if(tensorMpp != null)</span>
+		{
+<span class="fc" id="L551">			RealQuantity mpp = new RealQuantity();</span>
+<span class="fc" id="L552">			mpp.setValue(getTensorMpp());</span>
+<span class="fc" id="L553">			mpp.setUncertainty(getTensorMppError());</span>
+<span class="fc" id="L554">			tensor.setMpp(mpp);</span>
+		}
+
+<span class="pc bpc" id="L557" title="1 of 2 branches missed.">		if (tensorMtp != null)</span>
+		{
+<span class="fc" id="L559">			RealQuantity mtp = new RealQuantity();</span>
+<span class="fc" id="L560">			mtp.setValue(getTensorMtp());</span>
+<span class="fc" id="L561">			mtp.setUncertainty(getTensorMtpError());</span>
+<span class="fc" id="L562">			tensor.setMtp(mtp);</span>
+		}
+
+<span class="pc bpc" id="L565" title="1 of 2 branches missed.">		if(tensorMtt != null)</span>
+		{
+<span class="fc" id="L567">			RealQuantity mtt = new RealQuantity();</span>
+<span class="fc" id="L568">			mtt.setValue(getTensorMtt());</span>
+<span class="fc" id="L569">			mtt.setUncertainty(getTensorMttError());</span>
+<span class="fc" id="L570">			tensor.setMtt(mtt);</span>
+		}
+
+<span class="pc bpc" id="L573" title="1 of 2 branches missed.">		if(percentDoubleCouple != null)</span>
+		{
+<span class="nc" id="L575">			mt.setDoubleCouple(getPercentDoubleCouple());</span>
+		}
+
+		//DataUsed
+<span class="fc bfc" id="L579" title="All 2 branches covered.">		if(BodyWaveComponents != null)</span>
+		{
+<span class="fc" id="L581">			DataUsed bwData = new DataUsed();</span>
+<span class="fc" id="L582">			bwData.setStationCount(getBodyWaveStations());</span>
+<span class="fc" id="L583">			bwData.setComponentCount(getBodyWaveComponents());</span>
+<span class="fc" id="L584">			bwData.setShortestPeriod(getBodyWaveShortestPeriod());</span>
+<span class="fc" id="L585">			bwData.setWaveType(DataUsedWaveType.BODY_WAVES);</span>
+<span class="fc" id="L586">			mt.getDataUseds().add(bwData);</span>
+		}
+
+<span class="fc bfc" id="L589" title="All 2 branches covered.">		if (SurfaceWaveComponents != null)</span>
+		{
+<span class="fc" id="L591">			DataUsed swData = new DataUsed();</span>
+<span class="fc" id="L592">			swData.setStationCount(getSurfaceWaveStations());</span>
+<span class="fc" id="L593">			swData.setComponentCount(getSurfaceWaveComponents());</span>
+<span class="fc" id="L594">			swData.setShortestPeriod(getSurfaceWaveShortestPeriod());</span>
+<span class="fc" id="L595">			swData.setWaveType(DataUsedWaveType.SURFACE_WAVES);</span>
+<span class="fc" id="L596">			mt.getDataUseds().add(swData);</span>
+		}
+
+<span class="fc bfc" id="L599" title="All 2 branches covered.">		if (MantleWaveStations != null)</span>
+		{
+<span class="fc" id="L601">			DataUsed mwData = new DataUsed();</span>
+<span class="fc" id="L602">			mwData.setStationCount(getMantleWaveStations());</span>
+<span class="fc" id="L603">			mwData.setComponentCount(getMantleWaveComponents());</span>
+<span class="fc" id="L604">			mwData.setShortestPeriod(getMantleWaveShortestPeriod());</span>
+<span class="fc" id="L605">			mwData.setWaveType(DataUsedWaveType.MANTLE_WAVES);</span>
+<span class="fc" id="L606">			mt.getDataUseds().add(mwData);</span>
+		}
+<span class="fc" id="L608">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

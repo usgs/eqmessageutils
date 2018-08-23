@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NDKToQuakemlConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.focalmechanism</a> &gt; <span class="el_source">NDKToQuakemlConverter.java</span></div><h1>NDKToQuakemlConverter.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.focalmechanism;
+
+
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import gov.usgs.earthquake.quakeml.FileToQuakemlConverter;
+import org.quakeml_1_2.Quakeml;
+
+
+/**
+ * Parse NDK format.
+ *
+ * http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/allorder.ndk_explained
+ */
+public class NDKToQuakemlConverter extends RawMechanismConverter implements FileToQuakemlConverter {
+
+<span class="fc" id="L29">	private boolean debug = true;</span>
+<span class="fc" id="L30">    private double exponent = 0;</span>
+	
+<span class="fc" id="L32">    public NDKToQuakemlConverter(){</span>
+<span class="fc" id="L33">    	eventMagnitudes = new ArrayList&lt;BigDecimal&gt;(2);</span>
+<span class="fc" id="L34">    }</span>
+    
+    /**
+	 * Read a File and translate to Quakeml.
+	 * 
+	 * @param file
+	 *            the file to parse, may be a directory.
+	 * @return Quakeml equivalent of file.
+	 */
+	public Quakeml parseFile(final File file) throws Exception
+	{
+    
+<span class="fc" id="L46">       String firstline = &quot;&quot;;</span>
+        //boolean debug = true; 
+        
+        //String mechanismSource = file.getName().substring(0, 4);
+        //I think ONLY GCMT produces NDK so going with this for now
+        //HARD CODED...do we need to determine this dynamically when parsing NDK format?
+<span class="fc" id="L52">        mechanismSource = &quot;ld&quot;; //&quot;GCMT.www.globalcmt.org&quot;;</span>
+        
+<span class="fc" id="L54">        System.out.format(&quot;NDK2QuakeML parseFile \n&quot;);</span>
+        try{
+<span class="fc" id="L56">            FileReader fr = new FileReader(file);</span>
+<span class="fc" id="L57">            BufferedReader br = new BufferedReader(fr);</span>
+                       
+<span class="fc" id="L59">            br.mark(8192); //set a mark for where we are</span>
+<span class="fc" id="L60">            firstline = br.readLine();</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">            while (firstline != null){</span>
+<span class="fc" id="L62">                br.reset();</span>
+<span class="fc" id="L63">                parseInputFormat(br);</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">                if (debug){</span>
+                    //printSummary();
+<span class="fc" id="L66">                    System.out.println(&quot;finished parse input.&quot;);</span>
+                }
+<span class="fc" id="L68">                br.mark(8192);</span>
+<span class="fc" id="L69">                firstline = br.readLine();</span>
+            }
+        }
+<span class="nc" id="L72">        catch (Exception e){</span>
+<span class="nc" id="L73">            System.out.format(&quot;ERROR '%s' for message starting with '%s'\n&quot;,e.getMessage(),firstline);</span>
+<span class="nc" id="L74">            return null;</span>
+<span class="fc" id="L75">        }</span>
+        
+<span class="fc" id="L77">        return convertToQuakeml();</span>
+    }
+
+    @Override
+    public void parseInputFormat(BufferedReader br) throws IOException{
+        //boolean debug = true;
+        
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (debug) System.out.println(&quot;Starting Parsing NDK input.&quot;);  </span>
+        
+        try{
+            //parse first line
+<span class="fc" id="L88">            String line = br.readLine();</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">            if (debug){</span>
+<span class="fc" id="L90">                System.out.format(&quot;Line 1: %s\n&quot;,line);</span>
+            }
+<span class="fc" id="L92">            parseLine1(line);</span>
+            
+            //parse second line
+<span class="fc" id="L95">            line = br.readLine();</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">            if (debug){</span>
+<span class="fc" id="L97">                System.out.format(&quot;Line 2: %s\n&quot;,line);</span>
+            }
+<span class="fc" id="L99">            parseLine2(line);</span>
+            
+            //parse third line
+<span class="fc" id="L102">            line = br.readLine();</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">            if (debug){</span>
+<span class="fc" id="L104">                System.out.format(&quot;Line 3: %s\n&quot;,line);</span>
+            }
+<span class="fc" id="L106">            parseLine3(line);</span>
+            
+            //parse fourth line
+<span class="fc" id="L109">            line = br.readLine();</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">            if (debug){</span>
+<span class="fc" id="L111">                System.out.format(&quot;Line 4: %s\n&quot;,line);</span>
+            }
+<span class="fc" id="L113">            parseLine4(line);</span>
+
+            //parse fifth line
+<span class="fc" id="L116">            line = br.readLine();</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">            if (debug){</span>
+<span class="fc" id="L118">                System.out.format(&quot;Line 5: %s\n&quot;,line);</span>
+            }
+<span class="fc" id="L120">            parseLine5(line);</span>
+            
+        }
+        /*catch (IOException ioe){*/
+<span class="nc" id="L124">        catch (IOException ioe) {</span>
+<span class="nc" id="L125">        	System.out.format(&quot;ERROR parseing NDK '%s'\n&quot;, ioe.getMessage());</span>
+<span class="nc" id="L126">            throw ioe;</span>
+<span class="fc" id="L127">        }</span>
+        
+               
+<span class="fc" id="L130">    }</span>
+    
+    private void parseLine1(String line){
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">    	if (debug) System.out.format(&quot;Starting Parsing line 1 of NDK input\n&quot;);</span>
+<span class="fc" id="L134">        eventSource = line.substring(0,4).trim();</span>
+        //note that if eventSource != PDE then anssFlag needs to be FALSE
+        /* First line: Hypocenter line
+        [1-4]   Hypocenter reference catalog (e.g., PDE for USGS location, ISC for
+        ISC catalog, SWE for surface-wave location, [Ekstrom, BSSA, 2006]) */
+        
+        //if source is PDE then translate it to US to indicate NEIC as source
+        // but the PDE id does not match NEIC id on web so do we do this???
+        //ToDo needs resolution!!!!!!!!!
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if(eventSource.compareTo(&quot;PDE&quot;)==0)</span>
+        {
+<span class="fc" id="L145">        	eventSource = &quot;US&quot;;</span>
+        } 
+                
+<span class="fc" id="L148">        String dstr = line.substring(5,26);</span>
+<span class="fc" id="L149">        int year = Integer.parseInt(dstr.substring(0,4));</span>
+<span class="fc" id="L150">        int month = Integer.parseInt(dstr.substring(5,7));</span>
+<span class="fc" id="L151">        int day = Integer.parseInt(dstr.substring(8,10));</span>
+<span class="fc" id="L152">        int hour = Integer.parseInt(dstr.substring(11,13));</span>
+<span class="fc" id="L153">        int minute = Integer.parseInt(dstr.substring(14,16));</span>
+        
+                 
+<span class="fc" id="L156">        String secstr = dstr.substring(17);</span>
+<span class="fc" id="L157">        double dd = Double.parseDouble(secstr)*1000.0;</span>
+
+<span class="fc" id="L159">        int milliseconds = Double.valueOf(dd).intValue();</span>
+<span class="fc" id="L160">        GregorianCalendar c = new GregorianCalendar(TimeZone.getTimeZone(&quot;GMT&quot;),Locale.US);</span>
+<span class="fc" id="L161">        c.set(year,month,day,hour,minute,0);</span>
+<span class="fc" id="L162">        eventTime = c.getTime();</span>
+<span class="fc" id="L163">        eventTime.setTime(eventTime.getTime()+milliseconds);</span>
+               
+        
+<span class="fc" id="L166">        eventLatitude = new BigDecimal(line.substring(27,33).trim());</span>
+<span class="fc" id="L167">        eventLongitude = new BigDecimal(line.substring(34,41).trim());</span>
+<span class="fc" id="L168">        eventDepth = new BigDecimal(line.substring(42,47).trim());</span>
+        //depths in quakeml are in meters, not km
+<span class="fc" id="L170">        eventDepth = eventDepth.multiply(new BigDecimal(1000));</span>
+<span class="fc" id="L171">        BigDecimal mag1 = new BigDecimal(line.substring(47,51).trim());</span>
+<span class="fc" id="L172">        BigDecimal mag2 = new BigDecimal(line.substring(51,55).trim());</span>
+<span class="fc" id="L173">        eventMagnitudes.add(mag1);</span>
+<span class="fc" id="L174">        eventMagnitudes.add(mag2);</span>
+<span class="fc" id="L175">        eventLocation = line.substring(56,80).trim();        </span>
+        
+<span class="fc" id="L177">    }</span>
+
+    private void parseLine2(String line){
+<span class="fc" id="L180">        eventID = line.substring(0,16).trim();</span>
+        
+<span class="fc" id="L182">        BodyWaveStations = new BigInteger(line.substring(19,22).trim());</span>
+<span class="fc" id="L183">        BodyWaveComponents = new BigInteger(line.substring(22,27).trim());</span>
+<span class="fc" id="L184">        BodyWaveShortestPeriod = new BigDecimal(line.substring(27,31).trim());</span>
+
+<span class="fc" id="L186">        SurfaceWaveStations = new BigInteger(line.substring(34,37).trim());</span>
+<span class="fc" id="L187">        SurfaceWaveComponents = new BigInteger(line.substring(37,42).trim());</span>
+<span class="fc" id="L188">        SurfaceWaveShortestPeriod = new BigDecimal(line.substring(42,46).trim());</span>
+        
+<span class="fc" id="L190">        MantleWaveStations = new BigInteger(line.substring(49,52).trim());</span>
+<span class="fc" id="L191">        MantleWaveComponents = new BigInteger(line.substring(52,57).trim());</span>
+<span class="fc" id="L192">        MantleWaveShortestPeriod = new BigDecimal(line.substring(57,61).trim());</span>
+
+<span class="fc" id="L194">        numStations = new BigInteger(line.substring(49,52).trim()); //mantle wave stations</span>
+<span class="fc" id="L195">        numStations.add(getBodyWaveStations());</span>
+<span class="fc" id="L196">        numStations.add(getSurfaceWaveStations());</span>
+        
+<span class="fc" id="L198">        String cmt = line.substring(62,68).trim();</span>
+        // is this always CMT when in ndk format?
+<span class="fc" id="L200">        momentTensorType=&quot;Mwc&quot;; //CMT is Mwc</span>
+<span class="fc" id="L201">        Matcher m0 = Pattern.compile(&quot;CMT:\\s*0&quot;).matcher(cmt);</span>
+<span class="fc" id="L202">        Matcher m1 = Pattern.compile(&quot;CMT:\\s*1&quot;).matcher(cmt);</span>
+<span class="fc" id="L203">        Matcher m2 = Pattern.compile(&quot;CMT:\\s*2&quot;).matcher(cmt);</span>
+        
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if (m0.find()){</span>
+<span class="nc" id="L206">            sourceInversionType = &quot;general moment tensor&quot;; //quakeml MomentTensorMethod.CMT_0</span>
+        }
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">        else if (m1.find()){</span>
+<span class="fc" id="L209">            sourceInversionType = &quot;standard moment tensor&quot;; //quakeml MomentTensorMethod.CMT_1</span>
+        }
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        else if (m2.find()){</span>
+<span class="nc" id="L212">            sourceInversionType = &quot;double couple source&quot;; //quakeml MomentTensorMethod.CMT_2</span>
+        }
+        else{
+        	//maybe this should be NULL because we can't translate it to an enum
+        	//sourceInversionType = null;
+<span class="nc" id="L217">            sourceInversionType = &quot;unknown source inversion&quot;; //quakeml other options are Teleseismic, regional</span>
+        }
+<span class="fc" id="L219">        momentRateFunction = line.substring(69,74);</span>
+<span class="fc" id="L220">        momentRateFunctionDuration = new BigDecimal(line.substring(75).trim()).multiply(new BigDecimal(&quot;2.0&quot;));</span>
+<span class="fc" id="L221">    }</span>
+
+    private void parseLine3(String line){
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">    	if (debug) System.out.format(&quot;Starting Parsing line 3 of NDK input\n&quot;);</span>
+
+<span class="fc" id="L226">        double dd = Double.parseDouble(line.substring(9,18).trim())*1000.0;</span>
+<span class="fc" id="L227">        int milliseconds = Double.valueOf(dd).intValue();</span>
+<span class="fc" id="L228">        derivedEventTime = new Date(eventTime.getTime());</span>
+<span class="fc" id="L229">        derivedEventTime.setTime(derivedEventTime.getTime()+milliseconds);</span>
+
+<span class="fc" id="L231">        derivedEventTimeError = new BigDecimal(line.substring(18,23).trim());</span>
+<span class="fc" id="L232">        derivedEventLatitude = new BigDecimal(line.substring(23,29).trim());</span>
+<span class="fc" id="L233">        derivedEventLatitudeError = new BigDecimal(line.substring(29,34).trim());</span>
+<span class="fc" id="L234">        derivedEventLongitude = new BigDecimal(line.substring(34,42).trim());</span>
+<span class="fc" id="L235">        derivedEventLongitudeError = new BigDecimal(line.substring(42,47).trim());</span>
+<span class="fc" id="L236">        derivedEventDepth = new BigDecimal(line.substring(47,53).trim()).multiply(new BigDecimal(&quot;1000&quot;));</span>
+<span class="fc" id="L237">        derivedEventDepthError = new BigDecimal(line.substring(53,58).trim());</span>
+<span class="fc" id="L238">        derivedDepthType = new String(line.substring(58,61).trim());</span>
+<span class="fc" id="L239">    }</span>
+    
+    private void parseLine4(String line){
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">    	if (debug) System.out.format(&quot;Starting Parsing line 4 of NDK input\n&quot;);</span>
+<span class="fc" id="L243">        exponent = Double.parseDouble(line.substring(0,2));</span>
+        //we want units in N m
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">        if (exponent == 24)</span>
+        {
+<span class="fc" id="L247">        	exponent = 17;</span>
+        }
+<span class="fc" id="L249">        tensorMrr = new BigDecimal(Double.parseDouble(line.substring(2,9))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L250">        tensorMrrError = new BigDecimal(Double.parseDouble(line.substring(9,15))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L251">        tensorMtt = new BigDecimal(Double.parseDouble(line.substring(15,22))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L252">        tensorMttError = new BigDecimal(Double.parseDouble(line.substring(22,28))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L253">        tensorMpp = new BigDecimal(Double.parseDouble(line.substring(28,35))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L254">        tensorMppError = new BigDecimal(Double.parseDouble(line.substring(35,41))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L255">        tensorMrt = new BigDecimal(Double.parseDouble(line.substring(41,48))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L256">        tensorMrtError = new BigDecimal(Double.parseDouble(line.substring(48,54))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L257">        tensorMrp = new BigDecimal(Double.parseDouble(line.substring(54,61))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L258">        tensorMrpError = new BigDecimal(Double.parseDouble(line.substring(61,67))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L259">        tensorMtp = new BigDecimal(Double.parseDouble(line.substring(67,74))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L260">        tensorMtpError = new BigDecimal(Double.parseDouble(line.substring(74))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L261">    }</span>
+
+    private void parseLine5(String line){
+<span class="fc" id="L264">        programVersion = line.substring(0,3).trim();</span>
+
+<span class="fc" id="L266">        eigenVectorValues[0] = new BigDecimal(Double.parseDouble(line.substring(3,11))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L267">        eigenVectorPlunges[0] = new BigDecimal(line.substring(11,14).trim());</span>
+<span class="fc" id="L268">        eigenVectorAzimuths[0] = new BigDecimal(line.substring(14,18).trim());</span>
+
+<span class="fc" id="L270">        eigenVectorValues[1] = new BigDecimal(Double.parseDouble(line.substring(18,26))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L271">        eigenVectorPlunges[1] = new BigDecimal(line.substring(26,29).trim());</span>
+<span class="fc" id="L272">        eigenVectorAzimuths[1] = new BigDecimal(line.substring(29,33).trim());</span>
+        
+<span class="fc" id="L274">        eigenVectorValues[2] = new BigDecimal(Double.parseDouble(line.substring(33,41))*Math.pow(10.0,exponent));</span>
+<span class="fc" id="L275">        eigenVectorPlunges[2] = new BigDecimal(line.substring(41,44).trim());</span>
+<span class="fc" id="L276">        eigenVectorAzimuths[2] = new BigDecimal(line.substring(44,48).trim());</span>
+
+<span class="fc" id="L278">        scalarMoment = new BigDecimal(Double.parseDouble(line.substring(49,56).trim())*Math.pow(10.0,exponent));</span>
+
+<span class="fc" id="L280">        nodalPlane1Strike = new BigDecimal(line.substring(56,60).trim());</span>
+<span class="fc" id="L281">        nodalPlane1Dip = new BigDecimal(line.substring(60,63).trim());</span>
+<span class="fc" id="L282">        nodalPlane1Slip = new BigDecimal(line.substring(63,68).trim());</span>
+
+<span class="fc" id="L284">        nodalPlane2Strike = new BigDecimal(line.substring(68,72).trim());</span>
+<span class="fc" id="L285">        nodalPlane2Dip = new BigDecimal(line.substring(72,75).trim());</span>
+<span class="fc" id="L286">        nodalPlane2Slip = new BigDecimal(line.substring(75).trim());</span>
+<span class="fc" id="L287">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

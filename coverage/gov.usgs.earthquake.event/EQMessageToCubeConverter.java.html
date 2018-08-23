@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EQMessageToCubeConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.event</a> &gt; <span class="el_source">EQMessageToCubeConverter.java</span></div><h1>EQMessageToCubeConverter.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.event;
+
+import java.math.BigDecimal;
+import java.util.Iterator;
+import java.util.List;
+
+import gov.usgs.ansseqmsg.Action;
+import gov.usgs.ansseqmsg.Comment;
+import gov.usgs.ansseqmsg.EQMessage;
+import gov.usgs.ansseqmsg.Event;
+import gov.usgs.ansseqmsg.EventAction;
+import gov.usgs.ansseqmsg.EventScope;
+import gov.usgs.ansseqmsg.EventType;
+import gov.usgs.ansseqmsg.EventUsage;
+import gov.usgs.ansseqmsg.Magnitude;
+import gov.usgs.ansseqmsg.Method;
+import gov.usgs.ansseqmsg.Origin;
+import gov.usgs.ansseqmsg.OriginStatus;
+import gov.usgs.ansseqmsg.ProductLink;
+import gov.usgs.earthquake.cube.CubeAddon;
+import gov.usgs.earthquake.cube.CubeDelete;
+import gov.usgs.earthquake.cube.CubeEvent;
+import gov.usgs.earthquake.cube.CubeMessage;
+
+/**
+ * Convert from EQMessage to CubeMessage.
+ * 
+ * @author jmfee
+ */
+<span class="fc" id="L30">public class EQMessageToCubeConverter {</span>
+
+	/**
+	 * Convert an EQMessage to a CubeMessage.
+	 * 
+	 * @param message
+	 *            message to convert.
+	 * @return CubeMessage corresponding to EQMessage.
+	 */
+	public CubeMessage convertEQMessage(final EQMessage message) {
+<span class="fc" id="L40">		List&lt;Event&gt; events = message.getEvent();</span>
+<span class="fc" id="L41">		Event event = events.get(0);</span>
+<span class="fc" id="L42">		EventAction action = event.getAction();</span>
+
+<span class="fc bfc" id="L44" title="All 4 branches covered.">		if (action == null || action == EventAction.UPDATE) {</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">			if (event.getOrigin().size() == 0) {</span>
+<span class="fc" id="L46">				return convertEQMessageToCubeAddon(message, event);</span>
+			} else {
+<span class="fc" id="L48">				return convertEQMessageToCubeEvent(message, event);</span>
+			}
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		} else if (action == EventAction.DELETE) {</span>
+<span class="fc" id="L51">			return convertEQMessageToCubeDelete(message, event);</span>
+		}
+
+<span class="nc" id="L54">		return null;</span>
+	}
+
+	/**
+	 * Convert an EQMessage that represents an event delete to a CubeDelete.
+	 * 
+	 * @param message
+	 *            EQMessage containing deleted event.
+	 * @param event
+	 *            deleted event to convert.
+	 * @return CubeDelete corresponding to EQMessage.
+	 */
+	public CubeAddon convertEQMessageToCubeAddon(final EQMessage message,
+			final Event event) {
+<span class="fc" id="L68">		boolean found = false;</span>
+
+<span class="fc" id="L70">		CubeAddon cubeAddon = new CubeAddon();</span>
+<span class="fc" id="L71">		cubeAddon.setSent(message.getSent());</span>
+<span class="fc" id="L72">		cubeAddon.setSource(event.getDataSource().toLowerCase());</span>
+<span class="fc" id="L73">		cubeAddon.setCode(event.getEventID().toLowerCase());</span>
+
+<span class="fc" id="L75">		Iterator&lt;ProductLink&gt; iter = event.getProductLink().iterator();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">		while (iter.hasNext()) {</span>
+<span class="fc" id="L77">			found = true;</span>
+
+<span class="fc" id="L79">			ProductLink productLink = iter.next();</span>
+<span class="fc" id="L80">			cubeAddon.setVersion(productLink.getVersion());</span>
+<span class="fc" id="L81">			cubeAddon.setAddonText(productLink.getNote());</span>
+<span class="fc" id="L82">			cubeAddon.setAddonUrl(productLink.getLink());</span>
+<span class="fc" id="L83">			cubeAddon.setAddonType(productLink.getCode());</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">			if (productLink.getAction().equals(Action.DELETE)) {</span>
+<span class="nc" id="L85">				cubeAddon.setDeleted();</span>
+			}
+<span class="fc" id="L87">		}</span>
+
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">		if (found) {</span>
+<span class="fc" id="L90">			return cubeAddon;</span>
+		} else {
+<span class="nc" id="L92">			return null;</span>
+		}
+	}
+
+	/**
+	 * Convert an EQMessage that represents an event delete to a CubeDelete.
+	 * 
+	 * @param message
+	 *            EQMessage containing deleted event.
+	 * @param event
+	 *            deleted event to convert.
+	 * @return CubeDelete corresponding to EQMessage.
+	 */
+	public CubeDelete convertEQMessageToCubeDelete(final EQMessage message,
+			final Event event) {
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		if (event.getAction() != EventAction.DELETE) {</span>
+<span class="nc" id="L108">			return null;</span>
+		}
+
+<span class="fc" id="L111">		CubeDelete cubeDelete = new CubeDelete();</span>
+
+<span class="fc" id="L113">		cubeDelete.setSent(message.getSent());</span>
+<span class="fc" id="L114">		cubeDelete.setSource(event.getDataSource().toLowerCase());</span>
+<span class="fc" id="L115">		cubeDelete.setCode(event.getEventID().toLowerCase());</span>
+<span class="fc" id="L116">		cubeDelete.setVersion(event.getVersion());</span>
+
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">		if (event.getComment() != null) {</span>
+<span class="fc" id="L119">			Iterator&lt;Comment&gt; iter = event.getComment().iterator();</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">			while (iter.hasNext()) {</span>
+<span class="fc" id="L121">				Comment comment = iter.next();</span>
+<span class="fc" id="L122">				String typeKey = comment.getTypeKey();</span>
+<span class="fc" id="L123">				if (CubeToEQMessageConverter.DELETE_MESSAGE_COMMENT_TYPEKEY</span>
+<span class="pc bpc" id="L124" title="2 of 4 branches missed.">						.equals(typeKey) &amp;&amp; comment.getText() != null) {</span>
+<span class="fc" id="L125">					cubeDelete.setMessage(comment.getText().trim());</span>
+<span class="fc" id="L126">					break;</span>
+				}
+<span class="nc" id="L128">			}</span>
+		}
+
+<span class="fc" id="L131">		return cubeDelete;</span>
+	}
+
+	/**
+	 * Convert an EQMessage that represents an event update to a CubeEvent.
+	 * 
+	 * @param message
+	 *            EQMessage containing event.
+	 * @param event
+	 *            event to convert.
+	 * @return CubeEvent corresponding to EQMessage.
+	 */
+	public CubeEvent convertEQMessageToCubeEvent(final EQMessage message,
+			final Event event) {
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">		if (event.getAction() != null</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">				&amp;&amp; event.getAction() != EventAction.UPDATE) {</span>
+<span class="nc" id="L147">			return null;</span>
+		}
+
+<span class="fc" id="L150">		CubeEvent cubeEvent = new CubeEvent();</span>
+
+<span class="fc" id="L152">		EventUsage usage = event.getUsage();</span>
+<span class="pc bpc" id="L153" title="1 of 4 branches missed.">		if (usage != null &amp;&amp; usage != EventUsage.ACTUAL) {</span>
+			// only actual events have a CUBE representation
+<span class="nc" id="L155">			return null;</span>
+		}
+
+<span class="fc" id="L158">		EventScope scope = event.getScope();</span>
+<span class="fc bfc" id="L159" title="All 4 branches covered.">		if (scope != null &amp;&amp; scope == EventScope.INTERNAL) {</span>
+<span class="fc" id="L160">			cubeEvent.setInternal(true);</span>
+		} else {
+<span class="fc" id="L162">			cubeEvent.setInternal(false);</span>
+		}
+
+<span class="fc" id="L165">		EventType type = event.getType();</span>
+<span class="pc bpc" id="L166" title="2 of 4 branches missed.">		if (type != null &amp;&amp; type == EventType.QUARRY) {</span>
+<span class="nc" id="L167">			cubeEvent.setQuarry(true);</span>
+		} else {
+			// maybe return null?
+<span class="fc" id="L170">			cubeEvent.setQuarry(false);</span>
+		}
+
+<span class="fc" id="L173">		cubeEvent.setSent(message.getSent());</span>
+<span class="fc" id="L174">		cubeEvent.setSource(event.getDataSource().toLowerCase());</span>
+<span class="fc" id="L175">		cubeEvent.setCode(event.getEventID().toLowerCase());</span>
+<span class="fc" id="L176">		cubeEvent.setVersion(event.getVersion());</span>
+
+<span class="fc" id="L178">		Origin origin = event.getOrigin().get(0);</span>
+
+<span class="fc" id="L180">		Boolean preferredFlag = origin.getPreferredFlag();</span>
+<span class="pc bpc" id="L181" title="1 of 4 branches missed.">		if (preferredFlag != null &amp;&amp; !preferredFlag) {</span>
+			// only preferred origins map to CUBE messages
+<span class="nc" id="L183">			return null;</span>
+		}
+
+<span class="fc" id="L186">		cubeEvent.setTime(origin.getTime());</span>
+<span class="fc" id="L187">		cubeEvent.setLatitude(origin.getLatitude());</span>
+<span class="fc" id="L188">		cubeEvent.setLongitude(origin.getLongitude());</span>
+<span class="fc" id="L189">		cubeEvent.setDepth(origin.getDepth());</span>
+<span class="fc" id="L190">		cubeEvent.setRmsTimeError(origin.getStdError());</span>
+<span class="fc" id="L191">		cubeEvent.setAzimuthalGap(origin.getAzimGap());</span>
+<span class="fc" id="L192">		cubeEvent.setMinStationDistanceDegrees(origin.getMinDist());</span>
+<span class="fc" id="L193">		cubeEvent.setHorizontalError(origin.getErrh());</span>
+<span class="fc" id="L194">		cubeEvent.setVerticalError(origin.getErrz());</span>
+
+<span class="fc" id="L196">		String depthMethod = origin.getDepthMethod();</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">		if (CubeToEQMessageConverter.DEPTH_METHOD_FIXED.equals(depthMethod)) {</span>
+<span class="fc" id="L198">			cubeEvent.setVerticalError(BigDecimal.ZERO);</span>
+		}
+
+<span class="fc" id="L201">		cubeEvent.setNumLocationPhases(origin.getNumPhaUsed());</span>
+<span class="fc" id="L202">		cubeEvent.setNumLocationStations(origin.getNumStaUsed());</span>
+
+<span class="fc" id="L204">		OriginStatus status = origin.getStatus();</span>
+<span class="pc bpc" id="L205" title="1 of 4 branches missed.">		if (status != null &amp;&amp; status == OriginStatus.REVIEWED) {</span>
+<span class="fc" id="L206">			cubeEvent.setReviewed(true);</span>
+		} else {
+<span class="fc" id="L208">			cubeEvent.setReviewed(false);</span>
+		}
+
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">		if (origin.getMethod() != null) {</span>
+<span class="fc" id="L212">			Iterator&lt;Method&gt; locationMethodIter = origin.getMethod().iterator();</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">			if (locationMethodIter.hasNext()) {</span>
+<span class="fc" id="L214">				Method locationMethod = locationMethodIter.next();</span>
+<span class="fc" id="L215">				cubeEvent.setLocationMethod(getCubeCode(locationMethod</span>
+<span class="fc" id="L216">						.getComment()));</span>
+				// if (cubeEvent.getLocationMethod() == null) {
+				// try to reverse engineer algorithm
+				// }
+			}
+		}
+
+<span class="fc" id="L223">		Magnitude magnitude = origin.getMagnitude().get(0);</span>
+<span class="fc" id="L224">		cubeEvent.setMagnitude(magnitude.getValue());</span>
+<span class="fc" id="L225">		cubeEvent.setMagnitudeError(magnitude.getError());</span>
+<span class="fc" id="L226">		cubeEvent.setMagnitudeType(getCubeCode(magnitude.getComment()));</span>
+<span class="fc" id="L227">		cubeEvent.setNumMagnitudeStations(magnitude.getNumStations());</span>
+
+<span class="fc bfc" id="L229" title="All 2 branches covered.">		if (cubeEvent.getMagnitudeType() == null</span>
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">				&amp;&amp; magnitude.getTypeKey() != null) {</span>
+			// no CUBE_CODE comment, try magnitude type
+			try {
+<span class="fc" id="L233">				cubeEvent.setMagnitudeType(CubeMessage</span>
+<span class="fc" id="L234">						.getCubeCode(MagnitudeType.valueOf(magnitude</span>
+<span class="fc" id="L235">								.getTypeKey().toUpperCase())));</span>
+<span class="nc" id="L236">			} catch (Exception e) {</span>
+				// ignore
+<span class="fc" id="L238">			}</span>
+		}
+
+<span class="fc" id="L241">		return cubeEvent;</span>
+	}
+
+	/**
+	 * Extract a CUBE_Code code from a EQXML Comment.
+	 * 
+	 * @param comments
+	 *            list of comments to scan.
+	 * @return found cube code, or null if not found.
+	 * @see CubeToEQMessageConverter#getCubeCodeComment(String)
+	 */
+	public String getCubeCode(final List&lt;Comment&gt; comments) {
+<span class="fc" id="L253">		Iterator&lt;Comment&gt; iter = comments.iterator();</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">		while (iter.hasNext()) {</span>
+<span class="fc" id="L255">			Comment comment = iter.next();</span>
+<span class="fc" id="L256">			String typeKey = comment.getTypeKey();</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">			if (typeKey != null</span>
+					&amp;&amp; typeKey
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">							.equals(CubeToEQMessageConverter.CUBE_CODE_TYPEKEY)</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">					&amp;&amp; comment.getText() != null) {</span>
+<span class="fc" id="L261">				return comment.getText().replace(</span>
+						CubeToEQMessageConverter.CUBE_CODE_PREFIX, &quot;&quot;);
+			}
+<span class="nc" id="L264">		}</span>
+<span class="fc" id="L265">		return null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

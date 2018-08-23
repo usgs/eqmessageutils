@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ISO8601.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.util</a> &gt; <span class="el_source">ISO8601.java</span></div><h1>ISO8601.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.util;
+
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+/**
+ * Convert between java.util.Date and ISO8601 string.
+ * 
+ * @author jmfee
+ */
+<span class="nc" id="L15">public class ISO8601 {</span>
+
+	/**
+	 * Convenience method to format a Date as an XML DateTime String.
+	 * 
+	 * @param date
+	 *            the date to format.
+	 * @return the normalized XML representation as a string.
+	 */
+	public static String format(final Date date) {
+<span class="fc" id="L25">		GregorianCalendar calendar = new GregorianCalendar();</span>
+<span class="fc" id="L26">		calendar.setTimeInMillis(date.getTime());</span>
+		try {
+<span class="fc" id="L28">			return DatatypeFactory.newInstance()</span>
+<span class="fc" id="L29">					.newXMLGregorianCalendar(calendar).normalize()</span>
+<span class="fc" id="L30">					.toXMLFormat();</span>
+<span class="nc" id="L31">		} catch (Exception e) {</span>
+<span class="nc" id="L32">			return null;</span>
+		}
+	}
+
+	/**
+	 * Convenience method to parse an XML Date Time into a Date. Only useful
+	 * when the XML Date Time is within the Date object time range.
+	 * 
+	 * @param toParse
+	 *            the xml date time string to parse.
+	 * @return the parsed Date object.
+	 */
+	public static Date parse(final String toParse) {
+<span class="fc" id="L45">		XMLGregorianCalendar calendar = null;</span>
+		try {
+<span class="fc" id="L47">			calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(</span>
+					toParse);
+<span class="fc" id="L49">			return new Date(calendar.toGregorianCalendar().getTimeInMillis());</span>
+<span class="nc" id="L50">		} catch (DatatypeConfigurationException e) {</span>
+<span class="nc" id="L51">			e.printStackTrace();</span>
+<span class="nc" id="L52">			return null;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

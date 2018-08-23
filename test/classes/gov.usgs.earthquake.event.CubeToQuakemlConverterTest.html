@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - Class gov.usgs.earthquake.event.CubeToQuakemlConverterTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>Class gov.usgs.earthquake.event.CubeToQuakemlConverterTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/gov.usgs.earthquake.event.html">gov.usgs.earthquake.event</a> &gt; CubeToQuakemlConverterTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">1</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.142s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard error</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">convertExampleCubes</td>
+<td class="success">0.142s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard error</h2>
+<span class="code">
+<pre>TpEidnumbrSoVYearMoDyHrMnSecLatddddLongddddDeptMgNstNphDminRmssErhoErzzGpMNmEmLC
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
+         1         2         3         4         5         6         7         8
+Input CUBE
+E 09082344CI21999040217051050339860-1169945017316000014001800120009004332C0002hP
+Parsed CUBE
+E 09082344ci2199904021705105 339860-1169945 17316  0 14  18  12   9  4332C 0 2hu
+Converted to Quakeml
+&lt;q:quakeml xmlns=&quot;http://quakeml.org/xmlns/bed/1.2&quot; xmlns:catalog=&quot;http://anss.org/xmlns/catalog/0.1&quot; xmlns:anss=&quot;http://anss.org/xmlns/event/0.1&quot; xmlns:q=&quot;http://quakeml.org/xmlns/quakeml/1.2&quot;&gt;&lt;eventParameters publicID=&quot;quakeml:ci.anss.org/eventParameters/09082344/1535055214778&quot;&gt;&lt;event publicID=&quot;quakeml:ci.anss.org/event/09082344&quot; catalog:datasource=&quot;ci&quot; catalog:eventsource=&quot;ci&quot; catalog:eventid=&quot;09082344&quot;&gt;&lt;magnitude publicID=&quot;quakeml:ci.anss.org/magnitude/09082344/Mc&quot;&gt;&lt;mag&gt;&lt;value&gt;1.6&lt;/value&gt;&lt;uncertainty&gt;0.2&lt;/uncertainty&gt;&lt;/mag&gt;&lt;type&gt;Mc&lt;/type&gt;&lt;originID&gt;quakeml:ci.anss.org/origin/09082344&lt;/originID&gt;&lt;methodID&gt;quakeml:anss.org/cube/magnitudeType/C&lt;/methodID&gt;&lt;stationCount&gt;0&lt;/stationCount&gt;&lt;/magnitude&gt;&lt;origin publicID=&quot;quakeml:ci.anss.org/origin/09082344&quot;&gt;&lt;originUncertainty&gt;&lt;horizontalUncertainty&gt;900&lt;/horizontalUncertainty&gt;&lt;preferredDescription&gt;horizontal uncertainty&lt;/preferredDescription&gt;&lt;/originUncertainty&gt;&lt;time&gt;&lt;value&gt;1999-04-02T17:05:10.500Z&lt;/value&gt;&lt;/time&gt;&lt;longitude&gt;&lt;value&gt;-116.9945&lt;/value&gt;&lt;/longitude&gt;&lt;latitude&gt;&lt;value&gt;33.986&lt;/value&gt;&lt;/latitude&gt;&lt;depth&gt;&lt;value&gt;17300&lt;/value&gt;&lt;uncertainty&gt;4300&lt;/uncertainty&gt;&lt;/depth&gt;&lt;methodID&gt;quakeml:anss.org/cube/locationMethod/h&lt;/methodID&gt;&lt;quality&gt;&lt;usedPhaseCount&gt;14&lt;/usedPhaseCount&gt;&lt;usedStationCount&gt;0&lt;/usedStationCount&gt;&lt;standardError&gt;0.12&lt;/standardError&gt;&lt;azimuthalGap&gt;115.1999907840007372799410176047186&lt;/azimuthalGap&gt;&lt;minimumDistance&gt;0.01616968&lt;/minimumDistance&gt;&lt;/quality&gt;&lt;evaluationMode&gt;manual&lt;/evaluationMode&gt;&lt;/origin&gt;&lt;preferredOriginID&gt;quakeml:ci.anss.org/origin/09082344&lt;/preferredOriginID&gt;&lt;preferredMagnitudeID&gt;quakeml:ci.anss.org/magnitude/09082344/Mc&lt;/preferredMagnitudeID&gt;&lt;type&gt;earthquake&lt;/type&gt;&lt;creationInfo&gt;&lt;agencyID&gt;ci&lt;/agencyID&gt;&lt;creationTime&gt;2018-08-23T20:13:34.778Z&lt;/creationTime&gt;&lt;version&gt;2&lt;/version&gt;&lt;/creationInfo&gt;&lt;/event&gt;&lt;creationInfo&gt;&lt;creationTime&gt;2018-08-23T20:13:34.778Z&lt;/creationTime&gt;&lt;/creationInfo&gt;&lt;/eventParameters&gt;&lt;/q:quakeml&gt;
+After reconversion
+E 09082344ci2199904021705105 339860-1169945 17316  0 14  18  12   9  4332C 0 2hu
+TpEidnumbrSoVYearMoDyHrMnSecLatddddLongddddDeptMgNstNphDminRmssErhoErzzGpMNmEmLC
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
+         1         2         3         4         5         6         7         8
+Input CUBE
+E meav    US3199904021838195-201884 1681247 33054 19 192283 062 387  00  B 8   v
+Parsed CUBE
+E     meavus3199904021838195-201884 1681247 33054 19 192283  62 387   0  B 8   %
+Converted to Quakeml
+&lt;q:quakeml xmlns=&quot;http://quakeml.org/xmlns/bed/1.2&quot; xmlns:catalog=&quot;http://anss.org/xmlns/catalog/0.1&quot; xmlns:anss=&quot;http://anss.org/xmlns/event/0.1&quot; xmlns:q=&quot;http://quakeml.org/xmlns/quakeml/1.2&quot;&gt;&lt;eventParameters publicID=&quot;quakeml:us.anss.org/eventParameters/meav/1535055214905&quot;&gt;&lt;event publicID=&quot;quakeml:us.anss.org/event/meav&quot; catalog:datasource=&quot;us&quot; catalog:eventsource=&quot;us&quot; catalog:eventid=&quot;meav&quot;&gt;&lt;magnitude publicID=&quot;quakeml:us.anss.org/magnitude/meav/Mb&quot;&gt;&lt;mag&gt;&lt;value&gt;5.4&lt;/value&gt;&lt;/mag&gt;&lt;type&gt;Mb&lt;/type&gt;&lt;originID&gt;quakeml:us.anss.org/origin/meav&lt;/originID&gt;&lt;methodID&gt;quakeml:anss.org/cube/magnitudeType/B&lt;/methodID&gt;&lt;stationCount&gt;8&lt;/stationCount&gt;&lt;/magnitude&gt;&lt;origin publicID=&quot;quakeml:us.anss.org/origin/meav&quot;&gt;&lt;originUncertainty&gt;&lt;horizontalUncertainty&gt;38700&lt;/horizontalUncertainty&gt;&lt;preferredDescription&gt;horizontal uncertainty&lt;/preferredDescription&gt;&lt;/originUncertainty&gt;&lt;time&gt;&lt;value&gt;1999-04-02T18:38:19.500Z&lt;/value&gt;&lt;/time&gt;&lt;longitude&gt;&lt;value&gt;168.1247&lt;/value&gt;&lt;/longitude&gt;&lt;latitude&gt;&lt;value&gt;-20.1884&lt;/value&gt;&lt;/latitude&gt;&lt;depth&gt;&lt;value&gt;33000&lt;/value&gt;&lt;/depth&gt;&lt;depthType&gt;operator assigned&lt;/depthType&gt;&lt;quality&gt;&lt;usedPhaseCount&gt;19&lt;/usedPhaseCount&gt;&lt;usedStationCount&gt;19&lt;/usedStationCount&gt;&lt;standardError&gt;0.62&lt;/standardError&gt;&lt;minimumDistance&gt;2.050854&lt;/minimumDistance&gt;&lt;/quality&gt;&lt;evaluationMode&gt;automatic&lt;/evaluationMode&gt;&lt;/origin&gt;&lt;preferredOriginID&gt;quakeml:us.anss.org/origin/meav&lt;/preferredOriginID&gt;&lt;preferredMagnitudeID&gt;quakeml:us.anss.org/magnitude/meav/Mb&lt;/preferredMagnitudeID&gt;&lt;type&gt;earthquake&lt;/type&gt;&lt;creationInfo&gt;&lt;agencyID&gt;us&lt;/agencyID&gt;&lt;creationTime&gt;2018-08-23T20:13:34.905Z&lt;/creationTime&gt;&lt;version&gt;3&lt;/version&gt;&lt;/creationInfo&gt;&lt;/event&gt;&lt;creationInfo&gt;&lt;creationTime&gt;2018-08-23T20:13:34.905Z&lt;/creationTime&gt;&lt;/creationInfo&gt;&lt;/eventParameters&gt;&lt;/q:quakeml&gt;
+After reconversion
+E     meavus3199904021838195-201884 1681247 33054 19 192283  62 387   0  B 8   %
+TpEidnumbrSoVYearMoDyHrMnSecLatddddLongddddDeptMgNstNphDminRmssErhoErzzGpMNmEmLC
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
+         1         2         3         4         5         6         7         8
+Input CUBE
+DE09081845CI2 EVENT CANCELLED:  (LKH)
+Parsed CUBE
+DE09081845ci2 EVENT CANCELLED:  (LKH)
+Converted to Quakeml
+&lt;q:quakeml xmlns=&quot;http://quakeml.org/xmlns/bed/1.2&quot; xmlns:catalog=&quot;http://anss.org/xmlns/catalog/0.1&quot; xmlns:anss=&quot;http://anss.org/xmlns/event/0.1&quot; xmlns:q=&quot;http://quakeml.org/xmlns/quakeml/1.2&quot;&gt;&lt;eventParameters publicID=&quot;quakeml:ci.anss.org/eventParamters/09081845/1535055214914&quot;&gt;&lt;event publicID=&quot;quakeml:ci.anss.org/event/09081845&quot; catalog:datasource=&quot;ci&quot; catalog:eventsource=&quot;ci&quot; catalog:eventid=&quot;09081845&quot;&gt;&lt;comment&gt;&lt;text&gt;EVENT CANCELLED:  (LKH)&lt;/text&gt;&lt;/comment&gt;&lt;type&gt;not existing&lt;/type&gt;&lt;creationInfo&gt;&lt;agencyID&gt;ci&lt;/agencyID&gt;&lt;creationTime&gt;2018-08-23T20:13:34.914Z&lt;/creationTime&gt;&lt;version&gt;2&lt;/version&gt;&lt;/creationInfo&gt;&lt;/event&gt;&lt;creationInfo&gt;&lt;creationTime&gt;2018-08-23T20:13:34.914Z&lt;/creationTime&gt;&lt;/creationInfo&gt;&lt;/eventParameters&gt;&lt;/q:quakeml&gt;
+After reconversion
+DE09081845ci2 EVENT CANCELLED:  (LKH)
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 4.9</a> at Aug 23, 2018, 2:13:35 PM</p>
+</div>
+</div>
+</body>
+</html>

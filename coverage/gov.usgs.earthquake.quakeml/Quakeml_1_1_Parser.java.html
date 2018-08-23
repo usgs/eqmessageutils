@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Quakeml_1_1_Parser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.quakeml</a> &gt; <span class="el_source">Quakeml_1_1_Parser.java</span></div><h1>Quakeml_1_1_Parser.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.quakeml;
+
+import gov.usgs.earthquake.util.IOUtil;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+
+import org.quakeml_1_1.Quakeml;
+
+/**
+ * Parse Quakeml 1.1 messages.
+ * 
+ * @see org.quakeml_1_1.Quakeml
+ * @author jmfee
+ */
+<span class="nc" id="L21">public class Quakeml_1_1_Parser {</span>
+
+	private static final JAXBContext CONTEXT;
+	static {
+<span class="nc" id="L25">		JAXBContext context = null;</span>
+		try {
+<span class="nc" id="L27">			context = JAXBContext.newInstance(&quot;org.quakeml_1_1&quot;);</span>
+<span class="nc" id="L28">		} catch (Exception e) {</span>
+<span class="nc" id="L29">			System.err.println(&quot;Unable to create org.quakeml JAXBContext&quot;);</span>
+<span class="nc" id="L30">			e.printStackTrace();</span>
+<span class="nc" id="L31">			context = null;</span>
+<span class="nc" id="L32">		}</span>
+<span class="nc" id="L33">		CONTEXT = context;</span>
+<span class="nc" id="L34">	}</span>
+
+	/**
+	 * Parse a Quakeml object from an InputStream-able object.
+	 * 
+	 * @param source
+	 *            InputStream-able object, as defined by Utility.getInputStream.
+	 * @return an EQMessage object, or null if an error occurred.
+	 */
+	public static synchronized Quakeml parse(final Object source) {
+<span class="nc" id="L44">		Quakeml message = null;</span>
+<span class="nc" id="L45">		InputStream in = null;</span>
+
+		try {
+<span class="nc" id="L48">			in = IOUtil.getInputStream(source);</span>
+<span class="nc" id="L49">			Unmarshaller unmarshaller = CONTEXT.createUnmarshaller();</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">			if (unmarshaller != null) {</span>
+<span class="nc" id="L51">				message = (Quakeml) unmarshaller.unmarshal(in);</span>
+			}
+<span class="nc" id="L53">		} catch (Exception e) {</span>
+<span class="nc" id="L54">			System.err.println(&quot;Error processing source &quot; + e.toString());</span>
+<span class="nc" id="L55">			System.err.println(source);</span>
+<span class="nc" id="L56">			System.err.println();</span>
+		} finally {
+<span class="nc" id="L58">			IOUtil.close(in);</span>
+		}
+
+<span class="nc" id="L61">		return message;</span>
+	}
+
+	/**
+	 * Convert a Quakeml object to XML.
+	 * 
+	 * @param message
+	 *            the message to serialize.
+	 * @param out
+	 *            the outputstream where xml is written.
+	 * @throws JAXBException
+	 */
+	public static synchronized void serialize(final Quakeml message,
+			final OutputStream out) throws JAXBException {
+<span class="nc" id="L75">		Marshaller marshaller = CONTEXT.createMarshaller();</span>
+<span class="nc" id="L76">		marshaller.marshal(message, out);</span>
+<span class="nc" id="L77">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

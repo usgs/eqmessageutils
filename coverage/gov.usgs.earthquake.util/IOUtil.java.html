@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IOUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.util</a> &gt; <span class="el_source">IOUtil.java</span></div><h1>IOUtil.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.util;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.zip.GZIPInputStream;
+
+/**
+ * IO Utilities for Streams and Files.
+ * 
+ * @author jmfee
+ */
+<span class="nc" id="L22">public class IOUtil {</span>
+
+	/** Default limit is none. */
+	public static final long DEFAULT_LIMIT = -1;
+
+	/** Default buffer size is 4k. */
+	public static final int DEFAULT_BUFFER_SIZE = 4096;
+
+	/** Default connect timeout for url connections. */
+	public static final int DEFAULT_URL_CONNECT_TIMEOUT = 15000;
+
+	/** Default read timeout for url connections. */
+	public static final int DEFAULT_URL_READ_TIMEOUT = 15000;
+
+	/**
+	 * Create an input stream from an object.
+	 * 
+	 * @param object
+	 *            one of byte[], File, String, URL.
+	 * @return InputStream, or null if an unexpected type.
+	 * @throws IOException
+	 */
+	public static InputStream getInputStream(final Object object)
+			throws IOException {
+<span class="fc bfc" id="L46" title="All 2 branches covered.">		if (object instanceof InputStream) {</span>
+<span class="fc" id="L47">			return (InputStream) object;</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">		} else if (object instanceof byte[]) {</span>
+<span class="fc" id="L49">			return getInputStream((byte[]) object);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		} else if (object instanceof String) {</span>
+<span class="nc" id="L51">			return getInputStream(((String) object).getBytes());</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">		} else if (object instanceof File) {</span>
+<span class="nc" id="L53">			return getInputStream((File) object);</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">		} else if (object instanceof URL) {</span>
+<span class="nc" id="L55">			return getInputStream((URL) object);</span>
+		}
+<span class="nc" id="L57">		return null;</span>
+	}
+
+	/**
+	 * Create an input stream from a byte array.
+	 * 
+	 * @param bytes
+	 *            bytes to read
+	 * @return byte array input stream
+	 */
+	public static InputStream getInputStream(final byte[] bytes) {
+<span class="fc" id="L68">		return new ByteArrayInputStream(bytes);</span>
+	}
+
+	/**
+	 * Create an input stream from a file.
+	 * 
+	 * @param file
+	 *            file to read
+	 * @return buffered file input stream.
+	 * @throws FileNotFoundException
+	 */
+	public static InputStream getInputStream(final File file)
+			throws FileNotFoundException {
+<span class="fc" id="L81">		return new BufferedInputStream(new FileInputStream(file));</span>
+	}
+
+	/**
+	 * Get an InputStream from a URL. If URL is a HTTP url, attempts gzip
+	 * compression.
+	 * 
+	 * @param url
+	 *            the url being accessed.
+	 * @return an InputStream to content at URL.
+	 * @throws IOException
+	 *             if an error occurs.
+	 */
+	public static InputStream getInputStream(final URL url) throws IOException {
+<span class="nc" id="L95">		return getInputStream(url, DEFAULT_URL_CONNECT_TIMEOUT,</span>
+				DEFAULT_URL_READ_TIMEOUT);
+	}
+
+	/**
+	 * Get an InputStream from a URL. If URL is a HTTP url, attempts gzip
+	 * compression.
+	 * 
+	 * @param url
+	 *            the url being accessed.
+	 * @param connectTimeout
+	 *            allowed time in milliseconds before connection.
+	 * @param readTimeout
+	 *            allowed time in milliseconds before read.
+	 * @return an InputStream to content at URL.
+	 * @throws IOException
+	 *             if an error occurs.
+	 */
+	public static InputStream getInputStream(final URL url,
+			final int connectTimeout, final int readTimeout) throws IOException {
+<span class="nc" id="L115">		InputStream in = null;</span>
+
+		// initialize connection
+<span class="nc" id="L118">		URLConnection conn = url.openConnection();</span>
+<span class="nc" id="L119">		conn.setRequestProperty(&quot;Accept-Encoding&quot;, &quot;gzip&quot;);</span>
+<span class="nc" id="L120">		conn.setConnectTimeout(connectTimeout);</span>
+<span class="nc" id="L121">		conn.setReadTimeout(readTimeout);</span>
+
+		// connect
+<span class="nc" id="L124">		conn.connect();</span>
+
+		// get response
+<span class="nc" id="L127">		in = conn.getInputStream();</span>
+<span class="nc" id="L128">		String contentEncoding = conn.getContentEncoding();</span>
+<span class="nc bnc" id="L129" title="All 4 branches missed.">		if (contentEncoding != null &amp;&amp; contentEncoding.equals(&quot;gzip&quot;)) {</span>
+<span class="nc" id="L130">			in = new GZIPInputStream(in);</span>
+		}
+
+<span class="nc" id="L133">		return in;</span>
+	}
+
+	/**
+	 * Transfer from source to sink, using default limit and buffer size.
+	 * 
+	 * @param source
+	 *            input stream to read.
+	 * @param sink
+	 *            output stream to write.
+	 * @return number of bytes transferred.
+	 * @throws IOException
+	 */
+	public static long transfer(final InputStream source,
+			final OutputStream sink) throws IOException {
+<span class="fc" id="L148">		return transfer(source, sink, DEFAULT_LIMIT, DEFAULT_BUFFER_SIZE);</span>
+	}
+
+	/**
+	 * Transfer from source to sink.
+	 * 
+	 * @param source
+	 *            input stream where bytes are read.
+	 * @param sink
+	 *            output stream where bytes are written.
+	 * @param limit
+	 *            maximum number of bytes to transfer, only enforced when
+	 *            greater than zero.
+	 * @param bufferSize
+	 *            number of bytes to transfer at one time.
+	 * @return total number of bytes transferred.
+	 * @throws IOException
+	 */
+	public static long transfer(final InputStream source,
+			final OutputStream sink, final long limit, final int bufferSize)
+			throws IOException {
+<span class="fc" id="L169">		long total = 0;</span>
+<span class="fc" id="L170">		byte[] buffer = new byte[bufferSize];</span>
+		while (true) {
+			// compute how many bytes to try to read
+<span class="fc" id="L173">			int remaining = bufferSize;</span>
+<span class="pc bpc" id="L174" title="3 of 4 branches missed.">			if (limit &gt; 0 &amp;&amp; (limit - total &lt; remaining)) {</span>
+<span class="nc" id="L175">				remaining = (int) (limit - total);</span>
+			}
+			// read from source
+<span class="fc" id="L178">			int read = source.read(buffer, 0, remaining);</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">			if (read &lt; 0) {</span>
+				// EOF
+<span class="fc" id="L181">				break;</span>
+			}
+			// write to sink
+<span class="fc" id="L184">			sink.write(buffer, 0, read);</span>
+<span class="fc" id="L185">			total += read;</span>
+<span class="fc" id="L186">		}</span>
+<span class="fc" id="L187">		return total;</span>
+	}
+
+	/**
+	 * Read a file into memory as a byte array.
+	 * 
+	 * @param file
+	 *            file to read.
+	 * @return byte array with file contents.
+	 * @throws IOException
+	 */
+	public static byte[] readFile(final File file) throws IOException {
+<span class="fc" id="L199">		InputStream in = getInputStream(file);</span>
+		try {
+<span class="fc" id="L201">			return readStream(in);</span>
+		} finally {
+<span class="fc" id="L203">			close(in);</span>
+		}
+	}
+
+	/**
+	 * Read a stream into memory as a byte array.
+	 * 
+	 * @param source
+	 *            input stream to read.
+	 * @return byte array with stream contents.
+	 * @throws IOException
+	 */
+	public static byte[] readStream(final InputStream source)
+			throws IOException {
+<span class="fc" id="L217">		ByteArrayOutputStream sink = new ByteArrayOutputStream();</span>
+<span class="fc" id="L218">		transfer(source, sink);</span>
+<span class="fc" id="L219">		return sink.toByteArray();</span>
+	}
+
+	/**
+	 * Close an object, returning any thrown exception.
+	 * 
+	 * @param closeable
+	 */
+	public static IOException close(final Closeable closeable) {
+		try {
+<span class="fc" id="L229">			closeable.close();</span>
+<span class="nc" id="L230">		} catch (IOException e) {</span>
+<span class="nc" id="L231">			return e;</span>
+<span class="fc" id="L232">		}</span>
+<span class="fc" id="L233">		return null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

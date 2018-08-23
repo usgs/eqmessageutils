@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Quakeml_RT_1_2_Parser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">eqmessageutils</a> &gt; <a href="index.source.html" class="el_package">gov.usgs.earthquake.quakeml</a> &gt; <span class="el_source">Quakeml_RT_1_2_Parser.java</span></div><h1>Quakeml_RT_1_2_Parser.java</h1><pre class="source lang-java linenums">package gov.usgs.earthquake.quakeml;
+
+import gov.usgs.earthquake.util.IOUtil;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.namespace.QName;
+
+import org.quakeml_rt_1_2.Quakeml;
+
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
+
+/**
+ * Parse Quakeml-RT 1.2 messages.
+ * 
+ * @see org.quakeml_rt_1_2.Quakeml
+ */
+<span class="fc" id="L25">public class Quakeml_RT_1_2_Parser extends NamespacePrefixMapper {</span>
+
+	/**
+	 * Use &quot;q&quot; namespace prefix for quakeml.
+	 * 
+	 * @see #getPreferredPrefix(String, String, boolean)
+	 */
+<span class="fc" id="L32">	private static final NamespacePrefixMapper NAMESPACE_MAPPER = new Quakeml_RT_1_2_Parser();</span>
+
+	public static final String QUAKEML_RT_1_2_BED_NAMESPACE = &quot;http://quakeml.org/xmlns/bed-rt/1.2&quot;;
+	public static final String QUAKEML_RT_1_2_BED_PREFIX = &quot;&quot;;
+	public static final String QUAKEML_RT_1_2_NAMESPACE = &quot;http://quakeml.org/xmlns/quakeml-rt/1.2&quot;;
+	public static final String QUAKEML_RT_1_2_PREFIX = &quot;q&quot;;
+
+	public static final JAXBContext CONTEXT;
+	static {
+<span class="fc" id="L41">		JAXBContext context = null;</span>
+		try {
+<span class="fc" id="L43">			context = JAXBContext.newInstance(&quot;org.quakeml_rt_1_2&quot;);</span>
+<span class="nc" id="L44">		} catch (Exception e) {</span>
+<span class="nc" id="L45">			System.err.println(&quot;Unable to create org.quakeml JAXBContext&quot;);</span>
+<span class="nc" id="L46">			e.printStackTrace();</span>
+<span class="nc" id="L47">			context = null;</span>
+<span class="fc" id="L48">		}</span>
+<span class="fc" id="L49">		CONTEXT = context;</span>
+<span class="fc" id="L50">	}</span>
+
+	/**
+	 * Parse an EQMessage from an InputStream-able object.
+	 * 
+	 * @param source
+	 *            InputStream-able object, as defined by Utility.getInputStream.
+	 * @return an EQMessage object, or null if an error occurred.
+	 */
+	public static synchronized Quakeml parse(final Object source) {
+<span class="fc" id="L60">		Quakeml message = null;</span>
+<span class="fc" id="L61">		InputStream in = null;</span>
+
+		try {
+<span class="fc" id="L64">			in = IOUtil.getInputStream(source);</span>
+			// to be thread safe, must create unmarshaller per call
+<span class="fc" id="L66">			Unmarshaller unmarshaller = CONTEXT.createUnmarshaller();</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">			if (unmarshaller != null) {</span>
+<span class="fc" id="L68">				message = (Quakeml) unmarshaller.unmarshal(in);</span>
+			}
+<span class="nc" id="L70">		} catch (Exception e) {</span>
+<span class="nc" id="L71">			System.err.println(&quot;Error processing source &quot; + e.toString());</span>
+<span class="nc" id="L72">			System.err.println(source);</span>
+<span class="nc" id="L73">			System.err.println();</span>
+		} finally {
+<span class="fc" id="L75">			IOUtil.close(in);</span>
+		}
+
+<span class="fc" id="L78">		return message;</span>
+	}
+
+	/**
+	 * Convert an EQMessage to XML.
+	 * 
+	 * @param message
+	 *            the message to serialize.
+	 * @param out
+	 *            the outputstream where xml is written.
+	 * @throws JAXBException
+	 */
+	public static synchronized void serialize(final Quakeml message,
+			final OutputStream out) throws JAXBException {
+		// to be thread safe, must create marshaller per call
+<span class="fc" id="L93">		Marshaller marshaller = CONTEXT.createMarshaller();</span>
+
+		// use #getPreferredPrefix to override default JAXB namespaces
+<span class="fc" id="L96">		marshaller.setProperty(&quot;com.sun.xml.bind.namespacePrefixMapper&quot;,</span>
+				NAMESPACE_MAPPER);
+
+		// don't include &lt;?xml?&gt;
+<span class="fc" id="L100">		marshaller.setProperty(&quot;com.sun.xml.bind.xmlDeclaration&quot;, false);</span>
+
+		// because of how the quakeml schema is written, we have to do this bs
+		// to convince JAXB marshall that quakeml can be used as a root element
+<span class="fc" id="L104">		XmlType quakemlXmlType = Quakeml.class.getAnnotation(XmlType.class);</span>
+<span class="fc" id="L105">		JAXBElement&lt;Quakeml&gt; element = new JAXBElement&lt;Quakeml&gt;(new QName(</span>
+<span class="fc" id="L106">				quakemlXmlType.namespace(), &quot;quakeml&quot;), Quakeml.class, message);</span>
+
+<span class="fc" id="L108">		marshaller.marshal(element, out);</span>
+<span class="fc" id="L109">	}</span>
+
+	@Override
+	public String getPreferredPrefix(String namespaceUri, String suggestion,
+			boolean requirePrefix) {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">		if (QUAKEML_RT_1_2_NAMESPACE.equals(namespaceUri)) {</span>
+<span class="fc" id="L115">			return QUAKEML_RT_1_2_PREFIX;</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">		} else if (QUAKEML_RT_1_2_BED_NAMESPACE.equals(namespaceUri)) {</span>
+<span class="fc" id="L117">			return QUAKEML_RT_1_2_BED_PREFIX;</span>
+		} else {
+<span class="nc" id="L119">			return suggestion;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
