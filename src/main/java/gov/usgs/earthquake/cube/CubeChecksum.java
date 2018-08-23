@@ -46,7 +46,7 @@ public class CubeChecksum {
 	 * @return computed checksum as string.
 	 */
 	public static String strChecksum(String s) {
-		return new Character((char) checksum(s)).toString();
+		return Character.valueOf((char) checksum(s)).toString();
 	}
 
 	/**

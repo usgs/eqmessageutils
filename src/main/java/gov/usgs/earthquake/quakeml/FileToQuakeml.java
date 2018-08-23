@@ -33,7 +33,7 @@ public class FileToQuakeml {
 			} else if (arg.startsWith(PARSER_ARGUMENT)) {
 				String parserClass = arg.replace(PARSER_ARGUMENT, "");
 				parser = (FileToQuakemlConverter) Class.forName(parserClass)
-						.newInstance();
+						.getConstructor().newInstance();
 			}
 		}
 

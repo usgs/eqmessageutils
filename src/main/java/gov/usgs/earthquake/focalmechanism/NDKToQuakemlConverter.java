@@ -154,9 +154,9 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
         
                  
         String secstr = dstr.substring(17);
-        double dd = new Double(secstr).doubleValue()*1000.0;
+        double dd = Double.parseDouble(secstr)*1000.0;
 
-        int milliseconds = new Double(dd).intValue();
+        int milliseconds = Double.valueOf(dd).intValue();
         GregorianCalendar c = new GregorianCalendar(TimeZone.getTimeZone("GMT"),Locale.US);
         c.set(year,month,day,hour,minute,0);
         eventTime = c.getTime();
@@ -223,8 +223,8 @@ public class NDKToQuakemlConverter extends RawMechanismConverter implements File
     private void parseLine3(String line){
     	if (debug) System.out.format("Starting Parsing line 3 of NDK input\n");
 
-        double dd = new Double(line.substring(9,18).trim()).doubleValue()*1000.0;
-        int milliseconds = new Double(dd).intValue();
+        double dd = Double.parseDouble(line.substring(9,18).trim())*1000.0;
+        int milliseconds = Double.valueOf(dd).intValue();
         derivedEventTime = new Date(eventTime.getTime());
         derivedEventTime.setTime(derivedEventTime.getTime()+milliseconds);
 

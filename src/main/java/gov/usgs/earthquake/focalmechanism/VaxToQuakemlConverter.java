@@ -226,8 +226,8 @@ public class VaxToQuakemlConverter extends RawMechanismConverter implements File
         int endLine = line.length();
         //some have decimal seconds some do not
         String secstr = line.substring(15,endLine);
-        double dd = new Double(secstr).doubleValue()*1000.0;
-        int milliseconds = new Double(dd).intValue();
+        double dd = Double.parseDouble(secstr)*1000.0;
+        int milliseconds = Double.valueOf(dd).intValue();
         GregorianCalendar c = new GregorianCalendar(TimeZone.getTimeZone("GMT"),Locale.US);
         c.set(year,month,day,hour,minute,0);
         Date eventTime = c.getTime();
