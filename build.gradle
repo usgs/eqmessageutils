@@ -81,7 +81,10 @@ clean.doFirst {
   delete("bin")
 }
 
-// coverate reports
+// coverage reports
+jacoco {
+  toolVersion "0.8.2"
+}
 jacocoTestReport {
   reports {
     html.enabled true
