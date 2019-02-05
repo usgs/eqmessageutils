@@ -1,0 +1,29 @@
+language: java
+
+jdk:
+  - openjdk8
+  - openjdk9
+  - openjdk10
+  - openjdk11
+  - oraclejdk8
+  - oraclejdk9
+  # - oraclejdk10
+  - oraclejdk11
+
+# gradle caching
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - "$HOME/.gradle/caches/"
+    - "$HOME/.gradle/wrapper/"
+
+# upload coverage
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+  - "./gradlew sendCoverageToCodacy"
+
+env:
+  # CODACY_PROJECT_TOKEN
+  secure: SNMgNOUl3lwd6J4/MFNJDPW7VsAqWxtOTa0xpoOP9gjEBj2cBH8s1eYJuY/mWGT+am7VOPp/+D6kRz8WjIiUrlr8I78/hvnCz0phlrfd1Ygg6zBF3mwcpbP5T5uHkdYMiHjt1LOFMtF6BDk/V+bn8pf+mwdM7pq7WS8K5AObzJg=

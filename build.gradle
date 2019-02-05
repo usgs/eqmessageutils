@@ -1,0 +1,255 @@
+/**
+ * Gradle Build Script.
+ *
+ * Use Gradle 4.9+.
+ */
+
+plugins {
+  id "java"
+  id "jacoco"
+  id "com.gradle.build-scan" version "1.16"
+  id "org.ajoberstar.grgit" version "2.3.0"
+  id "org.ajoberstar.git-publish" version "1.0.1"
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+  mavenCentral()
+}
+
+ext {
+  gensrc = "src/generated/java"
+  activation_version = "1.1.1"
+  jaxb_version = "2.3+"
+  jaxb2_basics_version = "0.12.0"
+}
+
+configurations {
+  codacy
+  jaxb
+}
+
+dependencies {
+  codacy 'com.codacy:codacy-coverage-reporter:4.0+'
+
+  compile "javax.activation:activation:${activation_version}"
+  compile "javax.xml.bind:jaxb-api:${jaxb_version}"
+  compile "org.glassfish.jaxb:jaxb-runtime:${jaxb_version}"
+
+  jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant:${jaxb2_basics_version}"
+  jaxb "org.jvnet.jaxb2_commons:jaxb2-basics:${jaxb2_basics_version}"
+
+  jaxb "javax.activation:activation:${activation_version}"
+  jaxb "javax.xml.bind:jaxb-api:${jaxb_version}"
+  // jaxb-core is slated to be removed in 2.4
+  jaxb "org.glassfish.jaxb:jaxb-core:${jaxb_version}"
+  jaxb "org.glassfish.jaxb:jaxb-runtime:${jaxb_version}"
+  jaxb "org.glassfish.jaxb:jaxb-xjc:${jaxb_version}"
+
+  // jaxb2-basics dependencies
+  jaxb "commons-beanutils:commons-beanutils:1.9.3"
+  jaxb "commons-collections:commons-collections:3.2.2"
+  jaxb "commons-io:commons-io:2.4"
+  jaxb "org.apache.commons:commons-lang3:3.2.1"
+  jaxb "org.slf4j:slf4j-api:1.7.7"
+  jaxb "org.slf4j:slf4j-simple:1.7.7"
+  jaxb "org.slf4j:jcl-over-slf4j:1.7.7"
+  jaxb "com.google.code.javaparser:javaparser:1.0.11"
+
+  testCompile "junit:junit-dep:4.11"
+}
+
+sourceSets {
+  main {
+    // add generated source code to path
+    java.srcDirs += gensrc
+  }
+  // test use schema files
+  test.resources.srcDirs = ["etc"]
+}
+
+// show compile warnings
+tasks.withType(JavaCompile) {
+  options.setDeprecation(true);
+  options.setWarnings(true);
+}
+
+// also clean up bin directory
+clean.doFirst {
+  delete("bin")
+}
+
+// coverage reports
+jacoco {
+  toolVersion "0.8.2"
+}
+jacocoTestReport {
+  reports {
+    html.enabled true
+    xml.enabled true
+  }
+}
+check.dependsOn jacocoTestReport
+
+test {
+  filter {
+    includeTestsMatching "*Test"
+  }
+}
+
+
+// Tasks for generating classes from XML schemas
+
+task jaxb() {
+  description "generate classes if they are not up to date"
+
+  doLast() {
+    mkdir(gensrc)
+    System.properties["javax.xml.accessExternalSchema"] = "all"
+
+    ant.taskdef(
+        name: "xjc",
+        classname: "org.jvnet.jaxb2_commons.xjc.XJC2Task",
+        classpath: configurations.jaxb.asPath)
+
+    ant.xjc(
+        destdir: gensrc,
+        extension: true,
+        fork: true,
+        package: "gov.usgs.ansseqmsg") {
+      arg(line: "-enableIntrospection")
+      binding(dir: "etc/eqxml", includes: "*.bindings.xml")
+      schema(dir: "etc/eqxml", includes: "*.xsd")
+      produces(dir: "${gensrc}/gov/usgs/ansseqmsg")
+    }
+
+    ant.xjc(
+        destdir: gensrc,
+        extension: true,
+        fork: true,
+        package: "org.quakeml_1_1") {
+      arg(line: "-enableIntrospection")
+      binding(dir: "etc/quakeml_1.1", includes: "*.bindings.xml")
+      schema(dir: "etc/quakeml_1.1", includes: "*_jaxb.xsd")
+      produces(dir: "${gensrc}/org/quakeml_1_1")
+    }
+
+    ant.xjc(
+        destdir: gensrc,
+        extension: true,
+        fork: true,
+        package: "org.quakeml_1_2") {
+      arg(line: "-enableIntrospection")
+      arg(line: "-Xwildcard")
+      binding(dir: "etc/quakeml_1.2", includes: "*.bindings.xml")
+      schema(dir: "etc/quakeml_1.2", includes: "*_jaxb.xsd")
+      produces(dir: "${gensrc}/org/quakeml_1_2")
+    }
+
+    ant.xjc(
+        destdir: gensrc,
+        extension: true,
+        fork: true,
+        package: "org.quakeml_rt_1_2") {
+      arg(line: "-enableIntrospection")
+      binding(dir: "etc/quakeml_rt_1.2", includes: "*.bindings.xml")
+      schema(dir: "etc/quakeml_rt_1.2", includes: "*_jaxb.xsd")
+      produces(dir: "${gensrc}/org/quakeml_rt_1_2")
+    }
+
+  }
+}
+compileJava.dependsOn jaxb
+
+// tasks to force regeneration
+task jaxbCleanup {
+  description "remove generated classes"
+  doLast() {
+    delete(gensrc)
+  }
+}
+
+task generate(dependsOn: ["jaxbCleanup"]) {
+  description "regenerated generated classes"
+}
+generate.finalizedBy jaxb
+
+
+// Tasks for building releases
+
+// create jar file
+jar {
+  baseName = "MessageUtils"
+  manifest {
+    attributes "Git-Commit": grgit.head().id
+  }
+  from sourceSets.main.output
+  from ("etc") {
+    // resources
+    include "eqxml/*.xsd"
+    include "quakeml_1.2/*.xsd"
+  }
+}
+
+// create jar file with dependencies
+task jarBundle(type: Jar) {
+  baseName = "MessageUtils-bundle"
+
+  from {
+    // classes and dependencies
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
+
+  with jar
+}
+assemble.dependsOn jarBundle
+
+// publish documentation and reports to gh-pages
+// use after every release
+gitPublish {
+  repoUri = "git@github.com:usgs/eqmessageutils.git"
+  branch = "gh-pages"
+
+  contents {
+    from "docs"
+    from jar
+    from (javadoc) {
+      into "javadoc"
+    }
+    from (test) {
+      into "test"
+      exclude "*.bin"
+      exclude "*.idx"
+      exclude "*.xml"
+    }
+    from (jacocoTestReport) {
+      into "coverage"
+      exclude "*.xml"
+    }
+  }
+}
+
+
+// Tasks for TravisCI
+
+// run with "gradle build --scan" to post build output online
+buildScan {
+  termsOfServiceUrl = "https://gradle.com/terms-of-service"
+  termsOfServiceAgree = "yes"
+}
+
+// .travis.yml uses this to upload coverage
+task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
+  description = "Upload coverage to codacy (used by TravisCI)"
+    main = "com.codacy.CodacyCoverageReporter"
+    classpath = configurations.codacy
+    args = [
+        "report",
+        "-l",
+        "Java",
+        "-r",
+        "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+    ]
+}

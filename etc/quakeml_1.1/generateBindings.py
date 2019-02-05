@@ -62,7 +62,7 @@ complexElements = (
 
 
 
-print """<bindings version="1.0" 
+print """<bindings version="1.0"
 	xmlns="http://java.sun.com/xml/ns/jaxb"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
@@ -82,8 +82,8 @@ print """<bindings version="1.0"
 
 	<!-- override default XMLGregorianCalendar mapping for dates. -->
 	<javaType xmlType="xs:dateTime" name="java.util.Date"
-			parseMethod="gov.usgs.util.XmlUtils.getDate"
-			printMethod="gov.usgs.util.XmlUtils.formatDate" />
+			parseMethod="gov.usgs.earthquake.quakeml.QuakemlDateParser.getDate"
+			printMethod="gov.usgs.earthquake.quakeml.QuakemlDateParser.formatDate" />
 
 </globalBindings>
 
